@@ -22,9 +22,11 @@ status=0
 for wit_file in "${wits[@]}"; do
   rel_path="${wit_file#"${ROOT}/"}"
   echo "Checking ${rel_path}"
-  if ! wit-bindgen check "${wit_file}"; then
+  tmpdir="$(mktemp -d)"
+  if ! wit-bindgen markdown "${wit_file}" --out-dir "${tmpdir}" >/dev/null 2>&1; then
     status=1
   fi
+  rm -rf "${tmpdir}"
 done
 
 exit "${status}"

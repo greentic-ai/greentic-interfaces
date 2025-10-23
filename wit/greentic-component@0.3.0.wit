@@ -1,24 +1,28 @@
 package greentic:component@0.3.0;
 
-type json = string;
-
-/// Captures tenant-scoped identity and request affordances.
-record tenant_ctx {
-  tenant: string,
-  team: option<string>,
-  user: option<string>,
-  trace_id: option<string>,
-  correlation_id: option<string>,
-  deadline_unix_ms: option<u64>,
-  attempt: u32,
-  idempotency_key: option<string>,
-}
-
 /// Component interface for greentic component version 0.3.0.
 interface node {
+  type json = string;
+
+  /// Captures tenant-scoped identity and request affordances.
+  record tenant-ctx {
+    tenant: string,
+    team: option<string>,
+    user: option<string>,
+    trace-id: option<string>,
+    correlation-id: option<string>,
+    deadline-unix-ms: option<u64>,
+    attempt: u32,
+    idempotency-key: option<string>,
+  }
+
   /// Returns a JSON manifest describing the component's capabilities.
-  get-manifest: func() -> json
+  get-manifest: func() -> json;
 
   /// Invokes an operation with tenant context and JSON payload.
-  invoke: func(ctx: tenant_ctx, op: string, input: json) -> result<json, string>
+  invoke: func(ctx: tenant-ctx, op: string, input: json) -> result<json, string>;
+}
+
+world component {
+  export node;
 }

@@ -2,5 +2,25 @@
 name = "greentic-interfaces"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/greentic-ai/greentic-interfaces"
+description = "Shared types for Greentic WIT definitions."
+readme = "README.md"
+homepage = "https://github.com/greentic-ai/greentic-interfaces"
+documentation = "https://docs.rs/greentic-interfaces"
+keywords = ["greentic", "wit", "wasm", "component"]
+categories = ["wasm", "api-bindings"]
+include = [
+    "Cargo.toml",
+    "Cargo.lock",
+    "README.md",
+    "LICENSE",
+    "src/**",
+    "wit/**",
+    "scripts/validate-wit.sh",
+    "scripts/package-wit.sh",
+]
 
 [dependencies]
+wasmtime = { version = "21.0.0", features = ["component-model"] }
