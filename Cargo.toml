@@ -23,4 +23,4 @@ include = [
 ]
 
 [dependencies]
-wasmtime = { version = "21.0.0", features = ["component-model"] }
+wasmtime = { version = "24.0.4", features = ["component-model"] }
