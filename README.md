@@ -134,38 +134,46 @@ The generated modules follow Wasmtime defaults: identifiers with hyphens in WIT 
 
 The `include` section in `Cargo.toml` restricts the published archive to source code, scripts, README, and license.
 
-### wa.dev (WIT packages)
+### GHCR (WIT packages)
 
-1. Install [wasm-tools](https://github.com/bytecodealliance/wasm-tools) and the [warg CLI](https://github.com/bytecodealliance/warg). Both are available via `cargo install wasm-tools warg-cli`.
-2. Encode each WIT package into its binary form (required by warg registries). The repository includes `scripts/package-wit.sh` to automate this:
+1. Install [wasm-tools](https://github.com/bytecodealliance/wasm-tools), [wkg](https://github.com/deislabs/wkg) (`cargo install wasm-tools wkg`), and ensure the Docker CLI is available for authentication.
+2. Encode each WIT package into a wasm artifact:
 
    ```bash
    bash scripts/package-wit.sh target/wit-packages
    # Produces target/wit-packages/greentic-component-0.3.0.wasm etc.
    ```
 
-3. Authenticate with wa.dev: `warg login --registry https://registry.wa.dev/v1`.
-4. Initialize the package namespace on the registry (one-time):
+3. Export GitHub Container Registry credentials (token must have `write:packages` scope):
 
    ```bash
-   warg publish init greentic:component --registry https://registry.wa.dev/v1
+   export GHCR_USER=greentic-ai
+   export GHCR_TOKEN=ghp_xxx   # replace with your PAT
    ```
 
-5. Release both versions so hosts can negotiate:
+4. Log in (one-time per session):
 
    ```bash
-   warg publish release \
-     --registry https://registry.wa.dev/v1 \
-     --name greentic:component \
-     --version 0.3.0 \
+   echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+   ```
+
+5. Push each package version to `ghcr.io/<user>/wit/<namespace>/<package>:<version>`:
+
+   ```bash
+   wkg oci push ghcr.io/greentic-ai/wit/greentic/component:0.3.0 \
      target/wit-packages/greentic-component-0.3.0.wasm
 
-   warg publish release \
-     --registry https://registry.wa.dev/v1 \
-     --name greentic:component \
-     --version 0.4.0 \
+   wkg oci push ghcr.io/greentic-ai/wit/greentic/component:0.4.0 \
      target/wit-packages/greentic-component-0.4.0.wasm
    ```
+
+   To handle packaging and pushing in one command, run:
+
+   ```bash
+   bash scripts/publish_wit.sh
+   ```
+
+   Use `--registry` to override the OCI host (defaults to `ghcr.io`), `--skip-package` when artifacts already exist, and `--dry-run` to preview the commands without executing them.
 
 6. Tag the release (`git tag v0.4.0 && git push --tags`).
 

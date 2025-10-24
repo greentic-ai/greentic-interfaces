@@ -20,6 +20,7 @@ include = [
     "wit/**",
     "scripts/validate-wit.sh",
     "scripts/package-wit.sh",
+    "scripts/publish_wit.sh",
 ]
 
 [dependencies]
