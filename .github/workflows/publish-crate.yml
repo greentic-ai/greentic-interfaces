@@ -32,11 +32,26 @@ jobs:
           fi
       - name: Cargo publish
         if: steps.check_version.outputs.exists != 'true'
-        run: cargo publish --locked
+        shell: bash
+        run: |
+          set -euo pipefail
+          output=$(mktemp)
+          if cargo publish --locked 2>&1 | tee "$output"; then
+            echo "publish_status=published" >> "$GITHUB_ENV"
+          else
+            if grep -q "already exists" "$output"; then
+              echo "crate version already exists, skipping publish"
+              echo "publish_status=skipped" >> "$GITHUB_ENV"
+            else
+              cat "$output"
+              exit 1
+            fi
+          fi
+          rm -f "$output"
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       - name: Create GitHub release
-        if: steps.check_version.outputs.exists != 'true'
+        if: steps.check_version.outputs.exists != 'true' && env.publish_status != 'skipped'
         uses: actions/create-release@v1
         with:
           tag_name: v${{ steps.metadata.outputs.crate_version }}
