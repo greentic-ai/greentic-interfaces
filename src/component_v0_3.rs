@@ -4,7 +4,6 @@ mod bindings {
     wasmtime::component::bindgen!({
         path: "wit/greentic-component@0.3.0.wit",
         world: "component",
-        async: true,
     });
 }
 

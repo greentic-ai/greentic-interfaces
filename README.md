@@ -6,6 +6,7 @@ Define the WebAssembly interface types shared by Greentic component modules and 
 
 - `greentic:component@0.3.0` exposes the original contract used by early components. Hosts provide a `tenant-ctx` and receive a JSON payload or plain string error. Streaming and lifecycle hooks are not available.
 - `greentic:component@0.4.0` adds structured execution context, explicit error envelopes, and streaming progress. Components surface cooperative control via the `control` interface and may opt into lifecycle hooks (`on-start`, `on-stop`).
+- `greentic:secrets@0.1.0` describes the host-facing secrets interface exported by platform hosts. Components call `get(uri)` to retrieve raw bytes.
 
 ## Usage
 
@@ -91,6 +92,7 @@ At build time, ensure `scripts/validate-wit.sh` runs so the packaged WIT stays w
 | `StreamEvent`                | `node::stream-event`                  |
 | `NodeError`                  | `node::node-error`                    |
 | `LifecycleStatus` (newtype)  | `node::lifecycle-status`              |
+| `SecretUri` / `SecretBytes`  | `secrets::get` params/result          |
 
 All structured payloads are JSON strings (`type json = string`) to stay language-agnostic. Components should deserialize into native types as needed.
 
@@ -120,6 +122,7 @@ Legacy `component@0.3.0` continues to use `result<json, string>` for synchronous
 
 - `component_v0_3::Component` provides strongly‑typed access to the `@0.3.0` exports.
 - `component_v0_4::Component` does the same for `@0.4.0`, and `component_v0_4::add_control_to_linker` wraps the generated helper so hosts can wire the `control` interface into a `wasmtime::component::Linker`.
+- `secrets_v0_1::host_world()` returns the raw WIT definition for hosts that need to embed the secrets interface or publish it alongside other schemas.
 
 The generated modules follow Wasmtime defaults: identifiers with hyphens in WIT are mapped to snake_case in Rust (`tenant-ctx` → `TenantCtx`).
 

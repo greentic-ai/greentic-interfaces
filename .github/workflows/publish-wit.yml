@@ -1,0 +1,36 @@
+name: Publish WIT (OCI)
+
+on:
+  push:
+    tags: ["wit-v*"]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install wkg
+        run: curl -fsSL https://wkg.dev/install.sh | bash
+      - name: Install wasm-tools
+        run: cargo install wasm-tools --locked
+      - name: Build packages
+        run: bash scripts/package-wit.sh target/wit-packages
+      - name: Login GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Publish all
+        run: |
+          for f in target/wit-packages/*.wasm; do
+            file="$(basename "$f" .wasm)"
+            version="${file##*-}"
+            name="${file%-${version}}"
+            namespace="${name%%-*}"
+            package="${name#${namespace}-}"
+            image="ghcr.io/greentic-ai/wit/${namespace}/${package}:${version}"
+            echo "Publishing ${image}"
+            wkg oci push "${image}" "$f"
+          done
