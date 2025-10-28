@@ -11,16 +11,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Extract crate version
+      - name: Extract crate metadata
         id: metadata
         run: |
-          version=$(cargo metadata --no-deps --format-version 1 | python3 -c "import json,sys; print(json.load(sys.stdin)['packages'][0]['version'])")
+          metadata=$(cargo metadata --no-deps --format-version 1)
+          version=$(jq -r '.packages[0].version' <<<"$metadata")
+          name=$(jq -r '.packages[0].name' <<<"$metadata")
           echo "crate_version=$version" >> "$GITHUB_OUTPUT"
+          echo "crate_name=$name" >> "$GITHUB_OUTPUT"
+      - name: Check if version already published
+        id: check_version
+        run: |
+          crate="${{ steps.metadata.outputs.crate_name }}"
+          version="${{ steps.metadata.outputs.crate_version }}"
+          if curl -fsSL "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "crate ${crate} v${version} already published"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Cargo publish
+        if: steps.check_version.outputs.exists != 'true'
         run: cargo publish --locked
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
       - name: Create GitHub release
+        if: steps.check_version.outputs.exists != 'true'
         uses: actions/create-release@v1
         with:
           tag_name: v${{ steps.metadata.outputs.crate_version }}
