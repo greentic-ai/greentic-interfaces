@@ -12,7 +12,7 @@ fi
 mkdir -p "${OUT_DIR}"
 
 shopt -s nullglob
-wits=("${ROOT}"/wit/*.wit)
+wits=("${ROOT}"/wit/*.wit "${ROOT}"/wit/*/*.wit)
 shopt -u nullglob
 
 if [ ${#wits[@]} -eq 0 ]; then
@@ -21,10 +21,18 @@ if [ ${#wits[@]} -eq 0 ]; then
 fi
 
 for wit_file in "${wits[@]}"; do
-  base_name="$(basename "${wit_file%.wit}")"
-  out_name="${base_name//@/-}.wasm"
+  package_line="$(grep -m1 '^package ' "${wit_file}" || true)"
+  if [[ -z "${package_line}" ]]; then
+    echo "Skipping ${wit_file}: package declaration not found" >&2
+    continue
+  fi
+  package_ref="${package_line#package }"
+  package_ref="${package_ref%;}"
+  sanitized="${package_ref//[:@]/-}"
+  base_name="${sanitized}"
+  out_name="${base_name}.wasm"
   out_path="${OUT_DIR}/${out_name}"
-  echo "Packaging ${base_name}.wit -> ${out_path}"
+  echo "Packaging ${package_ref} -> ${out_path}"
   wasm-tools component wit --wasm "${wit_file}" -o "${out_path}"
 done
 

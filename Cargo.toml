@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
@@ -21,6 +21,7 @@ include = [
     "scripts/validate-wit.sh",
     "scripts/package-wit.sh",
     "scripts/publish_wit.sh",
+    "tools/validate_wit.sh",
 ]
 
 [dependencies]

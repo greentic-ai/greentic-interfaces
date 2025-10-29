@@ -13,7 +13,7 @@ REGISTRY="${DEFAULT_REGISTRY}"
 SKIP_PACKAGE=0
 
 usage() {
-  cat <<EOF
+  cat <<USAGE
 Usage: $(basename "$0") [--out-dir DIR] [--registry HOST] [--dry-run] [--skip-package]
 
 Builds & pushes all WIT packages under ./wit/ to an OCI registry (default ghcr.io).
@@ -21,7 +21,7 @@ Builds & pushes all WIT packages under ./wit/ to an OCI registry (default ghcr.i
 Environment:
   GHCR_USER  Registry account / organization (required)
   GHCR_TOKEN Registry token / PAT with write:packages (required)
-EOF
+USAGE
 }
 
 while [[ $# -gt 0 ]]; do
@@ -56,7 +56,7 @@ if [[ "${SKIP_PACKAGE}" -eq 0 ]]; then
 fi
 
 shopt -s nullglob
-wits=("${ROOT}"/wit/*.wit)
+wits=("${ROOT}"/wit/*.wit "${ROOT}"/wit/*/*.wit)
 shopt -u nullglob
 
 [[ ${#wits[@]} -gt 0 ]] || { echo "No WIT files found under ${ROOT}/wit."; exit 0; }
@@ -78,33 +78,50 @@ for wit_file in "${wits[@]}"; do
   pkg_line="$(grep -m1 '^package ' "${wit_file}" || true)"
   if [[ -z "$pkg_line" ]]; then
     echo "Skipping ${wit_file}: missing 'package' declaration" >&2
-    status=1; continue
-  fi
-
-  ref="${pkg_line#package }"; ref="${ref%;}"
-  name="${ref%@*}"; ver="${ref##*@}"
-  namespace="${name%%:*}"
-  package="${name##*:}"
-  base="$(basename "${wit_file%.wit}")"
-  artifact="${OUT_DIR}/${base//@/-}.wasm"
-  image="${REGISTRY}/${GHCR_USER}/${REPO_PREFIX}/${namespace}/${package}:${ver}"
-
-  echo "Preparing ${name}@${ver}"
-  if [[ "${DRY_RUN}" -eq 1 ]]; then
-    echo "  (dry-run) ensure artifact: ${artifact}"
-    echo "  (dry-run) wkg oci push ${image} ${artifact}"
+    status=1
     continue
   fi
 
-  if [[ ! -f "${artifact}" ]]; then
+  ref="${pkg_line#package }"
+  ref="${ref%;}"
+
+  name="${ref}"
+  version_tag="latest"
+  if [[ "$ref" == *@* ]]; then
+    name="${ref%@*}"
+    version_tag="${ref##*@}"
+  fi
+
+  namespace="${name%%:*}"
+  package="${name##*:}"
+
+  sanitized_ref="${ref//[:@]/-}"
+  artifact="${OUT_DIR}/${sanitized_ref}.wasm"
+
+  sanitized_version="${version_tag//[:@]/-}"
+  [[ -z "${sanitized_version}" ]] && sanitized_version="latest"
+
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    echo "Preparing ${ref}"
+    echo "  (dry-run) ensure artifact: ${artifact}"
+  fi
+
+  if [[ "${DRY_RUN}" -eq 0 && ! -f "${artifact}" ]]; then
     echo "  Artifact ${artifact} not found; run without --skip-package." >&2
     status=1
     continue
   fi
 
+  image="${REGISTRY}/${GHCR_USER}/${REPO_PREFIX}/${namespace}/${package}:${sanitized_version}"
+
+  if [[ "${DRY_RUN}" -eq 1 ]]; then
+    echo "  (dry-run) wkg oci push ${image} ${artifact}"
+    continue
+  fi
+
   if ! out="$(wkg oci push "${image}" "${artifact}" 2>&1)"; then
     echo "${out}" >&2
-    echo "  Failed to publish ${name}@${ver}" >&2
+    echo "  Failed to publish ${ref}" >&2
     status=1
   else
     printf '%s\n' "${out}"

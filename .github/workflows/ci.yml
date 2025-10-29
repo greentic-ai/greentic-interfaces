@@ -9,6 +9,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install wit-bindgen
         run: cargo install --locked wit-bindgen-cli
+      - name: Install wasm-tools
+        run: cargo install --locked wasm-tools
       - name: Install wkg
         run: curl -fsSL https://wkg.dev/install.sh | bash
       - run: bash scripts/validate-wit.sh

@@ -9,6 +9,11 @@ if ! command -v wit-bindgen >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v wasm-tools >/dev/null 2>&1; then
+  echo "Error: wasm-tools not found in PATH. Install via 'cargo install wasm-tools'." >&2
+  exit 1
+fi
+
 shopt -s nullglob
 wits=("${WIT_DIR}"/*.wit)
 shopt -u nullglob
@@ -27,6 +32,11 @@ for wit_file in "${wits[@]}"; do
     status=1
   fi
   rm -rf "${tmpdir}"
+  tmpwasm="$(mktemp)"
+  if ! wasm-tools component wit --wasm "${wit_file}" -o "${tmpwasm}" >/dev/null 2>&1; then
+    status=1
+  fi
+  rm -f "${tmpwasm}"
 done
 
 exit "${status}"
