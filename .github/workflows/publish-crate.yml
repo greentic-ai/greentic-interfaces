@@ -29,6 +29,7 @@ jobs:
           if curl -fsSL "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "crate ${crate} v${version} already published"
+            echo "publish_status=skipped" >> "$GITHUB_ENV"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
