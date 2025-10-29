@@ -98,6 +98,11 @@ for wit_file in "${wits[@]}"; do
   sanitized_ref="${ref//[:@]/-}"
   artifact="${OUT_DIR}/${sanitized_ref}.wasm"
 
+  if [[ "${ref}" == "wasix:mcp@0.0.5" ]]; then
+    echo "Skipping publish for upstream package ${ref}"
+    continue
+  fi
+
   sanitized_version="${version_tag//[:@]/-}"
   [[ -z "${sanitized_version}" ]] && sanitized_version="latest"
 

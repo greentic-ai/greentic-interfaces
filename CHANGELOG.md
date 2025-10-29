@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.2.2
+- Add `wasix:mcp@0.0.5` WIT package and bindings (upstream schema).
+- Document MCP router module and bump crate to `0.2.2`.
+
+## v0.2.1
+- Document new MCP executor and update scripts/CI to validate/package it.
+- Bump crate to `0.2.1`.
+
 ## v0.2.0
 - Add `greentic:types-core@0.2.0` for shared tenant/flow/run structures.
 - Introduce `greentic:host-import@0.2.0` for secrets, telemetry, tool, and HTTP host callbacks.

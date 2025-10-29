@@ -15,7 +15,7 @@ if ! command -v wasm-tools >/dev/null 2>&1; then
 fi
 
 shopt -s nullglob
-wits=("${WIT_DIR}"/*.wit)
+wits=("${WIT_DIR}"/*.wit "${WIT_DIR}"/*/*.wit)
 shopt -u nullglob
 
 if [ ${#wits[@]} -eq 0 ]; then
@@ -27,6 +27,25 @@ status=0
 for wit_file in "${wits[@]}"; do
   rel_path="${wit_file#"${ROOT}/"}"
   echo "Checking ${rel_path}"
+
+  if [[ "$(basename "${wit_file}")" == "world.wit" ]]; then
+    pkg_dir="$(dirname "${wit_file}")"
+    pkg_name="$(basename "${pkg_dir}")"
+    case "${pkg_name}" in
+      "wasix-mcp@0.0.5")
+        if ! wit-bindgen markdown "${pkg_dir}" --world mcp-secrets >/dev/null 2>&1; then
+          status=1
+        fi
+        continue
+        ;;
+      *)
+        echo "Unknown package directory ${pkg_name}; skipping." >&2
+        status=1
+        continue
+        ;;
+    esac
+  fi
+
   tmpdir="$(mktemp -d)"
   if ! wit-bindgen markdown "${wit_file}" --out-dir "${tmpdir}" >/dev/null 2>&1; then
     status=1

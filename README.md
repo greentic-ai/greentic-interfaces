@@ -7,6 +7,7 @@ Shared WebAssembly Interface Types (WIT) and Rust bindings for the Greentic stac
 - `greentic:types-core@0.2.0` – shared records and enums (flow metadata, tenant context, run results, error codes).
 - `greentic:host-import@0.2.0` – host services that components import (secrets, telemetry, tool invocation, outbound HTTP).
 - `greentic:pack-export@0.2.0` – pack services that components export (discover flows, execute flows, A2A search).
+- `wasix:mcp@0.0.5` – unchanged WASIX MCP router/secrets interface (upstream schema, hosted here for reuse).
 - `greentic:component@0.4.0` – component runtime contract with lifecycle hooks, invoke/invoke-stream, and structured errors.
 - `greentic:secrets@0.1.0` – legacy secrets host interface (still published for compatibility).
 
@@ -69,6 +70,7 @@ Host integrations can use the helper modules:
 - `types_core_v0_2` exposes the canonical structs/enums (duplication of `greentic:types-core@0.2.0`).
 - `host_import_v0_2` provides the `HostImports` trait plus `add_to_linker` for wiring the host services.
 - `pack_export_v0_2` re-exports the generated exports when hosting pack components.
+- `wasix_mcp_v0_0_5` exposes the WASIX MCP router/secrets schema.
 
 ## Versioning
 
