@@ -13,7 +13,7 @@ repository = "https://github.com/greentic-ai/greentic-interfaces"
 
 [workspace.dependencies]
 anyhow = "1"
-greentic-types = { version = "0.1.4", path = "../greentic-types" }
+greentic-types = { version = "0.1"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
