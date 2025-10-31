@@ -1,49 +1,19 @@
-[package]
-name = "greentic-interfaces"
-version = "0.4.3"
-edition = "2021"
-rust-version = "1.85"
-build = "build.rs"
-license = "MIT"
-repository = "https://github.com/greentic-ai/greentic-interfaces"
-description = "Shared types for Greentic WIT definitions."
-readme = "README.md"
-homepage = "https://github.com/greentic-ai/greentic-interfaces"
-documentation = "https://docs.rs/greentic-interfaces"
-keywords = ["greentic", "wit", "wasm", "component"]
-categories = ["wasm", "api-bindings"]
-include = [
-    "Cargo.toml",
-    "Cargo.lock",
-    "README.md",
-    "LICENSE",
-    "src/**",
-    "wit/**",
-    "build.rs",
-    "scripts/validate-wit.sh",
-    "scripts/package-wit.sh",
-    "scripts/publish_wit.sh",
-    "tools/validate_wit.sh",
+[workspace]
+members = [
+    "crates/greentic-interfaces",
+    "crates/greentic-interfaces-wasmtime",
 ]
+resolver = "2"
 
-[features]
-default = ["bindings-rust"]
-bindings-rust = ["dep:wit-bindgen"]
-schema = ["dep:schemars", "greentic-types/schemars"]
+[workspace.package]
+license = "MIT"
+edition = "2021"
+authors = ["Greentic.ai"]
+repository = "https://github.com/greentic-ai/greentic-interfaces"
 
-[dependencies]
-greentic-types = { version = "^0.1.4" }
-semver = "1"
-time = "0.3"
-serde = { version = "1", features = ["derive"], optional = true }
-schemars = { version = "0.8", features = ["derive"], optional = true }
-wit-bindgen = { version = "0.47", optional = true }
-
-[build-dependencies]
-wit-bindgen-core = "0.47"
-wit-bindgen-rust = "0.47"
-
-[dev-dependencies]
+[workspace.dependencies]
+anyhow = "1"
+greentic-types = { version = "0.1.4", path = "../greentic-types" }
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-insta = { version = "1", features = ["json"] }
-wit-parser = "0.240"
+thiserror = "2"
