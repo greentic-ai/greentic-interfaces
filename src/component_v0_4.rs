@@ -1,4 +1,5 @@
 //! Typed bindings for `greentic:component@0.4.0`.
+#![allow(missing_docs)]
 
 use wasmtime::Result;
 use wasmtime::StoreContextMut;

@@ -1,4 +1,5 @@
 //! Typed bindings for `wasix:mcp@0.0.5`.
+#![allow(missing_docs)]
 
 // The generated bindings rely on external WASIX dependencies that are
 // imported in the WIT but not available in this crate's environment.

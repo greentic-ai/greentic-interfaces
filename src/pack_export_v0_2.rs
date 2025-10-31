@@ -1,4 +1,5 @@
 //! Typed bindings for `greentic:pack-export@0.2.0`.
+#![allow(missing_docs)]
 
 mod bindings {
     wasmtime::component::bindgen!({

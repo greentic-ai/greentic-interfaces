@@ -1,7 +1,8 @@
 //! Typed bindings for `greentic:host-import@0.4.0`.
+#![allow(missing_docs)]
 
-use wasmtime::component::{HasSelf, Linker};
 use wasmtime::Result;
+use wasmtime::component::{HasSelf, Linker};
 
 mod bindings {
     wasmtime::component::bindgen!({

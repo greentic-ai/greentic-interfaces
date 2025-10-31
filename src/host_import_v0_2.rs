@@ -1,4 +1,5 @@
 //! Typed bindings for `greentic:host-import@0.2.0`.
+#![allow(missing_docs)]
 
 use wasmtime::component::Linker;
 use wasmtime::{Result, StoreContextMut};

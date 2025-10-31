@@ -1,98 +1,129 @@
-# greentic-interfaces
+# Greentic Interfaces
 
-Shared WebAssembly Interface Types (WIT) and Rust bindings for the Greentic stack. All packages are MIT licensed and designed to evolve additively: new fields and functions land in minor releases, breaking changes require a new major package or crate version.
+Shared WebAssembly Interface Types (WIT) packages and Rust bindings for the Greentic next-gen platform. The crate is MIT licensed and evolves additively—new fields or functions land in minor releases, while breaking changes require a new package version.
 
-## Package overview
+## Overview
 
-- `greentic:types-core@0.4.0` – canonical IDs, tenant context, flow metadata, run results, and interface errors reused by every host surface.
-- `greentic:types-core@0.2.0` – previous shared types retained for compatibility.
-- `greentic:host-import@0.4.0` – host services that packs/components import (secrets, telemetry, optional outbound HTTP) built on the shared types.
-- `greentic:host-import@0.2.0` – previous host import contract kept for compatibility.
-- `greentic:pack-export@0.4.0` – pack services (discover flows, execute flows, and A2A search) using the shared flow/run records.
-- `greentic:pack-export@0.2.0` – previous pack export contract retained for compatibility.
-- `wasix:mcp@0.0.5` – unchanged WASIX MCP router/secrets interface (upstream schema, hosted here for reuse).
-- `greentic:component@0.4.0` – component runtime contract with lifecycle hooks, invoke/invoke-stream, and structured errors.
-- `greentic:secrets@0.1.0` – legacy secrets host interface (still published for compatibility).
+The repository serves two goals:
 
-Each WIT package lives under `wit/<package>@<version>.wit`. CI validates every file with `wit-bindgen markdown` and `wasm-tools component wit` so the schemas stay well-formed.
+- Authoritative WIT contracts that describe how packs interact with the Greentic host. The contracts cover core types, host imports, the pack component API, and provider self-description metadata.
+- Ergonomic Rust bindings with thin conversion helpers so runtime code can move between WIT-generated types and the rich structures from [`greentic-types`](../greentic-types).
+
+All Greentic runtimes, components, and tools **must** depend on these WIT packages and the shared `greentic-types` crate. No other repository may re-declare the contracts or duplicate the shared models.
+
+## WIT packages
+
+The `wit/` directory contains four additive packages:
+
+| Package | Contents |
+|---------|----------|
+| `greentic:interfaces-types@0.1.0` | Canonical data structures (`TenantCtx`, `SessionCursor`, `Outcome`, `AllowList`, `NetworkPolicy`, `PackRef`, `SpanContext`, etc.). |
+| `greentic:interfaces-host@0.1.0`  | Host-side imports a pack can call (`secrets.get`, `telemetry.emit`, `state.get/set`, `session.update`). |
+| `greentic:interfaces-provider@0.1.0` | Provider self-description (`ProviderMeta`). |
+| `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution.
+
+The build script stages each package (plus dependencies) into `target/wit-bindgen/` so both Wasmtime and `wit-bindgen` consumers resolve imports deterministically.
 
 ## Rust bindings
 
-Add the crate to your Wasmtime host:
+The crate re-exports two sets of bindings:
 
-```toml
-[dependencies]
-greentic-interfaces = "0.2"
-wasmtime = { version = "38", features = ["component-model"] }
-```
+- `greentic_interfaces::bindings::generated` exposes `wit-bindgen` output for the `interfaces-pack` world. Test hosts can use it to implement the guest traits or validate schemas.
+- Versioned modules such as `component_v0_4`, `host_import_v0_4`, and `types_core_v0_4` keep the existing Wasmtime `component::bindgen!` output for current runtimes.
 
-Then wire in the bindings you need. Example for `greentic:component@0.4.0` control imports:
+The bindings follow the `TenantCtx`, `Outcome`, `ProviderMeta`, and `AllowList` shapes defined in the design manifesto so runner, deployer, connectors, and packs all share the same ABI.
 
-```rust,ignore
-use greentic_interfaces::component_v0_4::{self, Component};
-use greentic_interfaces::component_v0_4::greentic::component::node::{ExecCtx, TenantCtx};
-use wasmtime::{component::Linker, Config, Store};
-use std::{future::Future, pin::Pin};
+### Example: invoking a pack component
 
-struct MyControl;
+```rust
+use greentic_interfaces::bindings::exports::greentic::interfaces_pack::component_api;
+use greentic_interfaces::bindings;
 
-type HostFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
-
-impl component_v0_4::greentic::component::control::Host for MyControl {
-    fn should_cancel<'a, 'async_trait>(&'a mut self) -> HostFuture<'async_trait, bool>
-    where
-        'a: 'async_trait,
-        Self: 'async_trait,
-    {
-        Box::pin(async move { false })
-    }
-
-    fn yield_now<'a, 'async_trait>(&'a mut self) -> HostFuture<'async_trait, ()>
-    where
-        'a: 'async_trait,
-        Self: 'async_trait,
-    {
-        Box::pin(async move {})
+fn empty_allow_list() -> bindings::greentic::interfaces_types::types::AllowList {
+    bindings::greentic::interfaces_types::types::AllowList {
+        domains: Vec::new(),
+        ports: Vec::new(),
+        protocols: Vec::new(),
     }
 }
 
-let mut config = Config::new();
-config.wasm_component_model(true);
-let engine = wasmtime::Engine::new(&config)?;
-let mut linker = Linker::new(&engine);
-component_v0_4::add_control_to_linker(&mut linker, |state: &mut MyControl| state)?;
+struct GreetingComponent;
 
-let component = wasmtime::component::Component::from_file(&engine, "component.wasm")?;
-let mut store = Store::new(&engine, MyControl);
-let (bindings, _instance) = Component::instantiate_async(&mut store, &component, &linker).await?;
-let node = bindings.exports().greentic_component_node()?;
+impl component_api::Guest for GreetingComponent {
+    fn meta() -> component_api::ProviderMeta {
+        component_api::ProviderMeta {
+            name: "hello-tool".into(),
+            version: "0.1.0".into(),
+            capabilities: vec!["invoke".into()],
+            allow_list: empty_allow_list(),
+            network_policy: bindings::greentic::interfaces_types::types::NetworkPolicy {
+                egress: empty_allow_list(),
+                deny_on_miss: false,
+            },
+        }
+    }
+
+    fn invoke(input: String, tenant: component_api::TenantCtx) -> component_api::Outcome {
+        let message = format!("Hello {}, {}!", tenant.tenant, input);
+        component_api::Outcome::Done(message)
+    }
+}
 ```
 
-Host integrations can use the helper modules:
+The packed component returns a `Outcome::Done(String)` which maps directly to `greentic_types::Outcome<String>` via the conversion helpers described below.
 
-- `types_core_v0_4` / `types_core_v0_2` expose the shared structs and enums for their respective packages.
-- `host_import_v0_4` / `host_import_v0_2` provide the `HostImports` trait plus `add_to_linker` helpers for wiring the host services.
-- `pack_export_v0_4` / `pack_export_v0_2` re-export the generated exports when hosting pack components.
-- `wasix_mcp_v0_0_5` exposes the WASIX MCP router/secrets schema.
+## Conversion helpers
 
-## Versioning
+`src/mappers.rs` implements thin `From`/`TryFrom` conversions between WIT-generated types and their `greentic-types` equivalents:
 
-- Minor bumps add optional fields or functions; existing behaviour remains.
-- Breaking changes require a new package (e.g., `greentic:host-import@0.3.0`) and crate minor bump.
-- The crate is published to crates.io (`0.2.x` for the current set) and tagged `v0.2.x` in git.
+- `TenantCtx ↔ greentic_types::TenantCtx`
+- `SessionCursor ↔ greentic_types::SessionCursor`
+- `Outcome<string> ↔ greentic_types::Outcome<String>`
+- `AllowList ↔ greentic_types::policy::AllowList`
+- `NetworkPolicy ↔ greentic_types::policy::NetworkPolicy`
+- `SpanContext ↔ greentic_types::telemetry::SpanContext`
 
-## Validation and tooling
+These helpers avoid business logic—each mapping is a total, lossless transformation so packs and hosts can interoperate without bespoke glue.
 
-- `bash scripts/validate-wit.sh` – run `wit-bindgen markdown` and `wasm-tools component wit --wasm` over every `.wit` file.
-- `bash scripts/package-wit.sh <out-dir>` – emit wasm-encoded packages for publishing.
-- `bash scripts/publish_wit.sh` – package + push all WIT packages to GHCR (`ghcr.io/<user>/wit/...`).
-- `build.rs` stages each WIT file and its dependencies into `target/wit-bindgen/` so the Wasmtime `bindgen!` macro can resolve cross-package `use` statements.
-- CI (`.github/workflows/ci.yml`) installs `wit-bindgen`, validates WIT, and runs `cargo build`.
+Unit tests under `src/mappers.rs` and integration tests in `tests/mapping_roundtrip.rs` ensure round-trips preserve the data the runner depends on (tenant identity, session cursors, expected input hints, etc.).
 
-## CHANGELOG
+## Provider metadata validation
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes.
+`greentic_interfaces::validate::validate_provider_meta` checks the minimal invariants for provider self-description:
 
-## License
+- Non-empty provider name.
+- Valid semantic version string.
+- Allow-lists contain no empty hosts, zero ports, or unnamed custom protocols.
+- Strict network policies (`deny_on_miss = true`) must include at least one allow rule.
 
-MIT
+Call this helper before accepting provider metadata to avoid surprising runtime failures.
+
+## Testing, formatting, and linting
+
+Quality gates are enforced locally and in CI:
+
+```bash
+# Format
+cargo fmt --all
+
+# Lint (covers library, tests, and examples)
+cargo clippy --all-targets --all-features -- -D warnings
+
+# Run the full test matrix (includes schema snapshots)
+cargo test --all-features
+```
+
+The `wit_build` integration test parses every staged WIT package to ensure the build script emits well-formed bundles, and the schema snapshot (guarded by the `schema` feature) keeps provider metadata schemas stable.
+
+CI mirrors these commands so pull requests fail fast if formatting drifts, clippy raises a regression, or contracts stop compiling.
+
+## Releases & Publishing
+
+Version numbers come from each crate's `Cargo.toml`. When a commit lands on `master`, the auto-tag workflow checks whether any crate manifests changed and creates lightweight tags in the form `<crate>-v<semver>` (for single-crate repos this matches the repository name). The publish workflow then runs the lint/test gate, and finally invokes `katyo/publish-crates` to publish changed crates to crates.io using the `CARGO_REGISTRY_TOKEN` secret. Publishing is idempotent, so rerunning on the same commit succeeds even if the versions are already available.
+
+## Maintenance notes
+
+- Updating WIT contracts only happens additively. Introduce a new version instead of breaking existing packages.
+- Regenerate the Rust bindings by running `cargo build`; the build script handles staging and `wit-bindgen` output automatically.
+- When adding new WIT structures, remember to extend the conversion helpers and the snapshot test so hosts and packs keep sharing the same ABI.
+- The schema snapshot lives under `tests/snapshots/`. Run `INSTA_ACCEPT=auto cargo test --features schema` whenever the provider metadata shape changes to refresh the snapshot intentionally.
