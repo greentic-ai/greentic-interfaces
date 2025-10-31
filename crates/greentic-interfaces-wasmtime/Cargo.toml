@@ -27,7 +27,7 @@ bytes = "1"
 uuid = { version = "1", features = ["v4"] }
 wasmtime = { version = "28.0.1", default-features = true, features = ["component-model"] }
 wit-bindgen = "0.47"
-greentic-types = { version = "0.1.4", path = "../../../greentic-types" }
+greentic-types = "0.1"
 greentic-interfaces = { version = "0.4.3", path = "../greentic-interfaces" }
 
 [dev-dependencies]

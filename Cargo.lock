@@ -571,9 +571,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
- "greentic-types 0.1.4",
+ "greentic-types",
  "insta",
  "schemars",
  "semver",
@@ -594,7 +594,7 @@ dependencies = [
  "bytes",
  "either",
  "greentic-interfaces",
- "greentic-types 0.1.6",
+ "greentic-types",
  "once_cell",
  "serde",
  "serde_json",
@@ -613,17 +613,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0383d3a0052bc1bf6b35006191266e1c9bde92d4373c9d56fd67399b290b588f"
 dependencies = [
  "schemars",
- "semver",
- "serde",
- "serde_with",
- "thiserror 2.0.17",
- "time",
-]
-
-[[package]]
-name = "greentic-types"
-version = "0.1.6"
-dependencies = [
  "semver",
  "serde",
  "serde_with",
