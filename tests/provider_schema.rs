@@ -1,8 +1,8 @@
 #![cfg(feature = "schema")]
 
 use greentic_types::policy::{AllowList, NetworkPolicy};
-use schemars::JsonSchema;
 use schemars::r#gen::SchemaGenerator;
+use schemars::JsonSchema;
 use serde_json::json;
 
 #[allow(dead_code)]

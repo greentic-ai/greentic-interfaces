@@ -4,8 +4,8 @@ use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use wit_bindgen_core::Files;
 use wit_bindgen_core::wit_parser::Resolve;
+use wit_bindgen_core::Files;
 use wit_bindgen_rust::Opts;
 
 fn main() -> Result<(), Box<dyn Error>> {

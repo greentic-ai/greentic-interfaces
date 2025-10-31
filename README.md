@@ -22,14 +22,11 @@ The `wit/` directory contains four additive packages:
 | `greentic:interfaces-provider@0.1.0` | Provider self-description (`ProviderMeta`). |
 | `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution.
 
-The build script stages each package (plus dependencies) into `target/wit-bindgen/` so both Wasmtime and `wit-bindgen` consumers resolve imports deterministically.
+The build script stages each package (plus dependencies) into `target/wit-bindgen/` so downstream tooling resolves imports deterministically.
 
 ## Rust bindings
 
-The crate re-exports two sets of bindings:
-
-- `greentic_interfaces::bindings::generated` exposes `wit-bindgen` output for the `interfaces-pack` world. Test hosts can use it to implement the guest traits or validate schemas.
-- Versioned modules such as `component_v0_4`, `host_import_v0_4`, and `types_core_v0_4` keep the existing Wasmtime `component::bindgen!` output for current runtimes.
+This crate is intentionally ABI-only: `greentic_interfaces::bindings::generated` exposes the raw `wit-bindgen` output for the `interfaces-pack` world, and the helper modules translate between those generated types and the richer models in [`greentic-types`](../greentic-types). No Wasmtime adapters ship here.
 
 The bindings follow the `TenantCtx`, `Outcome`, `ProviderMeta`, and `AllowList` shapes defined in the design manifesto so runner, deployer, connectors, and packs all share the same ABI.
 
@@ -127,3 +124,7 @@ Version numbers come from each crate's `Cargo.toml`. When a commit lands on `mas
 - Regenerate the Rust bindings by running `cargo build`; the build script handles staging and `wit-bindgen` output automatically.
 - When adding new WIT structures, remember to extend the conversion helpers and the snapshot test so hosts and packs keep sharing the same ABI.
 - The schema snapshot lives under `tests/snapshots/`. Run `INSTA_ACCEPT=auto cargo test --features schema` whenever the provider metadata shape changes to refresh the snapshot intentionally.
+
+## Runtime support
+
+Consumers that need to execute packs via Wasmtime should depend on the sibling `greentic-interfaces-wasmtime` crate (introduced in a follow-up PR) or wire Wasmtime directly. This package purposefully avoids runtime glue so it can stay focused on ABI contracts and type conversions.

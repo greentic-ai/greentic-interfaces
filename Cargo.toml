@@ -1,7 +1,7 @@
 [package]
 name = "greentic-interfaces"
 version = "0.4.3"
-edition = "2024"
+edition = "2021"
 rust-version = "1.85"
 build = "build.rs"
 license = "MIT"
@@ -32,12 +32,12 @@ bindings-rust = ["dep:wit-bindgen"]
 schema = ["dep:schemars", "greentic-types/schemars"]
 
 [dependencies]
-wasmtime = { version = "38.0", default-features = false, features = ["std", "runtime", "component-model"] }
-wit-bindgen = { version = "0.47", optional = true }
-schemars = { version = "0.8", features = ["derive"], optional = true }
 greentic-types = { version = "^0.1.4" }
 semver = "1"
 time = "0.3"
+serde = { version = "1", features = ["derive"], optional = true }
+schemars = { version = "0.8", features = ["derive"], optional = true }
+wit-bindgen = { version = "0.47", optional = true }
 
 [build-dependencies]
 wit-bindgen-core = "0.47"
