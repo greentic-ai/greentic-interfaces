@@ -9,7 +9,7 @@ readme = "README.md"
 
 [features]
 default = ["stable-wasmtime", "host-secrets", "host-telemetry", "host-clock"]
-stable-wasmtime = ["wasmtime/component-model", "wasmtime/async"]
+stable-wasmtime = []
 nightly-wasmtime = []
 host-secrets = []
 host-telemetry = []
@@ -18,16 +18,17 @@ host-fs = []
 
 [dependencies]
 anyhow = "1"
-thiserror = "2"
+thiserror = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 either = "1"
 once_cell = "1"
 bytes = "1"
 uuid = { version = "1", features = ["v4"] }
-wasmtime = { version = "37", default-features = false, features = [] }
-greentic-types = { version = "0.1" }
-greentic-interfaces = { version = "0.4" }
+wasmtime = { version = "28.0.1", default-features = true, features = ["component-model"] }
+wit-bindgen = "0.47"
+greentic-types = { version = "0.1.4", path = "../../../greentic-types" }
+greentic-interfaces = { version = "0.4.3", path = "../greentic-interfaces" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
