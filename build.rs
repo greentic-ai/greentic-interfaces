@@ -203,7 +203,7 @@ fn generate_rust_bindings() -> Result<(), Box<dyn Error>> {
     }
 
     let (pkg, _) = resolve.push_dir(&staged_pack)?;
-    let world = resolve.select_world(pkg, Some("greentic:interfaces-pack/component@0.1.0"))?;
+    let world = resolve.select_world(&[pkg], Some("greentic:interfaces-pack/component@0.1.0"))?;
 
     let mut files = Files::default();
     let opts = Opts {

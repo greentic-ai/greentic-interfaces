@@ -33,17 +33,17 @@ schema = ["dep:schemars", "greentic-types/schemars"]
 
 [dependencies]
 wasmtime = { version = "38.0", default-features = false, features = ["std", "runtime", "component-model"] }
-wit-bindgen = { version = "0.43", optional = true }
+wit-bindgen = { version = "0.47", optional = true }
 schemars = { version = "0.8", features = ["derive"], optional = true }
-greentic-types = { version = "^0.1.4", path = "../greentic-types" }
+greentic-types = { version = "^0.1.4" }
 semver = "1"
 time = "0.3"
 
 [build-dependencies]
-wit-bindgen-core = "0.43"
-wit-bindgen-rust = "0.43"
+wit-bindgen-core = "0.47"
+wit-bindgen-rust = "0.47"
 
 [dev-dependencies]
 serde_json = "1"
 insta = { version = "1", features = ["json"] }
-wit-parser = "0.239"
+wit-parser = "0.240"
