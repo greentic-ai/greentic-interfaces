@@ -394,7 +394,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "camino",
