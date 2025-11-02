@@ -14,11 +14,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     reset_directory(&staged_root)?;
 
     let wit_root = Path::new("wit");
-    for entry in fs::read_dir(wit_root)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
-            stage_package(&path, &staged_root, wit_root)?;
+    let mut package_paths = Vec::new();
+    discover_packages(wit_root, &mut package_paths)?;
+
+    let mut staged = HashSet::new();
+    for package_path in package_paths {
+        let package_ref = read_package_ref(&package_path)?;
+        if staged.insert(package_ref) {
+            stage_package(&package_path, &staged_root, wit_root)?;
         }
     }
 
@@ -84,36 +87,17 @@ fn wit_path(package_ref: &str, wit_root: &Path) -> Result<PathBuf, Box<dyn Error
     let (pkg, version) = package_ref
         .split_once('@')
         .ok_or_else(|| format!("invalid package reference: {package_ref}"))?;
-    let file_name = format!("{}@{}.wit", sanitize(pkg), version);
-    let path = wit_root.join(&file_name);
-    if path.exists() {
-        return Ok(path);
-    }
-
-    let mut fallback = None;
     let base_pkg = pkg.split('/').next().unwrap_or(pkg);
     let target_root = format!("{base_pkg}@{version}");
-
-    for entry in fs::read_dir(wit_root)? {
-        let entry = entry?;
-        let entry_path = entry.path();
-        if entry_path.extension().and_then(|ext| ext.to_str()) != Some("wit") {
-            continue;
-        }
-        let entry_package = read_package_ref(&entry_path)?;
-        if entry_package == package_ref {
-            return Ok(entry_path);
-        }
-        if fallback.is_none() && entry_package == target_root {
-            fallback = Some(entry_path);
-        }
+    let mut fallback = None;
+    if let Some(found) = find_package_recursive(wit_root, package_ref, &target_root, &mut fallback)?
+    {
+        return Ok(found);
     }
-
     if let Some(path) = fallback {
         return Ok(path);
     }
-
-    Err(format!("missing WIT source for {package_ref}: {}", path.display()).into())
+    Err(format!("missing WIT source for {package_ref}").into())
 }
 
 fn read_package_ref(path: &Path) -> Result<String, Box<dyn Error>> {
@@ -255,4 +239,58 @@ fn reset_directory(path: &Path) -> Result<(), Box<dyn Error>> {
     }
     fs::create_dir_all(path)?;
     Ok(())
+}
+
+fn discover_packages(root: &Path, out: &mut Vec<PathBuf>) -> Result<(), Box<dyn Error>> {
+    for entry in fs::read_dir(root)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            let package_file = path.join("package.wit");
+            if package_file.exists() {
+                out.push(package_file);
+            }
+            discover_packages(&path, out)?;
+        } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
+            out.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn find_package_recursive(
+    dir: &Path,
+    package_ref: &str,
+    target_root: &str,
+    fallback: &mut Option<PathBuf>,
+) -> Result<Option<PathBuf>, Box<dyn Error>> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            let package_file = path.join("package.wit");
+            if package_file.exists() {
+                let entry_package = read_package_ref(&package_file)?;
+                if entry_package == package_ref {
+                    return Ok(Some(package_file));
+                }
+                if fallback.is_none() && entry_package == target_root {
+                    *fallback = Some(package_file.clone());
+                }
+            }
+            if let Some(found) = find_package_recursive(&path, package_ref, target_root, fallback)?
+            {
+                return Ok(Some(found));
+            }
+        } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
+            let entry_package = read_package_ref(&path)?;
+            if entry_package == package_ref {
+                return Ok(Some(path));
+            }
+            if fallback.is_none() && entry_package == target_root {
+                *fallback = Some(path.clone());
+            }
+        }
+    }
+    Ok(None)
 }
