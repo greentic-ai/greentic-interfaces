@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces"
-version = "0.4.6"
+version = "0.4.8"
 edition = "2021"
 rust-version = "1.85"
 build = "build.rs"
@@ -13,8 +13,9 @@ keywords = ["greentic", "wit", "wasm", "component"]
 categories = ["wasm", "api-bindings"]
 
 [features]
-default = ["bindings-rust"]
+default = ["bindings-rust", "host-import-compat"]
 bindings-rust = ["dep:wit-bindgen"]
+host-import-compat = ["dep:wasmtime"]
 schema = ["dep:schemars", "greentic-types/schemars"]
 
 [dependencies]
@@ -22,8 +23,9 @@ greentic-types = { workspace = true }
 semver = "1"
 time = "0.3"
 serde = { workspace = true, optional = true }
-schemars = { version = "0.8", features = ["derive"], optional = true }
+schemars = { version = "1", features = ["derive"], optional = true }
 wit-bindgen = { version = "0.47", optional = true }
+wasmtime = { version = "37.0.2", default-features = false, features = ["component-model", "runtime", "std"], optional = true }
 
 [build-dependencies]
 wit-bindgen-core = "0.47"

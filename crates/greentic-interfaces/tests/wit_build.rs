@@ -4,7 +4,7 @@ use wit_parser::Resolve;
 
 #[test]
 fn staged_wit_packages_are_valid() {
-    let staged_root = Path::new("target").join("wit-bindgen");
+    let staged_root = Path::new(env!("WIT_STAGING_DIR"));
     let entries = std::fs::read_dir(&staged_root)
         .unwrap_or_else(|_| panic!("missing staged WIT packages in {}", staged_root.display()));
 

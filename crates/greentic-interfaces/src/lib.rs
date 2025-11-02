@@ -5,5 +5,7 @@
 //! ABI-oriented bindings for Greentic WIT packages.
 
 pub mod bindings;
+#[cfg(feature = "host-import-compat")]
+pub mod host_import_v0_2;
 pub mod mappers;
 pub mod validate;

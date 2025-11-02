@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces-wasmtime"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "Wasmtime glue for greentic-interfaces WIT packages (host/linker adapters + zero-copy type mappers)."
@@ -18,7 +18,7 @@ host-fs = []
 
 [dependencies]
 anyhow = "1"
-thiserror = "1"
+thiserror = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 either = "1"
@@ -28,7 +28,7 @@ uuid = { version = "1", features = ["v4"] }
 wasmtime = { version = "28.0.1", default-features = true, features = ["component-model"] }
 wit-bindgen = "0.47"
 greentic-types = "0.1"
-greentic-interfaces = { version = "0.4.3", path = "../greentic-interfaces" }
+greentic-interfaces = { version = "0.4", path = "../greentic-interfaces" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }

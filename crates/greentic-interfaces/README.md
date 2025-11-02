@@ -22,7 +22,7 @@ The `wit/` directory contains four additive packages:
 | `greentic:interfaces-provider@0.1.0` | Provider self-description (`ProviderMeta`). |
 | `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution.
 
-The build script stages each package (plus dependencies) into `target/wit-bindgen/` so downstream tooling resolves imports deterministically.
+The build script stages each package (plus dependencies) into `$OUT_DIR/wit-staging` so downstream tooling resolves imports deterministically. The absolute path is exported as `WIT_STAGING_DIR`, so consumers never need write access to the package directory even when building from crates.io.
 
 ## Rust bindings
 
@@ -68,6 +68,8 @@ impl component_api::Guest for GreetingComponent {
 ```
 
 The packed component returns a `Outcome::Done(String)` which maps directly to `greentic_types::Outcome<String>` via the conversion helpers described below.
+
+A minimal `examples/crates-io-consumer` binary shows how to depend on the published crate without any workspace patches.
 
 ## Conversion helpers
 

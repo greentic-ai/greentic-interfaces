@@ -1,11 +1,10 @@
 ---
-source: tests/provider_schema.rs
-assertion_line: 21
+source: crates/greentic-interfaces/tests/provider_schema.rs
+assertion_line: 20
 expression: json!(schema)
 ---
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "definitions": {
+  "$defs": {
     "AllowList": {
       "description": "Allow list describing permitted domains, ports, and protocols.",
       "properties": {
@@ -20,7 +19,8 @@ expression: json!(schema)
           "description": "Allowed port numbers.",
           "items": {
             "format": "uint16",
-            "minimum": 0.0,
+            "maximum": 65535,
+            "minimum": 0,
             "type": "integer"
           },
           "type": "array"
@@ -28,7 +28,7 @@ expression: json!(schema)
         "protocols": {
           "description": "Allowed network protocols.",
           "items": {
-            "$ref": "#/definitions/Protocol"
+            "$ref": "#/$defs/Protocol"
           },
           "type": "array"
         }
@@ -43,17 +43,13 @@ expression: json!(schema)
           "type": "boolean"
         },
         "egress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/AllowList"
-            }
-          ],
+          "$ref": "#/$defs/AllowList",
           "description": "Allow list enforced for egress connections."
         }
       },
       "required": [
-        "deny_on_miss",
-        "egress"
+        "egress",
+        "deny_on_miss"
       ],
       "type": "object"
     },
@@ -61,38 +57,28 @@ expression: json!(schema)
       "description": "Network protocols supported by allow lists.",
       "oneOf": [
         {
+          "const": "http",
           "description": "Hypertext Transfer Protocol.",
-          "enum": [
-            "http"
-          ],
           "type": "string"
         },
         {
+          "const": "https",
           "description": "Hypertext Transfer Protocol Secure.",
-          "enum": [
-            "https"
-          ],
           "type": "string"
         },
         {
+          "const": "tcp",
           "description": "Generic TCP connectivity.",
-          "enum": [
-            "tcp"
-          ],
           "type": "string"
         },
         {
+          "const": "udp",
           "description": "Generic UDP connectivity.",
-          "enum": [
-            "udp"
-          ],
           "type": "string"
         },
         {
+          "const": "grpc",
           "description": "gRPC.",
-          "enum": [
-            "grpc"
-          ],
           "type": "string"
         },
         {
@@ -111,9 +97,10 @@ expression: json!(schema)
       ]
     }
   },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "properties": {
     "allow_list": {
-      "$ref": "#/definitions/AllowList"
+      "$ref": "#/$defs/AllowList"
     },
     "capabilities": {
       "items": {
@@ -125,18 +112,18 @@ expression: json!(schema)
       "type": "string"
     },
     "network_policy": {
-      "$ref": "#/definitions/NetworkPolicy"
+      "$ref": "#/$defs/NetworkPolicy"
     },
     "version": {
       "type": "string"
     }
   },
   "required": [
-    "allow_list",
-    "capabilities",
     "name",
-    "network_policy",
-    "version"
+    "version",
+    "capabilities",
+    "allow_list",
+    "network_policy"
   ],
   "title": "ProviderMetaSchema",
   "type": "object"

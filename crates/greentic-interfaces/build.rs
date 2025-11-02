@@ -9,12 +9,9 @@ use wit_bindgen_core::Files;
 use wit_bindgen_rust::Opts;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let staged_root = Path::new("target").join("wit-bindgen");
-
-    if staged_root.exists() {
-        fs::remove_dir_all(&staged_root)?;
-    }
-    fs::create_dir_all(&staged_root)?;
+    let out_dir = PathBuf::from(env::var("OUT_DIR")?);
+    let staged_root = out_dir.join("wit-staging");
+    reset_directory(&staged_root)?;
 
     let wit_root = Path::new("wit");
     for entry in fs::read_dir(wit_root)? {
@@ -25,7 +22,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    generate_rust_bindings()?;
+    let bindings_dir = generate_rust_bindings(&staged_root, &out_dir)?;
+
+    println!("cargo:rustc-env=WIT_STAGING_DIR={}", staged_root.display());
+    println!(
+        "cargo:rustc-env=GREENTIC_INTERFACES_BINDINGS={}",
+        bindings_dir.display()
+    );
 
     Ok(())
 }
@@ -177,18 +180,13 @@ fn sanitize(package_ref: &str) -> String {
     package_ref.replace([':', '@', '/'], "-")
 }
 
-fn generate_rust_bindings() -> Result<(), Box<dyn Error>> {
-    let out_dir = PathBuf::from(env::var("OUT_DIR")?);
+fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let bindings_dir = out_dir.join("bindings");
-    if bindings_dir.exists() {
-        fs::remove_dir_all(&bindings_dir)?;
-    }
-    fs::create_dir_all(&bindings_dir)?;
+    reset_directory(&bindings_dir)?;
 
     let mut resolve = Resolve::new();
-    let wit_root = Path::new("target").join("wit-bindgen");
-    let staged_pack = wit_root.join("greentic-interfaces-pack-0.1.0");
-    let staged_types = wit_root.join("greentic-interfaces-types-0.1.0");
+    let staged_pack = staged_root.join("greentic-interfaces-pack-0.1.0");
+    let staged_types = staged_root.join("greentic-interfaces-types-0.1.0");
 
     if !staged_pack.exists() {
         return Err(format!("expected staged WIT package at {}", staged_pack.display()).into());
@@ -230,12 +228,7 @@ fn generate_rust_bindings() -> Result<(), Box<dyn Error>> {
         fs::rename(&component_rs, &default_bindings)?;
     }
 
-    println!(
-        "cargo:rustc-env=GREENTIC_INTERFACES_BINDINGS={}",
-        bindings_dir.display()
-    );
-
-    Ok(())
+    Ok(bindings_dir)
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
@@ -253,5 +246,13 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
             fs::copy(&path, &dest_path)?;
         }
     }
+    Ok(())
+}
+
+fn reset_directory(path: &Path) -> Result<(), Box<dyn Error>> {
+    if path.exists() {
+        fs::remove_dir_all(path)?;
+    }
+    fs::create_dir_all(path)?;
     Ok(())
 }
