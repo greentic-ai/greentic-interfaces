@@ -7,5 +7,7 @@
 pub mod bindings;
 #[cfg(feature = "host-import-compat")]
 pub mod host_import_v0_2;
+#[cfg(feature = "host-import-compat")]
+pub mod host_import_v0_4;
 pub mod mappers;
 pub mod validate;

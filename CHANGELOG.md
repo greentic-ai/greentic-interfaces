@@ -1,8 +1,9 @@
 # Changelog
 
-## v0.4.8
+## v0.4.9
 - Stage generated WIT bundles inside `OUT_DIR` and expose `WIT_STAGING_DIR` so builds succeed from Cargo's read-only registry.
 - Restore the deprecated `host_import_v0_2` module as a compatibility shim for `greentic-mcp` while it migrates to the Wasmtime crate.
+- Reintroduce the `host_import_v0_4` Wasmtime module backed by the staged `greentic:host-import@0.4.0` package.
 - Document the new staging behavior and add a crates.io consumer example.
 
 ## v0.4.0
