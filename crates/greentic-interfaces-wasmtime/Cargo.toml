@@ -1,35 +1,28 @@
 [package]
 name = "greentic-interfaces-wasmtime"
-version = "0.1.2"
+version = "0.1.1"
 edition = "2021"
+rust-version = "1.83"
 license = "MIT"
-description = "Wasmtime glue for greentic-interfaces WIT packages (host/linker adapters + zero-copy type mappers)."
-repository = "https://github.com/greentic-ai/greentic-interfaces"
-readme = "README.md"
+repository = "https://github.com/greentic-ai/greentic-interfaces-wasmtime"
+description = "Wasmtime host & guest shims for greentic WIT worlds (sync; auto-discovered)"
 
 [features]
-default = ["stable-wasmtime", "host-secrets", "host-telemetry", "host-clock"]
-stable-wasmtime = []
-nightly-wasmtime = []
-host-secrets = []
-host-telemetry = []
-host-clock = []
-host-fs = []
+default = []
+control-helpers = []
 
 [dependencies]
 anyhow = "1"
-thiserror = "2"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-either = "1"
-once_cell = "1"
-bytes = "1"
-uuid = { version = "1", features = ["v4"] }
-wasmtime = { version = "28", default-features = true, features = ["component-model"] }
-wit-bindgen = "0.47"
-greentic-types = "0.1"
-greentic-interfaces = { version = "0.4", path = "../greentic-interfaces" }
+greentic-interfaces = { path = "../greentic-interfaces", default-features = false }
 
-[dev-dependencies]
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
-tempfile = "3"
+[dependencies.wasmtime]
+version = ">=18, <999"
+default-features = false
+features = ["component-model"]
+
+[build-dependencies]
+camino = "1"
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "2", features = ["full"] }
+walkdir = "2"

@@ -38,7 +38,6 @@ declare_world!(
         use wasmtime::StoreContextMut;
 
         pub use bindings::greentic::component::control::Host as ControlHost;
-        pub use bindings::greentic::component::control::HostWithStore as ControlHostWithStore;
 
         /// Registers the Greentic control interface with the provided linker.
         pub fn add_control_to_linker<T>(
@@ -121,23 +120,73 @@ declare_world!(
     path = "wit/greentic/host-import@0.4.0",
     world = "greentic:host-import/host-imports@0.4.0",
     legacy = {
-        use wasmtime::component::{HasSelf, Linker};
-        use wasmtime::Result;
+        use wasmtime::component::Linker;
+        use wasmtime::{Result, StoreContextMut};
 
         pub use bindings::greentic::host_import::{http, secrets, telemetry};
         pub use bindings::greentic::types_core::types;
 
         /// Trait implemented by hosts to service the component imports.
-        pub trait HostImports: types::Host + secrets::Host + telemetry::Host + http::Host {}
+        pub trait HostImports {
+            fn secrets_get(
+                &mut self,
+                key: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<String, types::IfaceError>>;
 
-        impl<T> HostImports for T where T: types::Host + secrets::Host + telemetry::Host + http::Host {}
+            fn telemetry_emit(
+                &mut self,
+                span_json: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<()>;
+
+            fn http_fetch(
+                &mut self,
+                req: http::HttpRequest,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<http::HttpResponse, types::IfaceError>>;
+        }
 
         /// Registers the host import functions with the provided linker.
-        pub fn add_to_linker<T>(linker: &mut Linker<T>) -> Result<()>
+        pub fn add_to_linker<T>(
+            linker: &mut Linker<T>,
+            get_host: impl Fn(&mut T) -> &mut (dyn HostImports + Send + Sync + 'static)
+                + Send
+                + Sync
+                + Copy
+                + 'static,
+        ) -> Result<()>
         where
-            T: HostImports + Send + Sync + 'static,
+            T: Send + 'static,
         {
-            bindings::HostImports::add_to_linker::<T, HasSelf<T>>(linker, |state: &mut T| state)
+            let mut secrets = linker.instance("greentic:host-import/secrets@0.4.0")?;
+            secrets.func_wrap(
+                "get",
+                move |mut caller: StoreContextMut<'_, T>, (key, ctx): (String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.secrets_get(key, ctx).map(|res| (res,))
+                },
+            )?;
+
+            let mut telemetry = linker.instance("greentic:host-import/telemetry@0.4.0")?;
+            telemetry.func_wrap(
+                "emit",
+                move |mut caller: StoreContextMut<'_, T>, (span, ctx): (String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.telemetry_emit(span, ctx)
+                },
+            )?;
+
+            let mut http_iface = linker.instance("greentic:host-import/http@0.4.0")?;
+            http_iface.func_wrap(
+                "fetch",
+                move |mut caller: StoreContextMut<'_, T>, (req, ctx): (http::HttpRequest, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.http_fetch(req, ctx).map(|res| (res,))
+                },
+            )?;
+
+            Ok(())
         }
 
         /// Canonical package identifier.
