@@ -17,3 +17,6 @@ greentic-types = { version = "0.1"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
+
+[patch.crates-io]
+greentic-interfaces = { path = "crates/greentic-interfaces" }

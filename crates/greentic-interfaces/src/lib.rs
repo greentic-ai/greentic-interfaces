@@ -7,5 +7,7 @@
 pub mod bindings;
 pub mod wit_all;
 pub use wit_all::*;
+#[cfg(feature = "bindings-rust")]
 pub mod mappers;
+#[cfg(feature = "bindings-rust")]
 pub mod validate;

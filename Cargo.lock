@@ -374,22 +374,6 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc359199d45d18b348ba0eb8153cc64bd1025faed401eefc4392daf592b9713d"
-dependencies = [
- "anyhow",
- "greentic-types",
- "semver",
- "thiserror 2.0.17",
- "time",
- "wasmtime",
- "wit-bindgen-core",
- "wit-bindgen-rust",
-]
-
-[[package]]
-name = "greentic-interfaces"
 version = "0.4.13"
 dependencies = [
  "anyhow",
@@ -414,7 +398,7 @@ version = "0.1.3"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.12",
+ "greentic-interfaces",
  "proc-macro2",
  "quote",
  "syn",

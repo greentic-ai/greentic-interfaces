@@ -1,3 +1,5 @@
+#![cfg(feature = "bindings-rust")]
+
 use std::convert::TryFrom;
 
 use greentic_interfaces::bindings;
