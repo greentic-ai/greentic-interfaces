@@ -79,6 +79,12 @@ jobs:
               echo "value=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
+            status=$(cargo publish --locked --manifest-path crates/greentic-interfaces/Cargo.toml --dry-run 2>&1)
+            if grep -q "already exists" <<<"$status"; then
+              echo "greentic-interfaces@${version} was already published (dry run confirmed)"
+              echo "value=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "Waiting for greentic-interfaces@${version} to appear (attempt ${attempt})..."
             sleep 15
           done
