@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces"
-version = "0.4.14"
+version = "0.4.15"
 edition = "2021"
 build = "build.rs"
 license = "MIT"
@@ -48,7 +48,7 @@ schemars = { version = "1", features = ["derive"], optional = true }
 wit-bindgen = { version = "0.47", optional = true }
 anyhow = "1"
 thiserror = "2"
-wasmtime = { version = ">=18, <999", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
+wasmtime = { version = ">=18, <38", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 
 [build-dependencies]
 wit-bindgen-core = "0.47"

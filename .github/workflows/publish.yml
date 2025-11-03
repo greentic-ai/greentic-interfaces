@@ -29,7 +29,7 @@ jobs:
       id-token: write
     outputs:
       interfaces_version: ${{ steps.metadata.outputs.version }}
-      interfaces_exists: ${{ steps.check.outputs.exists }}
+      interfaces_ready: ${{ steps.ready.outputs.value }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -57,9 +57,30 @@ jobs:
         run: cargo publish --locked --manifest-path crates/greentic-interfaces/Cargo.toml
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Confirm greentic-interfaces availability
+        id: ready
+        run: |
+          set -euo pipefail
+          version="${{ steps.metadata.outputs.version }}"
+          already="${{ steps.check.outputs.exists }}"
+          for attempt in {1..20}; do
+            if curl -fsSL "https://crates.io/api/v1/crates/greentic-interfaces/${version}" >/dev/null; then
+              echo "greentic-interfaces@${version} available on crates.io"
+              echo "value=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ "$already" = "true" ]; then
+              echo "greentic-interfaces@${version} should exist but not reachable; retrying (${attempt})..."
+            else
+              echo "Waiting for greentic-interfaces@${version} to appear (attempt ${attempt})..."
+            fi
+            sleep 15
+          done
+          echo "greentic-interfaces@${version} not visible after waiting" >&2
+          exit 1
 
   publish_wasmtime:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && needs.publish_interfaces.outputs.interfaces_ready == 'true'
     needs: publish_interfaces
     runs-on: ubuntu-latest
     permissions:
@@ -76,26 +97,6 @@ jobs:
           metadata=$(cargo metadata --manifest-path crates/greentic-interfaces-wasmtime/Cargo.toml --format-version 1 --no-deps)
           version=$(jq -r '.packages[0].version' <<<"$metadata")
           echo "version=$version" >> "$GITHUB_OUTPUT"
-      - name: Wait for greentic-interfaces release to propagate
-        if: needs.publish_interfaces.outputs.interfaces_version != ''
-        run: |
-          set -euo pipefail
-          version="${{ needs.publish_interfaces.outputs.interfaces_version }}"
-          already_available="${{ needs.publish_interfaces.outputs.interfaces_exists }}"
-          if [ "$already_available" = "true" ]; then
-            echo "greentic-interfaces@${version} already on crates.io, skipping wait"
-            exit 0
-          fi
-          for attempt in {1..20}; do
-            if curl -fsSL "https://crates.io/api/v1/crates/greentic-interfaces/${version}" >/dev/null; then
-              echo "greentic-interfaces@${version} available on crates.io"
-              exit 0
-            fi
-            echo "Waiting for greentic-interfaces@${version} to appear (attempt ${attempt})..."
-            sleep 15
-          done
-          echo "greentic-interfaces@${version} not visible after waiting" >&2
-          exit 1
       - name: Check greentic-interfaces-wasmtime publication status
         id: check
         run: |
