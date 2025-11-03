@@ -16,6 +16,10 @@ fn sample_tenant_ctx() -> types::TenantCtx {
         team_id: Some(types::TeamId::from("team")),
         user: Some(types::UserId::from("user")),
         user_id: Some(types::UserId::from("user")),
+        session_id: Some("sess-1".into()),
+        flow_id: Some("flow-1".into()),
+        node_id: Some("node-1".into()),
+        provider_id: Some("provider-1".into()),
         trace_id: Some("trace".into()),
         correlation_id: Some("corr".into()),
         deadline: Some(types::InvocationDeadline::from_unix_millis(
@@ -50,6 +54,25 @@ fn tenant_ctx_roundtrip_external() {
             .map(|imp| imp.actor_id.as_str()),
         ctx.impersonation.as_ref().map(|imp| imp.actor_id.as_str())
     );
+    assert_eq!(round.session_id, ctx.session_id);
+    assert_eq!(round.flow_id, ctx.flow_id);
+    assert_eq!(round.node_id, ctx.node_id);
+    assert_eq!(round.provider_id, ctx.provider_id);
+}
+
+#[test]
+fn tenant_ctx_old_style_is_accepted() {
+    let mut ctx = types::TenantCtx::new(types::EnvId::from("dev"), types::TenantId::from("tenant"));
+    ctx.team = None;
+    ctx.user = None;
+    ctx.deadline = None;
+    let wit = bindings::greentic::interfaces_types::types::TenantCtx::try_from(ctx.clone())
+        .expect("old style to wit");
+    let round = types::TenantCtx::try_from(wit).expect("old style from wit");
+    assert!(round.session_id.is_none());
+    assert!(round.flow_id.is_none());
+    assert!(round.node_id.is_none());
+    assert!(round.provider_id.is_none());
 }
 
 #[test]

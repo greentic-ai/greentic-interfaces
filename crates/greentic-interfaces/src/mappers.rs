@@ -86,6 +86,10 @@ impl TryFrom<WitTenantCtx> for types::TenantCtx {
             team_id: value.team_id.map(types::TeamId::from),
             user: value.user.map(types::UserId::from),
             user_id: value.user_id.map(types::UserId::from),
+            session_id: value.session_id,
+            flow_id: value.flow_id,
+            node_id: value.node_id,
+            provider_id: value.provider_id,
             trace_id: value.trace_id,
             correlation_id: value.correlation_id,
             deadline,
@@ -113,6 +117,10 @@ impl TryFrom<types::TenantCtx> for WitTenantCtx {
             team_id: value.team_id.map(Into::into),
             user: value.user.map(Into::into),
             user_id: value.user_id.map(Into::into),
+            session_id: value.session_id,
+            flow_id: value.flow_id,
+            node_id: value.node_id,
+            provider_id: value.provider_id,
             trace_id: value.trace_id,
             correlation_id: value.correlation_id,
             deadline_ms,
@@ -395,6 +403,10 @@ mod tests {
             team_id: Some(types::TeamId::from("team-42")),
             user: Some(types::UserId::from("user-7")),
             user_id: Some(types::UserId::from("user-7")),
+            session_id: Some("sess-42".into()),
+            flow_id: Some("flow-42".into()),
+            node_id: Some("node-42".into()),
+            provider_id: Some("provider-42".into()),
             trace_id: Some("trace".into()),
             correlation_id: Some("corr".into()),
             deadline: Some(types::InvocationDeadline::from_unix_millis(
@@ -428,6 +440,10 @@ mod tests {
             back.impersonation.as_ref().map(|imp| imp.actor_id.as_str()),
             ctx.impersonation.as_ref().map(|imp| imp.actor_id.as_str())
         );
+        assert_eq!(back.session_id, ctx.session_id);
+        assert_eq!(back.flow_id, ctx.flow_id);
+        assert_eq!(back.node_id, ctx.node_id);
+        assert_eq!(back.provider_id, ctx.provider_id);
     }
 
     #[test]

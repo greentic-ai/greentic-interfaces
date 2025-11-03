@@ -20,3 +20,4 @@ thiserror = "2"
 
 [patch.crates-io]
 greentic-interfaces = { path = "crates/greentic-interfaces" }
+greentic-types = { path = "../greentic-types" }

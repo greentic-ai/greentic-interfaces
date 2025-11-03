@@ -24,6 +24,50 @@ The `wit/` directory contains four additive packages:
 
 The build script stages each package (plus dependencies) into `$OUT_DIR/wit-staging` so downstream tooling resolves imports deterministically. The absolute path is exported as `WIT_STAGING_DIR`, so consumers never need write access to the package directory even when building from crates.io.
 
+### TenantCtx optional fields
+
+Version `0.4.18` adds four optional identifiers to `greentic:types-core@0.4.x` and the mirrored ABI package:
+
+- `session_id: option<string>` – runtime session handle (defaults to `None`).
+- `flow_id: option<string>` – stable flow identifier for the current invocation.
+- `node_id: option<string>` – node identifier inside the flow DAG.
+- `provider_id: option<string>` – surface/runtime that accepted the invocation.
+
+All four fields are additive and stay backwards compatible with existing 0.4.x users—structures that omit them continue to deserialize, and callers can opt in as soon as both sides upgrade.
+
+```rust
+use greentic_types::{EnvId, TenantCtx, TenantId};
+
+// Existing 0.4.x code keeps compiling; the new fields simply default to `None`.
+let legacy = TenantCtx {
+    env: EnvId::from("dev"),
+    tenant: TenantId::from("tenant"),
+    tenant_id: TenantId::from("tenant"),
+    team: None,
+    team_id: None,
+    user: None,
+    user_id: None,
+    session_id: None,
+    flow_id: None,
+    node_id: None,
+    provider_id: None,
+    trace_id: None,
+    correlation_id: None,
+    deadline: None,
+    attempt: 0,
+    idempotency_key: None,
+    impersonation: None,
+};
+
+// New code can opt into the richer metadata on the same struct.
+let mut enriched = legacy.clone();
+enriched.session_id = Some("s-1".into());
+enriched.flow_id = Some("flow-welcome".into());
+enriched.node_id = Some("node-enter".into());
+enriched.provider_id = Some("telegram".into());
+assert_eq!(enriched.session_id.as_deref(), Some("s-1"));
+```
+
 ## Rust bindings
 
 This crate is intentionally ABI-only: `greentic_interfaces::bindings::generated` exposes the raw `wit-bindgen` output for the `interfaces-pack` world, and the helper modules translate between those generated types and the richer models in [`greentic-types`](../greentic-types). No Wasmtime adapters ship here.

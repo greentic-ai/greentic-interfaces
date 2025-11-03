@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.18
+- Add optional `session-id`, `flow-id`, `node-id`, and `provider-id` fields to `TenantCtx` in the 0.4.x WIT contracts and regenerate bindings.
+- Extend the Rust mappers/tests to round-trip the new identifiers while preserving backward compatibility.
+
 ## v0.4.9
 - Stage generated WIT bundles inside `OUT_DIR` and expose `WIT_STAGING_DIR` so builds succeed from Cargo's read-only registry.
 - Restore the deprecated `host_import_v0_2` module as a compatibility shim for `greentic-mcp` while it migrates to the Wasmtime crate.
