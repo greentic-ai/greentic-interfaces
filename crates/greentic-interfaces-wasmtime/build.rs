@@ -93,8 +93,7 @@ fn main() {
                 mod bindings {
                     wasmtime::component::bindgen!({
                         path: #package_rel_path,
-                        world: #world_spec,
-                        async: false
+                        world: #world_spec
                     });
                 }
 
