@@ -1,7 +1,7 @@
 [package]
 name = "greentic-interfaces-wasmtime"
-version = "0.1.5"
-edition = "2021"
+version = "0.2.0"
+edition = "2024"
 license = "MIT"
 repository = "https://github.com/greentic-ai/greentic-interfaces-wasmtime"
 description = "Wasmtime host & guest shims for greentic WIT worlds (sync; auto-discovered)"
@@ -15,7 +15,7 @@ anyhow = "1"
 greentic-interfaces = { version = "0.4", default-features = false }
 
 [dependencies.wasmtime]
-version = ">=18, <38"
+version = "38"
 default-features = false
 features = ["component-model"]
 

@@ -35,12 +35,12 @@ pub fn validate_provider_meta(
     }
 
     for protocol in &meta.allow_list.protocols {
-        if let bindings::greentic::interfaces_types::types::Protocol::Custom(value) = protocol {
-            if value.trim().is_empty() {
-                return Err(invalid_input(
-                    "custom protocol identifiers must not be empty",
-                ));
-            }
+        if let bindings::greentic::interfaces_types::types::Protocol::Custom(value) = protocol
+            && value.trim().is_empty()
+        {
+            return Err(invalid_input(
+                "custom protocol identifiers must not be empty",
+            ));
         }
     }
 
