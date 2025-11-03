@@ -63,17 +63,18 @@ jobs:
           set -euo pipefail
           version="${{ steps.metadata.outputs.version }}"
           already="${{ steps.check.outputs.exists }}"
+          if [ "$already" = "true" ]; then
+            echo "greentic-interfaces@${version} already confirmed on crates.io"
+            echo "value=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           for attempt in {1..20}; do
             if curl -fsSL "https://crates.io/api/v1/crates/greentic-interfaces/${version}" >/dev/null; then
               echo "greentic-interfaces@${version} available on crates.io"
               echo "value=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            if [ "$already" = "true" ]; then
-              echo "greentic-interfaces@${version} should exist but not reachable; retrying (${attempt})..."
-            else
-              echo "Waiting for greentic-interfaces@${version} to appear (attempt ${attempt})..."
-            fi
+            echo "Waiting for greentic-interfaces@${version} to appear (attempt ${attempt})..."
             sleep 15
           done
           echo "greentic-interfaces@${version} not visible after waiting" >&2
