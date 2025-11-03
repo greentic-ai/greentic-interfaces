@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          components: rustfmt,clippy
       - uses: Swatinem/rust-cache@v2
       - name: Lint & Test
         run: |
@@ -32,7 +35,9 @@ jobs:
       interfaces_ready: ${{ steps.ready.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
       - uses: Swatinem/rust-cache@v2
       - name: Extract greentic-interfaces metadata
         id: metadata
@@ -89,7 +94,9 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
       - uses: Swatinem/rust-cache@v2
       - name: Extract greentic-interfaces-wasmtime metadata
         id: metadata

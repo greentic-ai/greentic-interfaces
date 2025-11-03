@@ -13,7 +13,9 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
       - name: Install wkg
         run: curl -fsSL https://wkg.dev/install.sh | bash
       - name: Install wasm-tools

@@ -12,7 +12,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
       - name: Extract crate metadata
         id: metadata
         run: |
