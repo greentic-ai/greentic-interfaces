@@ -91,7 +91,16 @@ do_test() {
 
 do_wit_validate() {
     local dir="$1"
-    wasm-tools wit validate "${dir}"
+    if ! need wasm-tools; then
+        echo "wasm-tools missing"
+        return 1
+    fi
+    if wasm-tools 2>&1 | grep -q "wit \[OPTIONS\]"; then
+        wasm-tools wit validate "${dir}"
+    else
+        echo "wasm-tools does not support 'wit validate'; skipping"
+        return 0
+    fi
 }
 
 do_wit_diff() {
@@ -117,8 +126,14 @@ do_wit_diff() {
     tmpdir="$(mktemp -d)"
     local current="${tmpdir}/current.wit"
     local prev="${tmpdir}/prev.wit"
-    if ! wasm-tools wit print crates/greentic-interfaces/wit >"${current}" 2>/dev/null; then
-        echo "wasm-tools does not support 'wit print'; skipping diff"
+    if wasm-tools 2>&1 | grep -q "wit \[OPTIONS\]"; then
+        if ! wasm-tools wit print crates/greentic-interfaces/wit >"${current}" 2>/dev/null; then
+            echo "Failed to print current WIT; skipping diff"
+            rm -rf "${tmpdir}"
+            return 0
+        fi
+    else
+        echo "wasm-tools missing 'wit print'; skipping diff"
         rm -rf "${tmpdir}"
         return 0
     fi
@@ -129,7 +144,7 @@ do_wit_diff() {
     fi
     git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
     if ! wasm-tools wit print "${tmpdir}/crates/greentic-interfaces/wit" >"${prev}" 2>/dev/null; then
-        echo "wasm-tools missing 'wit print' for baseline; skipping diff"
+        echo "Failed to print baseline WIT; skipping diff"
         rm -rf "${tmpdir}"
         return 0
     fi
@@ -151,11 +166,17 @@ if require_tool cargo; then run_step "cargo build" do_build; else skip_step "car
 if require_tool cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
 
 build_component_example() {
-    cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-unknown-unknown
+    cargo build \
+        --manifest-path examples/component-describe/Cargo.toml \
+        --config package.workspace=false \
+        --target wasm32-unknown-unknown
 }
 run_runner_example() {
-    COMPONENT_DESCRIBE_WASM=target/wasm32-unknown-unknown/debug/component_describe.wasm \
-        cargo run --manifest-path examples/runner-host-smoke/Cargo.toml
+    local wasm_path="$ROOT/target/wasm32-unknown-unknown/debug/component_describe.wasm"
+    COMPONENT_DESCRIBE_WASM="$wasm_path" \
+        cargo run \
+        --manifest-path examples/runner-host-smoke/Cargo.toml \
+        --config package.workspace=false
 }
 
 if require_tool cargo; then run_step "Build describe-v1 example" build_component_example; else skip_step "Build describe-v1 example" "cargo missing"; fi
