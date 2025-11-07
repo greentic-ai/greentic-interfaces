@@ -54,3 +54,18 @@ The runtime crate provides Wasmtime glue for the Greentic WIT packages: an engin
 ## Provenance
 
 Every tagged release publishes a tarball, checksum, raw `package.wit` files, and a signed provenance note that enumerates per-package hashes. Grab the [latest release notes](https://github.com/greentic-ai/greentic-interfaces/releases/latest/download/RELEASE_NOTES.md) to verify what you downloaded.
+
+## Local Checks
+
+Run the CI-equivalent checks locally with:
+
+```bash
+ci/local_check.sh
+```
+
+Toggles:
+- `LOCAL_CHECK_ONLINE=1` – enable networked steps (none today, reserved for future use).
+- `LOCAL_CHECK_STRICT=1` – fail immediately if required tools are missing.
+- `LOCAL_CHECK_VERBOSE=1` – print every command before executing it.
+
+A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.
