@@ -15,9 +15,7 @@ jobs:
           components: rustfmt,clippy
           targets: wasm32-unknown-unknown
       - name: Install WIT tooling
-        run: |
-          cargo install wasm-tools --locked
-          cargo install wit-component-cli --locked
+        run: cargo install wasm-tools --locked
       - name: Show toolchain versions
         run: |
           wasm-tools --version
@@ -64,7 +62,7 @@ jobs:
           git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
           wasm-tools wit print "${tmpdir}/crates/greentic-interfaces/wit" > "${prev}"
           diff_file="${tmpdir}/wit.diff"
-          wit-component diff "${prev}" "${current}" > "${diff_file}"
+          diff -u "${prev}" "${current}" > "${diff_file}" || true
           if [[ -s "${diff_file}" ]]; then
             echo "::error::WIT contracts changed relative to ${baseline_tag}. Bump package versions or update BASELINE_TAG."
             cat "${diff_file}"
