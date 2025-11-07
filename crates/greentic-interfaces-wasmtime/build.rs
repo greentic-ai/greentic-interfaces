@@ -40,12 +40,12 @@ fn main() {
         }
 
         let content = fs::read_to_string(&package_path)
-            .unwrap_or_else(|_| panic!("Reading {}", package_path));
+            .unwrap_or_else(|_| panic!("Reading {package_path}"));
 
         let package_line = content
             .lines()
             .find(|line| line.trim_start().starts_with("package "))
-            .unwrap_or_else(|| panic!("package declaration not found in {}", package_path));
+            .unwrap_or_else(|| panic!("package declaration not found in {package_path}"));
         let package_ref = package_line
             .trim_start()
             .trim_start_matches("package")
@@ -59,7 +59,7 @@ fn main() {
         let world_line = content
             .lines()
             .find(|line| line.trim_start().starts_with("world "))
-            .unwrap_or_else(|| panic!("world declaration missing in {}", package_path));
+            .unwrap_or_else(|| panic!("world declaration missing in {package_path}"));
         let mut world_iter = world_line
             .trim_start()
             .trim_start_matches("world")
@@ -69,8 +69,8 @@ fn main() {
 
         let module_name = module_name_from_dirname(&dirname);
         let mod_ident = format_ident!("{}", module_name);
-        let world_spec = format!("{}/{}@{}", package_id, world_name, version);
-        let package_rel_path = format!("wit/greentic/{}", dirname);
+        let world_spec = format!("{package_id}/{world_name}@{version}");
+        let package_rel_path = format!("wit/greentic/{dirname}");
 
         let has_control_helpers = dirname.starts_with("component@")
             && content.contains("interface control")
