@@ -14,6 +14,8 @@ jobs:
           toolchain: 1.88.0
           components: rustfmt,clippy
           targets: wasm32-wasip2
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
       - name: Install WIT tooling
         run: cargo install wasm-tools --locked
       - name: Show toolchain versions
