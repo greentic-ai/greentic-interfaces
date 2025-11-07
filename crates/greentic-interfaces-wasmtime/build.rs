@@ -39,8 +39,8 @@ fn main() {
             continue;
         }
 
-        let content = fs::read_to_string(&package_path)
-            .unwrap_or_else(|_| panic!("Reading {package_path}"));
+        let content =
+            fs::read_to_string(&package_path).unwrap_or_else(|_| panic!("Reading {package_path}"));
 
         let package_line = content
             .lines()
