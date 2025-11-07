@@ -39,12 +39,12 @@ Two smoke-level examples live under `examples/`:
 ### Running the examples locally
 
 ```bash
-# Compile the component to Wasm (targets wasm32-unknown-unknown)
-cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-unknown-unknown
+# Compile the component to Wasm (targets wasm32-wasip2)
+CARGO_TARGET_DIR=target cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-wasip2
 
 # Run the host smoke test (reuses the artifact above)
-COMPONENT_DESCRIBE_WASM=target/wasm32-unknown-unknown/debug/component_describe.wasm \
-  cargo run --manifest-path examples/runner-host-smoke/Cargo.toml
+COMPONENT_DESCRIBE_WASM=target/wasm32-wasip2/debug/component_describe.wasm \
+  CARGO_TARGET_DIR=target cargo run --manifest-path examples/runner-host-smoke/Cargo.toml
 ```
 
 ## What is `greentic-interfaces-wasmtime`?
@@ -67,5 +67,6 @@ Toggles:
 - `LOCAL_CHECK_ONLINE=1` – enable networked steps (none today, reserved for future use).
 - `LOCAL_CHECK_STRICT=1` – fail immediately if required tools are missing.
 - `LOCAL_CHECK_VERBOSE=1` – print every command before executing it.
+- `LOCAL_CHECK_EXAMPLES=1` – build/run the example crates (requires the `wasm32-wasip2` target).
 
 A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.

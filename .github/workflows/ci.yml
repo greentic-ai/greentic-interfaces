@@ -86,8 +86,11 @@ jobs:
       - run: cargo build --workspace --all-features
       - run: cargo test --workspace --all-features
       - name: Build describe-v1 component example
-        run: cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-unknown-unknown
+        env:
+          CARGO_TARGET_DIR: target
+        run: cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-wasip2
       - name: Run runner-host smoke example
         env:
-          COMPONENT_DESCRIBE_WASM: target/wasm32-unknown-unknown/debug/component_describe.wasm
+          CARGO_TARGET_DIR: target
+          COMPONENT_DESCRIBE_WASM: target/wasm32-wasip2/debug/component_describe.wasm
         run: cargo run --manifest-path examples/runner-host-smoke/Cargo.toml

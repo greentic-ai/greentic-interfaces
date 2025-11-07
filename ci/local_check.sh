@@ -10,6 +10,8 @@ cd "${ROOT}"
 : "${LOCAL_CHECK_ONLINE:=0}"
 : "${LOCAL_CHECK_STRICT:=0}"
 : "${LOCAL_CHECK_VERBOSE:=0}"
+: "${LOCAL_CHECK_EXAMPLES:=0}"
+: "${LOCAL_CHECK_WASM_TARGET:=wasm32-wasip2}"
 
 if [[ "${LOCAL_CHECK_VERBOSE}" == "1" ]]; then
     set -x
@@ -58,6 +60,36 @@ require_cargo() {
         require_tool rustup || return 1
     fi
     require_tool cargo
+}
+
+if [[ "${CARGO_BIN[0]}" == "rustup" && "${CARGO_BIN[1]:-}" == "run" ]]; then
+    CARGO_TOOLCHAIN="${CARGO_BIN[2]}"
+else
+    CARGO_TOOLCHAIN=""
+fi
+
+ensure_rust_target() {
+    local target="$1"
+    if ! need rustup; then
+        echo "rustup missing; cannot manage targets"
+        return 1
+    fi
+    local list_args=()
+    if [[ -n "${CARGO_TOOLCHAIN}" ]]; then
+        list_args+=(--toolchain "${CARGO_TOOLCHAIN}")
+    fi
+    if rustup target list "${list_args[@]}" --installed | grep -q "^${target}\$"; then
+        return 0
+    fi
+    if [[ "${LOCAL_CHECK_ONLINE}" != "1" ]]; then
+        echo "Target ${target} not installed (offline); skipping"
+        return 1
+    fi
+    local add_args=()
+    if [[ -n "${CARGO_TOOLCHAIN}" ]]; then
+        add_args+=(--toolchain "${CARGO_TOOLCHAIN}")
+    fi
+    rustup target add "${target}" "${add_args[@]}"
 }
 
 run_step() {
@@ -189,19 +221,37 @@ if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo bu
 if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
 
 build_component_example() {
-    cargo_cmd build \
+    CARGO_TARGET_DIR="$ROOT/target" cargo_cmd build \
         --manifest-path examples/component-describe/Cargo.toml \
-        --target wasm32-unknown-unknown
+        --target "${LOCAL_CHECK_WASM_TARGET}"
 }
 run_runner_example() {
-    local wasm_path="$ROOT/target/wasm32-unknown-unknown/debug/component_describe.wasm"
-    COMPONENT_DESCRIBE_WASM="$wasm_path" \
+    local wasm_path="$ROOT/target/${LOCAL_CHECK_WASM_TARGET}/debug/component_describe.wasm"
+    CARGO_TARGET_DIR="$ROOT/target" \
+        COMPONENT_DESCRIBE_WASM="$wasm_path" \
         cargo_cmd run \
         --manifest-path examples/runner-host-smoke/Cargo.toml
 }
 
-if require_cargo; then run_step "Build describe-v1 example" build_component_example; else skip_step "Build describe-v1 example" "cargo missing"; fi
-if require_cargo; then run_step "Run runner-host smoke" run_runner_example; else skip_step "Run runner-host smoke" "cargo missing"; fi
+if [[ "${LOCAL_CHECK_EXAMPLES}" == "1" ]]; then
+    if require_cargo && ensure_rust_target "${LOCAL_CHECK_WASM_TARGET}"; then
+        run_step "Build describe-v1 example" build_component_example
+    else
+        skip_step "Build describe-v1 example" "missing cargo or target"
+    fi
+else
+    skip_step "Build describe-v1 example" "set LOCAL_CHECK_EXAMPLES=1 to enable"
+fi
+
+if [[ "${LOCAL_CHECK_EXAMPLES}" == "1" ]]; then
+    if require_cargo && ensure_rust_target "${LOCAL_CHECK_WASM_TARGET}"; then
+        run_step "Run runner-host smoke" run_runner_example
+    else
+        skip_step "Run runner-host smoke" "missing cargo or target"
+    fi
+else
+    skip_step "Run runner-host smoke" "set LOCAL_CHECK_EXAMPLES=1 to enable"
+fi
 
 if [[ "${FAILURES}" -ne 0 ]]; then
     echo "\nSome checks failed."

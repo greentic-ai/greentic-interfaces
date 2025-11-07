@@ -6,8 +6,9 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::vec::Vec;
-use wasmtime::component::Linker;
+use wasmtime::component::{Linker, ResourceTable};
 use wasmtime::{Config, Engine, Store};
+use wasmtime_wasi::{p2, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
 
 fn main() -> Result<()> {
     let component_path = ensure_component_artifact()?;
@@ -21,11 +22,22 @@ fn main() -> Result<()> {
     let component = component_v1_0::Component::instantiate(&engine, &bytes)?;
     let mut linker = Linker::new(&engine);
 
-    runner_host_v1::add_to_linker(&mut linker, |state: &mut HostMocks| state)?;
+    p2::add_to_linker_sync(&mut linker)?;
+    runner_host_v1::add_to_linker(&mut linker, |state: &mut AppState| &mut state.host)?;
 
-    let mut store = Store::new(&engine, HostMocks::default());
+    let mut store = Store::new(&engine, AppState::new()?);
     let instance = linker.instantiate(&mut store, &component)?;
-    let describe = instance.get_typed_func::<(), (String,)>(&mut store, "describe-v1#describe-json")?;
+    let iface_idx = instance
+        .get_export_index(&mut store, None, "greentic:component/describe-v1@1.0.0")
+        .context("describe-v1 interface not exported")?;
+
+    let func_idx = instance
+        .get_export_index(&mut store, Some(&iface_idx), "describe-json")
+        .context("describe-v1 interface not exported")?;
+
+    let describe = instance
+        .get_typed_func::<(), (String,)>(&mut store, func_idx)
+        .context("describe-json export not found")?;
     let (payload,) = describe.call(&mut store, ())?;
 
     // Ensure the JSON is at least well-formed.
@@ -62,6 +74,32 @@ impl runner_host_v1::RunnerHost for HostMocks {
     }
 }
 
+struct AppState {
+    wasi: WasiCtx,
+    table: ResourceTable,
+    host: HostMocks,
+}
+
+impl AppState {
+    fn new() -> Result<Self> {
+        let wasi = WasiCtxBuilder::new().inherit_stdout().inherit_stderr().build();
+        Ok(Self {
+            wasi,
+            table: ResourceTable::new(),
+            host: HostMocks::default(),
+        })
+    }
+}
+
+impl WasiView for AppState {
+    fn ctx(&mut self) -> WasiCtxView<'_> {
+        WasiCtxView {
+            ctx: &mut self.wasi,
+            table: &mut self.table,
+        }
+    }
+}
+
 fn ensure_component_artifact() -> Result<PathBuf> {
     if let Ok(path) = env::var("COMPONENT_DESCRIBE_WASM") {
         return Ok(PathBuf::from(path));
@@ -73,7 +111,7 @@ fn ensure_component_artifact() -> Result<PathBuf> {
         .and_then(Path::parent)
         .map(Path::to_path_buf)
         .ok_or_else(|| anyhow::anyhow!("failed to determine workspace root"))?;
-    let target = workspace_root.join("target/wasm32-unknown-unknown/debug/component_describe.wasm");
+    let target = workspace_root.join("target/wasm32-wasip2/debug/component_describe.wasm");
 
     if !target.exists() {
         build_component(&workspace_root)?;
@@ -94,8 +132,9 @@ fn build_component(workspace_root: &Path) -> Result<()> {
             "--manifest-path",
             "examples/component-describe/Cargo.toml",
             "--target",
-            "wasm32-unknown-unknown",
+            "wasm32-wasip2",
         ])
+        .env("CARGO_TARGET_DIR", workspace_root.join("target"))
         .status()
         .context("building component-describe example")?;
 

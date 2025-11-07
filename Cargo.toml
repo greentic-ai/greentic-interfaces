@@ -3,6 +3,10 @@ members = [
     "crates/greentic-interfaces",
     "crates/greentic-interfaces-wasmtime",
 ]
+exclude = [
+    "examples/component-describe",
+    "examples/runner-host-smoke",
+]
 resolver = "2"
 
 [workspace.package]
