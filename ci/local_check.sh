@@ -37,6 +37,29 @@ require_tool() {
     return 1
 }
 
+declare -a CARGO_BIN
+if [[ -n "${LOCAL_CHECK_CARGO_BIN:-}" ]]; then
+    # shellcheck disable=SC2206
+    CARGO_BIN=(${LOCAL_CHECK_CARGO_BIN})
+elif need rustup && rustup toolchain list 2>/dev/null | grep -q '1\.88\.0'; then
+    CARGO_BIN=("rustup" "run" "1.88.0" "cargo")
+else
+    CARGO_BIN=("cargo")
+fi
+CARGO_DISPLAY="${CARGO_BIN[*]}"
+
+cargo_cmd() {
+    "${CARGO_BIN[@]}" "$@"
+}
+
+require_cargo() {
+    local first="${CARGO_BIN[0]}"
+    if [[ "${first}" == "rustup" ]]; then
+        require_tool rustup || return 1
+    fi
+    require_tool cargo
+}
+
 run_step() {
     local desc="$1"
     shift
@@ -72,21 +95,21 @@ run_or_skip() {
 FAILURES=0
 
 step "Tool versions"
-run_or_skip "cargo --version" bash -c 'command -v cargo >/dev/null 2>&1 && cargo --version'
+run_or_skip "configured cargo (${CARGO_DISPLAY}) --version" cargo_cmd --version
 run_or_skip "rustc --version" bash -c 'command -v rustc >/dev/null 2>&1 && rustc --version'
 run_or_skip "wasm-tools --version" bash -c 'command -v wasm-tools >/dev/null 2>&1 && wasm-tools --version'
 
 do_fmt() {
-    cargo fmt --all -- --check
+    cargo_cmd fmt --all -- --check
 }
 do_clippy() {
-    cargo clippy --workspace --all-targets --all-features -- -D warnings
+    cargo_cmd clippy --workspace --all-targets --all-features -- -D warnings
 }
 do_build() {
-    cargo build --workspace --all-features
+    cargo_cmd build --workspace --all-features
 }
 do_test() {
-    cargo test --workspace --all-features
+    cargo_cmd test --workspace --all-features
 }
 
 do_wit_validate() {
@@ -157,30 +180,28 @@ do_wit_diff() {
     return 0
 }
 
-if require_tool cargo; then run_step "cargo fmt" do_fmt; else skip_step "cargo fmt" "cargo missing"; fi
-if require_tool cargo; then run_step "cargo clippy" do_clippy; else skip_step "cargo clippy" "cargo missing"; fi
+if require_cargo; then run_step "cargo fmt" do_fmt; else skip_step "cargo fmt" "cargo missing"; fi
+if require_cargo; then run_step "cargo clippy" do_clippy; else skip_step "cargo clippy" "cargo missing"; fi
 if require_tool wasm-tools; then run_step "Validate ABI WIT" do_wit_validate crates/greentic-interfaces/wit; else skip_step "Validate ABI WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools; then run_step "Validate Wasmtime WIT" do_wit_validate crates/greentic-interfaces-wasmtime/wit; else skip_step "Validate Wasmtime WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" do_wit_diff; else skip_step "WIT diff guard" "missing wasm-tools or git"; fi
-if require_tool cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
-if require_tool cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
+if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
+if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
 
 build_component_example() {
-    cargo build \
+    cargo_cmd build \
         --manifest-path examples/component-describe/Cargo.toml \
-        --config package.workspace=false \
         --target wasm32-unknown-unknown
 }
 run_runner_example() {
     local wasm_path="$ROOT/target/wasm32-unknown-unknown/debug/component_describe.wasm"
     COMPONENT_DESCRIBE_WASM="$wasm_path" \
-        cargo run \
-        --manifest-path examples/runner-host-smoke/Cargo.toml \
-        --config package.workspace=false
+        cargo_cmd run \
+        --manifest-path examples/runner-host-smoke/Cargo.toml
 }
 
-if require_tool cargo; then run_step "Build describe-v1 example" build_component_example; else skip_step "Build describe-v1 example" "cargo missing"; fi
-if require_tool cargo; then run_step "Run runner-host smoke" run_runner_example; else skip_step "Run runner-host smoke" "cargo missing"; fi
+if require_cargo; then run_step "Build describe-v1 example" build_component_example; else skip_step "Build describe-v1 example" "cargo missing"; fi
+if require_cargo; then run_step "Run runner-host smoke" run_runner_example; else skip_step "Run runner-host smoke" "cargo missing"; fi
 
 if [[ "${FAILURES}" -ne 0 ]]; then
     echo "\nSome checks failed."
