@@ -19,7 +19,6 @@ jobs:
       - name: Show toolchain versions
         run: |
           wasm-tools --version
-          wit-component --version
           cargo --version
           rustc --version
       - run: cargo fmt --all -- --check
