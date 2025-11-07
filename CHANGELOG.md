@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.4.20
+- Add `greentic:component@1.0.0` describe-only world so runners can fetch schema/default metadata over JSON without binding to a specific component ABI.
+- Add `greentic:host@1.0.0` with `http-v1`, `secrets-v1`, and `kv-v1` host imports to model runner capabilities that mocks/dev profiles can override.
+- Add `greentic:lifecycle@1.0.0` optional exports (`init`, `health`, `shutdown`) that runners can probe and invoke when implemented.
+- Add `greentic:events@1.0.0` envelope record for shared telemetry/event payloads.
+- Keep the new contracts opt-in via the `describe-v1`, `runner-host-v1`, `component-lifecycle-v1`, and `events-v1` features (use the new `wit-all` helper to flip everything on) and release `greentic-interfaces-wasmtime` 0.2.3 so the Wasmtime helpers pick up the 1.0 packages.
+
+### Migration
+- Existing consumers remain unchanged. To call `describe-v1` from Wasmtime, enable the `describe-v1` feature (or `wit-all`) on `greentic-interfaces` and depend on `greentic-interfaces-wasmtime` ≥ 0.2.3 along with the bundled smoke-example pattern.
+
 ## v0.4.18
 - Add optional `session-id`, `flow-id`, `node-id`, and `provider-id` fields to `TenantCtx` in the 0.4.x WIT contracts and regenerate bindings.
 - Extend the Rust mappers/tests to round-trip the new identifiers while preserving backward compatibility.

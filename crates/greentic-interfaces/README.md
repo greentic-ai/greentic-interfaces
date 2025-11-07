@@ -40,9 +40,9 @@ use greentic_types::{EnvId, TenantCtx, TenantId};
 
 // Existing 0.4.x code keeps compiling; the new fields simply default to `None`.
 let legacy = TenantCtx {
-    env: EnvId::from("dev"),
-    tenant: TenantId::from("tenant"),
-    tenant_id: TenantId::from("tenant"),
+    env: EnvId::new("dev").expect("env id"),
+    tenant: TenantId::new("tenant").expect("tenant id"),
+    tenant_id: TenantId::new("tenant").expect("tenant id"),
     team: None,
     team_id: None,
     user: None,

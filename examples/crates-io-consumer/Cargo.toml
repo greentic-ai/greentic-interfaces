@@ -1,8 +1,8 @@
 [package]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 publish = false
 
 [dependencies]
-greentic-interfaces = "0.4.8"
+greentic-interfaces = "0.4"

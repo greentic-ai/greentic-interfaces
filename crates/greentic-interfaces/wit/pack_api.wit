@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package greentic:interfaces-pack@0.1.0;
 
 use greentic:interfaces-provider/provider@0.1.0;

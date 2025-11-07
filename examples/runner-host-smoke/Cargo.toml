@@ -1,0 +1,12 @@
+[package]
+name = "runner-host-smoke"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+anyhow = "1"
+greentic-interfaces = { path = "../../crates/greentic-interfaces", default-features = false, features = ["runner-host-v1"] }
+greentic-interfaces-wasmtime = { path = "../../crates/greentic-interfaces-wasmtime" }
+serde_json = "1"
+wasmtime = { version = "38", default-features = false, features = ["component-model"] }

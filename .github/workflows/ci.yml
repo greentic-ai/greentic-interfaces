@@ -9,11 +9,78 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: 1.86.0
           components: rustfmt,clippy
+          targets: wasm32-unknown-unknown
+      - name: Install WIT tooling
+        run: |
+          cargo install wasm-tools --locked
+          cargo install wit-component --locked
+      - name: Show toolchain versions
+        run: |
+          wasm-tools --version
+          wit-component --version
+          cargo --version
+          rustc --version
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-features -- -D warnings
+      - name: Validate ABI WIT packages
+        run: wasm-tools wit validate crates/greentic-interfaces/wit
+      - name: Validate Wasmtime WIT bundles
+        run: wasm-tools wit validate crates/greentic-interfaces-wasmtime/wit
+      - name: Ensure SPDX headers present
+        run: |
+          set -euo pipefail
+          missing=$(rg --files -g 'package.wit' crates/greentic-interfaces/wit crates/greentic-interfaces-wasmtime/wit | while read -r file; do
+            if [[ "$(head -n1 "$file")" != "// SPDX-License-Identifier: MIT" ]]; then
+              echo "$file"
+            fi
+          done)
+          if [[ -n "${missing}" ]]; then
+            echo "::error::Missing SPDX header in the following WIT files:"
+            echo "${missing}"
+            exit 1
+          fi
+      - name: Guard WIT API against latest tag
+        run: |
+          set -euo pipefail
+          latest_tag="$(git tag --list 'v*' --sort=-version:refname | head -n1 | tr -d '\n')"
+          baseline_tag="${BASELINE_TAG:-${latest_tag}}"
+          if [[ -z "${baseline_tag}" ]]; then
+            echo "No baseline release tag found; skipping WIT diff."
+            exit 0
+          fi
+          echo "Comparing staged WIT against ${baseline_tag}"
+          tmpdir="$(mktemp -d)"
+          current="${tmpdir}/current.wit"
+          prev="${tmpdir}/prev.wit"
+          wasm-tools wit print crates/greentic-interfaces/wit > "${current}"
+          if ! git rev-parse -q --verify "${baseline_tag}" >/dev/null; then
+            echo "Unable to resolve ${baseline_tag}; skipping WIT diff."
+            exit 0
+          fi
+          git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
+          wasm-tools wit print "${tmpdir}/crates/greentic-interfaces/wit" > "${prev}"
+          diff_file="${tmpdir}/wit.diff"
+          wit-component diff "${prev}" "${current}" > "${diff_file}"
+          if [[ -s "${diff_file}" ]]; then
+            echo "::error::WIT contracts changed relative to ${baseline_tag}. Bump package versions or update BASELINE_TAG."
+            cat "${diff_file}"
+            exit 1
+          fi
+      - name: Show WIT package versions
+        run: |
+          echo "ABI workspace packages:"
+          wasm-tools wit print crates/greentic-interfaces/wit | head -n 5
+          echo "Wasmtime helper packages:"
+          wasm-tools wit print crates/greentic-interfaces-wasmtime/wit | head -n 5
       - run: cargo build --workspace --all-features
       - run: cargo test --workspace --all-features
+      - name: Build describe-v1 component example
+        run: cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-unknown-unknown
+      - name: Run runner-host smoke example
+        env:
+          COMPONENT_DESCRIBE_WASM: target/wasm32-unknown-unknown/debug/component_describe.wasm
+        run: cargo run --manifest-path examples/runner-host-smoke/Cargo.toml

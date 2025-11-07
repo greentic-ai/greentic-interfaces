@@ -13,17 +13,49 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: 1.86.0
       - name: Install wkg
         run: curl -fsSL https://wkg.dev/install.sh | bash
       - name: Install wasm-tools
         run: cargo install wasm-tools --locked
       - name: Build packages
         run: bash scripts/package-wit.sh target/wit-packages
+      - name: Bundle greentic 1.0.0 packages
+        run: bash scripts/bundle-wit.sh target/wit-packages
+      - name: Stage raw package.wit assets
+        run: |
+          set -euo pipefail
+          raw_dir="target/wit-packages/raw"
+          mkdir -p "${raw_dir}"
+          for pkg in component@1.0.0 host@1.0.0 lifecycle@1.0.0 events@1.0.0; do
+            src="crates/greentic-interfaces/wit/greentic/${pkg}/package.wit"
+            safe="${pkg//@/-}"
+            cp "${src}" "${raw_dir}/${safe}-package.wit"
+          done
+      - name: Generate release notes snippet
+        env:
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: bash scripts/generate-release-notes.sh target/wit-packages/RELEASE_NOTES.md
+      - name: Upload bundle artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: greentic-interfaces-wit-1.0.0
+          path: |
+            target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz
+            target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz.sha256
+            target/wit-packages/raw/*.package.wit
+            target/wit-packages/RELEASE_NOTES.md
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Publish greentic-interfaces-wit bundle
+        run: |
+          wkg oci push \
+            ghcr.io/greentic-ai/greentic-interfaces-wit:1.0.0 \
+            target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz
       - name: Publish all
         run: |
           for f in target/wit-packages/*.wasm; do

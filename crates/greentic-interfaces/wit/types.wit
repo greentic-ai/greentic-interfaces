@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package greentic:interfaces-types@0.1.0;
 
 interface types {

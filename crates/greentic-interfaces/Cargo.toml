@@ -1,7 +1,8 @@
 [package]
 name = "greentic-interfaces"
-version = "0.4.19"
+version = "0.4.20"
 edition = "2024"
+rust-version = "1.86"
 build = "build.rs"
 license = "MIT"
 repository = "https://github.com/greentic-ai/greentic-interfaces"
@@ -27,16 +28,37 @@ default = [
 ]
 bindings-rust = ["dep:wit-bindgen"]
 component-v0-4 = []
+describe-v1 = []
 pack-export-v0-4 = []
 types-core-v0-4 = []
 host-import-v0-4 = []
 host-import-v0-2 = []
+runner-host-v1 = []
 pack-export-v0-2 = []
 types-core-v0-2 = []
 secrets-v0-1 = []
 wasix-mcp-v0-0-5 = []
 oauth-v0-1 = []
+component-lifecycle-v1 = []
+events-v1 = []
 host-import-compat = ["host-import-v0-4", "host-import-v0-2"]
+wit-all = [
+    "bindings-rust",
+    "component-v0-4",
+    "describe-v1",
+    "pack-export-v0-4",
+    "types-core-v0-4",
+    "host-import-v0-4",
+    "host-import-v0-2",
+    "runner-host-v1",
+    "pack-export-v0-2",
+    "types-core-v0-2",
+    "secrets-v0-1",
+    "component-lifecycle-v1",
+    "events-v1",
+    "wasix-mcp-v0-0-5",
+    "oauth-v0-1"
+]
 schema = ["dep:schemars", "greentic-types/schemars"]
 
 [dependencies]

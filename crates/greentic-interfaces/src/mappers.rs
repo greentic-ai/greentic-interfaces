@@ -52,12 +52,14 @@ type WitPackRef = bindings::greentic::interfaces_types::types::PackRef;
 type WitSignature = bindings::greentic::interfaces_types::types::Signature;
 type WitSignatureAlgorithm = bindings::greentic::interfaces_types::types::SignatureAlgorithm;
 
-impl From<WitImpersonation> for types::Impersonation {
-    fn from(value: WitImpersonation) -> Self {
-        Self {
-            actor_id: types::UserId::from(value.actor_id),
+impl TryFrom<WitImpersonation> for types::Impersonation {
+    type Error = types::GreenticError;
+
+    fn try_from(value: WitImpersonation) -> MapperResult<Self> {
+        Ok(Self {
+            actor_id: value.actor_id.try_into()?,
             reason: value.reason,
-        }
+        })
     }
 }
 
@@ -74,28 +76,58 @@ impl TryFrom<WitTenantCtx> for types::TenantCtx {
     type Error = types::GreenticError;
 
     fn try_from(value: WitTenantCtx) -> MapperResult<Self> {
-        let deadline = value
-            .deadline_ms
-            .map(|ms| types::InvocationDeadline::from_unix_millis(ms as i128));
+        let WitTenantCtx {
+            env,
+            tenant,
+            tenant_id,
+            team,
+            team_id,
+            user,
+            user_id,
+            trace_id,
+            correlation_id,
+            session_id,
+            flow_id,
+            node_id,
+            provider_id,
+            deadline_ms,
+            attempt,
+            idempotency_key,
+            impersonation,
+        } = value;
+
+        let deadline =
+            deadline_ms.map(|ms| types::InvocationDeadline::from_unix_millis(ms as i128));
+
+        let env = env.try_into()?;
+        let tenant = tenant.try_into()?;
+        let tenant_id = tenant_id.try_into()?;
+        let team = team.map(|item| item.try_into()).transpose()?;
+        let team_id = team_id.map(|item| item.try_into()).transpose()?;
+        let user = user.map(|item| item.try_into()).transpose()?;
+        let user_id = user_id.map(|item| item.try_into()).transpose()?;
+        let impersonation = impersonation
+            .map(types::Impersonation::try_from)
+            .transpose()?;
 
         Ok(Self {
-            env: types::EnvId::from(value.env),
-            tenant: types::TenantId::from(value.tenant.clone()),
-            tenant_id: types::TenantId::from(value.tenant_id),
-            team: value.team.map(types::TeamId::from),
-            team_id: value.team_id.map(types::TeamId::from),
-            user: value.user.map(types::UserId::from),
-            user_id: value.user_id.map(types::UserId::from),
-            session_id: value.session_id,
-            flow_id: value.flow_id,
-            node_id: value.node_id,
-            provider_id: value.provider_id,
-            trace_id: value.trace_id,
-            correlation_id: value.correlation_id,
+            env,
+            tenant,
+            tenant_id,
+            team,
+            team_id,
+            user,
+            user_id,
+            session_id,
+            flow_id,
+            node_id,
+            provider_id,
+            trace_id,
+            correlation_id,
             deadline,
-            attempt: value.attempt,
-            idempotency_key: value.idempotency_key,
-            impersonation: value.impersonation.map(types::Impersonation::from),
+            attempt,
+            idempotency_key,
+            impersonation,
         })
     }
 }
@@ -288,15 +320,26 @@ impl TryFrom<WitSpanContext> for types::SpanContext {
     type Error = types::GreenticError;
 
     fn try_from(value: WitSpanContext) -> MapperResult<Self> {
-        let start = value.start_ms.map(timestamp_ms_to_offset).transpose()?;
-        let end = value.end_ms.map(timestamp_ms_to_offset).transpose()?;
+        let WitSpanContext {
+            tenant,
+            session_id,
+            flow_id,
+            node_id,
+            provider,
+            start_ms,
+            end_ms,
+        } = value;
+
+        let start = start_ms.map(timestamp_ms_to_offset).transpose()?;
+        let end = end_ms.map(timestamp_ms_to_offset).transpose()?;
+        let tenant = tenant.try_into()?;
 
         Ok(Self {
-            tenant: types::TenantId::from(value.tenant),
-            session_id: value.session_id.map(types::SessionKey::from),
-            flow_id: value.flow_id,
-            node_id: value.node_id,
-            provider: value.provider,
+            tenant,
+            session_id: session_id.map(types::SessionKey::from),
+            flow_id,
+            node_id,
+            provider,
             start,
             end,
         })
@@ -396,13 +439,13 @@ mod tests {
 
     fn sample_tenant_ctx() -> types::TenantCtx {
         types::TenantCtx {
-            env: types::EnvId::from("prod"),
-            tenant: types::TenantId::from("tenant-1"),
-            tenant_id: types::TenantId::from("tenant-1"),
-            team: Some(types::TeamId::from("team-42")),
-            team_id: Some(types::TeamId::from("team-42")),
-            user: Some(types::UserId::from("user-7")),
-            user_id: Some(types::UserId::from("user-7")),
+            env: types::EnvId::new("prod").expect("env id"),
+            tenant: types::TenantId::new("tenant-1").expect("tenant"),
+            tenant_id: types::TenantId::new("tenant-1").expect("tenant"),
+            team: Some(types::TeamId::new("team-42").expect("team")),
+            team_id: Some(types::TeamId::new("team-42").expect("team")),
+            user: Some(types::UserId::new("user-7").expect("user")),
+            user_id: Some(types::UserId::new("user-7").expect("user")),
             session_id: Some("sess-42".into()),
             flow_id: Some("flow-42".into()),
             node_id: Some("node-42".into()),
@@ -415,7 +458,7 @@ mod tests {
             attempt: 2,
             idempotency_key: Some("idem".into()),
             impersonation: Some(types::Impersonation {
-                actor_id: types::UserId::from("actor"),
+                actor_id: types::UserId::new("actor").expect("user"),
                 reason: Some("maintenance".into()),
             }),
         }

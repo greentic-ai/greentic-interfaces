@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package greentic:component@0.4.0;
 
 /// Cooperative control-plane hooks surfaced to components.

@@ -27,6 +27,17 @@ macro_rules! declare_world {
     };
 }
 
+#[cfg(feature = "describe-v1")]
+declare_world!(
+    mod component_describe_v1,
+    path = "wit/greentic/component@1.0.0",
+    world = "greentic:component/component@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:component@1.0.0";
+    }
+);
+
 #[cfg(feature = "component-v0-4")]
 declare_world!(
     mod component_v0_4,
@@ -294,6 +305,91 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "runner-host-v1")]
+declare_world!(
+    mod runner_host_v1,
+    path = "wit/greentic/host@1.0.0",
+    world = "greentic:host/runner-host@1.0.0",
+    legacy = {
+        use std::vec::Vec;
+        use wasmtime::component::Linker;
+        use wasmtime::{Result, StoreContextMut};
+
+        pub use bindings::greentic::host::{http_v1, kv_v1, secrets_v1};
+
+        /// Minimal trait hosts implement to satisfy the runner-host imports.
+        pub trait RunnerHost {
+            fn http_request(
+                &mut self,
+                method: String,
+                url: String,
+                headers: Vec<String>,
+                body: Option<Vec<u8>>,
+            ) -> Result<Result<Vec<u8>, String>>;
+
+            fn secret_get(&mut self, name: String) -> Result<Result<String, String>>;
+
+            fn kv_get(&mut self, ns: String, key: String) -> Result<Option<String>>;
+
+            fn kv_put(&mut self, ns: String, key: String, val: String) -> Result<()>;
+        }
+
+        /// Registers the runner-host interfaces with the provided linker.
+        pub fn add_to_linker<T>(
+            linker: &mut Linker<T>,
+            get_host: impl Fn(&mut T) -> &mut (dyn RunnerHost + Send + Sync + 'static)
+                + Send
+                + Sync
+                + Copy
+                + 'static,
+        ) -> Result<()>
+        where
+            T: Send + 'static,
+        {
+            let mut http = linker.instance("greentic:host/http-v1@1.0.0")?;
+            http.func_wrap(
+                "request",
+                move |mut caller: StoreContextMut<'_, T>,
+                      (method, url, headers, body): (String, String, Vec<String>, Option<Vec<u8>>)| {
+                    let host = get_host(caller.data_mut());
+                    host.http_request(method, url, headers, body)
+                        .map(|res| (res,))
+                },
+            )?;
+
+            let mut secrets = linker.instance("greentic:host/secrets-v1@1.0.0")?;
+            secrets.func_wrap(
+                "get",
+                move |mut caller: StoreContextMut<'_, T>, (name,): (String,)| {
+                    let host = get_host(caller.data_mut());
+                    host.secret_get(name).map(|res| (res,))
+                },
+            )?;
+
+            let mut kv = linker.instance("greentic:host/kv-v1@1.0.0")?;
+            kv.func_wrap(
+                "get",
+                move |mut caller: StoreContextMut<'_, T>, (ns, key): (String, String)| {
+                    let host = get_host(caller.data_mut());
+                    host.kv_get(ns, key).map(|res| (res,))
+                },
+            )?;
+            kv.func_wrap(
+                "put",
+                move |mut caller: StoreContextMut<'_, T>, (ns, key, val): (String, String, String)| {
+                    let host = get_host(caller.data_mut());
+                    host.kv_put(ns, key, val)
+                },
+            )?;
+
+            Ok(())
+        }
+
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:host@1.0.0";
+    }
+);
+
 #[cfg(feature = "pack-export-v0-2")]
 declare_world!(
     mod pack_export_v0_2,
@@ -343,5 +439,27 @@ declare_world!(
     legacy = {
         /// Canonical package identifier.
         pub const PACKAGE_ID: &str = "greentic:oauth@0.1.0";
+    }
+);
+
+#[cfg(feature = "component-lifecycle-v1")]
+declare_world!(
+    mod component_lifecycle_v1,
+    path = "wit/greentic/lifecycle@1.0.0",
+    world = "greentic:lifecycle/component-lifecycle@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:lifecycle@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-v1")]
+declare_world!(
+    mod events_v1,
+    path = "wit/greentic/events@1.0.0",
+    world = "greentic:events/events@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
     }
 );
