@@ -436,16 +436,25 @@ impl From<types::PackRef> for WitPackRef {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::convert::TryFrom;
+
+    fn fixture_id<T>(value: &str) -> T
+    where
+        T: TryFrom<String, Error = types::GreenticError>,
+    {
+        T::try_from(value.to_owned())
+            .unwrap_or_else(|err| panic!("invalid fixture identifier '{value}': {err}"))
+    }
 
     fn sample_tenant_ctx() -> types::TenantCtx {
         types::TenantCtx {
-            env: types::EnvId::new("prod").expect("env id"),
-            tenant: types::TenantId::new("tenant-1").expect("tenant"),
-            tenant_id: types::TenantId::new("tenant-1").expect("tenant"),
-            team: Some(types::TeamId::new("team-42").expect("team")),
-            team_id: Some(types::TeamId::new("team-42").expect("team")),
-            user: Some(types::UserId::new("user-7").expect("user")),
-            user_id: Some(types::UserId::new("user-7").expect("user")),
+            env: fixture_id("prod"),
+            tenant: fixture_id("tenant-1"),
+            tenant_id: fixture_id("tenant-1"),
+            team: Some(fixture_id("team-42")),
+            team_id: Some(fixture_id("team-42")),
+            user: Some(fixture_id("user-7")),
+            user_id: Some(fixture_id("user-7")),
             session_id: Some("sess-42".into()),
             flow_id: Some("flow-42".into()),
             node_id: Some("node-42".into()),
@@ -458,7 +467,7 @@ mod tests {
             attempt: 2,
             idempotency_key: Some("idem".into()),
             impersonation: Some(types::Impersonation {
-                actor_id: types::UserId::new("actor").expect("user"),
+                actor_id: fixture_id("actor"),
                 reason: Some("maintenance".into()),
             }),
         }

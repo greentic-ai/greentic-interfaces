@@ -7,15 +7,23 @@ use greentic_types as types;
 use semver::Version;
 use time::OffsetDateTime;
 
+fn fixture_id<T>(value: &str) -> T
+where
+    T: TryFrom<String, Error = types::GreenticError>,
+{
+    T::try_from(value.to_owned())
+        .unwrap_or_else(|err| panic!("invalid fixture identifier '{value}': {err}"))
+}
+
 fn sample_tenant_ctx() -> types::TenantCtx {
     types::TenantCtx {
-        env: types::EnvId::new("dev").expect("env"),
-        tenant: types::TenantId::new("tenant").expect("tenant"),
-        tenant_id: types::TenantId::new("tenant").expect("tenant"),
-        team: Some(types::TeamId::new("team").expect("team")),
-        team_id: Some(types::TeamId::new("team").expect("team")),
-        user: Some(types::UserId::new("user").expect("user")),
-        user_id: Some(types::UserId::new("user").expect("user")),
+        env: fixture_id("dev"),
+        tenant: fixture_id("tenant"),
+        tenant_id: fixture_id("tenant"),
+        team: Some(fixture_id("team")),
+        team_id: Some(fixture_id("team")),
+        user: Some(fixture_id("user")),
+        user_id: Some(fixture_id("user")),
         session_id: Some("sess-1".into()),
         flow_id: Some("flow-1".into()),
         node_id: Some("node-1".into()),
@@ -28,7 +36,7 @@ fn sample_tenant_ctx() -> types::TenantCtx {
         attempt: 1,
         idempotency_key: Some("idem".into()),
         impersonation: Some(types::Impersonation {
-            actor_id: types::UserId::new("actor").expect("user"),
+            actor_id: fixture_id("actor"),
             reason: Some("maintenance".into()),
         }),
     }
@@ -62,10 +70,7 @@ fn tenant_ctx_roundtrip_external() {
 
 #[test]
 fn tenant_ctx_old_style_is_accepted() {
-    let mut ctx = types::TenantCtx::new(
-        types::EnvId::new("dev").expect("env"),
-        types::TenantId::new("tenant").expect("tenant"),
-    );
+    let mut ctx = types::TenantCtx::new(fixture_id("dev"), fixture_id("tenant"));
     ctx.team = None;
     ctx.user = None;
     ctx.deadline = None;
@@ -108,7 +113,7 @@ fn span_context_roundtrip() {
     use bindings::greentic::interfaces_types::types::SpanContext as WitSpanContext;
 
     let span = types::SpanContext {
-        tenant: types::TenantId::new("tenant").expect("tenant"),
+        tenant: fixture_id("tenant"),
         session_id: Some(types::SessionKey::from("session")),
         flow_id: "flow".into(),
         node_id: Some("node".into()),
