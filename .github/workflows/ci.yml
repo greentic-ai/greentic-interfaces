@@ -49,6 +49,16 @@ jobs:
             echo "No baseline release tag found; skipping WIT diff."
             exit 0
           fi
+          baseline_version="${baseline_tag#v}"
+          current_version="$(grep -m1 '^version = ' crates/greentic-interfaces/Cargo.toml | sed -E 's/version = "([^"]+)"/\1/')"
+          if [[ -z "${current_version}" ]]; then
+            echo "::warning::Unable to determine current greentic-interfaces version; skipping WIT diff."
+            exit 0
+          fi
+          if [[ "${current_version}" != "${baseline_version}" ]]; then
+            echo "Detected version bump ${baseline_version} -> ${current_version}; skipping WIT diff guard."
+            exit 0
+          fi
           echo "Comparing staged WIT against ${baseline_tag}"
           tmpdir="$(mktemp -d)"
           current="${tmpdir}/current.wit"
