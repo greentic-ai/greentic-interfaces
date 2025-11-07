@@ -13,7 +13,7 @@ jobs:
         with:
           toolchain: 1.88.0
           components: rustfmt,clippy
-          targets: wasm32-unknown-unknown
+          targets: wasm32-wasip2
       - name: Install WIT tooling
         run: cargo install wasm-tools --locked
       - name: Show toolchain versions
@@ -24,9 +24,9 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-features -- -D warnings
       - name: Validate ABI WIT packages
-        run: wasm-tools wit validate crates/greentic-interfaces/wit
+        run: bash scripts/validate-wit.sh crates/greentic-interfaces/wit
       - name: Validate Wasmtime WIT bundles
-        run: wasm-tools wit validate crates/greentic-interfaces-wasmtime/wit
+        run: bash scripts/validate-wit.sh crates/greentic-interfaces-wasmtime/wit
       - name: Ensure SPDX headers present
         run: |
           set -euo pipefail
@@ -63,13 +63,13 @@ jobs:
           tmpdir="$(mktemp -d)"
           current="${tmpdir}/current.wit"
           prev="${tmpdir}/prev.wit"
-          wasm-tools wit print crates/greentic-interfaces/wit > "${current}"
+          wasm-tools component wit crates/greentic-interfaces/wit > "${current}"
           if ! git rev-parse -q --verify "${baseline_tag}" >/dev/null; then
             echo "Unable to resolve ${baseline_tag}; skipping WIT diff."
             exit 0
           fi
           git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
-          wasm-tools wit print "${tmpdir}/crates/greentic-interfaces/wit" > "${prev}"
+          wasm-tools component wit "${tmpdir}/crates/greentic-interfaces/wit" > "${prev}"
           diff_file="${tmpdir}/wit.diff"
           diff -u "${prev}" "${current}" > "${diff_file}" || true
           if [[ -s "${diff_file}" ]]; then
@@ -80,9 +80,9 @@ jobs:
       - name: Show WIT package versions
         run: |
           echo "ABI workspace packages:"
-          wasm-tools wit print crates/greentic-interfaces/wit | head -n 5
+          wasm-tools component wit crates/greentic-interfaces/wit | head -n 5
           echo "Wasmtime helper packages:"
-          wasm-tools wit print crates/greentic-interfaces-wasmtime/wit | head -n 5
+          wasm-tools component wit crates/greentic-interfaces-wasmtime/wit | head -n 5
       - run: cargo build --workspace --all-features
       - run: cargo test --workspace --all-features
       - name: Build describe-v1 component example

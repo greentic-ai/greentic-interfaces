@@ -71,7 +71,7 @@ fi
 ensure_rust_target() {
     local target="$1"
     if ! need rustup; then
-        echo "rustup missing; cannot manage targets"
+        echo "rustup missing; cannot verify ${target} target"
         return 1
     fi
     local list_args=()
@@ -81,15 +81,13 @@ ensure_rust_target() {
     if rustup target list "${list_args[@]}" --installed | grep -q "^${target}\$"; then
         return 0
     fi
-    if [[ "${LOCAL_CHECK_ONLINE}" != "1" ]]; then
-        echo "Target ${target} not installed (offline); skipping"
-        return 1
-    fi
-    local add_args=()
+    echo "Target '${target}' is not installed. Install it with:"
     if [[ -n "${CARGO_TOOLCHAIN}" ]]; then
-        add_args+=(--toolchain "${CARGO_TOOLCHAIN}")
+        echo "  rustup target add ${target} --toolchain ${CARGO_TOOLCHAIN}"
+    else
+        echo "  rustup target add ${target}"
     fi
-    rustup target add "${target}" "${add_args[@]}"
+    return 1
 }
 
 run_step() {
@@ -146,16 +144,11 @@ do_test() {
 
 do_wit_validate() {
     local dir="$1"
-    if ! need wasm-tools; then
-        echo "wasm-tools missing"
+    if ! need bash || ! need wasm-tools; then
+        echo "missing bash or wasm-tools"
         return 1
     fi
-    if wasm-tools 2>&1 | grep -q "wit \[OPTIONS\]"; then
-        wasm-tools wit validate "${dir}"
-    else
-        echo "wasm-tools does not support 'wit validate'; skipping"
-        return 0
-    fi
+    bash scripts/validate-wit.sh "${dir}"
 }
 
 do_wit_diff() {
@@ -179,16 +172,10 @@ do_wit_diff() {
     fi
     local tmpdir
     tmpdir="$(mktemp -d)"
-    local current="${tmpdir}/current.wit"
-    local prev="${tmpdir}/prev.wit"
-    if wasm-tools 2>&1 | grep -q "wit \[OPTIONS\]"; then
-        if ! wasm-tools wit print crates/greentic-interfaces/wit >"${current}" 2>/dev/null; then
-            echo "Failed to print current WIT; skipping diff"
-            rm -rf "${tmpdir}"
-            return 0
-        fi
-    else
-        echo "wasm-tools missing 'wit print'; skipping diff"
+    local current_dir="${tmpdir}/current"
+    local prev_dir="${tmpdir}/prev"
+    if ! wasm-tools component wit crates/greentic-interfaces/wit --out-dir "${current_dir}" >/dev/null; then
+        echo "Failed to materialize current WIT; skipping diff"
         rm -rf "${tmpdir}"
         return 0
     fi
@@ -198,12 +185,12 @@ do_wit_diff() {
         return 0
     fi
     git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
-    if ! wasm-tools wit print "${tmpdir}/crates/greentic-interfaces/wit" >"${prev}" 2>/dev/null; then
-        echo "Failed to print baseline WIT; skipping diff"
+    if ! wasm-tools component wit "${tmpdir}/crates/greentic-interfaces/wit" --out-dir "${prev_dir}" >/dev/null; then
+        echo "Failed to materialize baseline WIT; skipping diff"
         rm -rf "${tmpdir}"
         return 0
     fi
-    if ! diff -u "${prev}" "${current}" >/dev/null; then
+    if ! diff -ru "${prev_dir}" "${current_dir}" >/dev/null; then
         echo "WIT contracts diverged relative to ${baseline_tag}. Run CI for full context."
         rm -rf "${tmpdir}"
         return 1

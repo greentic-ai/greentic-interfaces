@@ -4,10 +4,12 @@ package greentic:lifecycle@1.0.0;
 
 /// Optional lifecycle hooks components may expose.
 interface lifecycle-v1 {
-  type ok = tuple<>;
+  enum lifecycle-health {
+    ok,
+  }
 
   init: func();
-  health: func() -> result<ok, string>;
+  health: func() -> result<lifecycle-health, string>;
   shutdown: func();
 }
 
