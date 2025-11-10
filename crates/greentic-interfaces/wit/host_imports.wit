@@ -5,7 +5,10 @@ package greentic:interfaces-host@0.1.0;
 use greentic:interfaces-types/types@0.1.0;
 
 interface imports {
-  use greentic:interfaces-types/types@0.1.0.{span-context, state-key, session-cursor};
+  use greentic:interfaces-types/types@0.1.0.{span-context, state-key, session-cursor, tenant-ctx};
+
+  /// Trivial acknowledgment returned by write-only host operations.
+  enum op-ack { ok }
 
   /// Canonical host error.
   record host-error {
@@ -15,7 +18,7 @@ interface imports {
 
   secrets-get: func(name: string) -> result<string, host-error>;
   telemetry-emit: func(span: span-context, fields: list<tuple<string, string>>);
-  state-get: func(key: state-key) -> option<string>;
-  state-set: func(key: state-key, value: string);
-  session-update: func(cursor: session-cursor) -> result<string, host-error>;
+  state-get: func(key: state-key, ctx: option<tenant-ctx>) -> result<string, host-error>;
+  state-set: func(key: state-key, value: string, ctx: option<tenant-ctx>) -> result<op-ack, host-error>;
+  session-update: func(cursor: session-cursor, ctx: option<tenant-ctx>) -> result<string, host-error>;
 }

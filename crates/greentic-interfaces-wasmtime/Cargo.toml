@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces-wasmtime"
-version = "0.2.3"
+version.workspace = true
 edition = "2024"
 rust-version = "1.88"
 license = "MIT"

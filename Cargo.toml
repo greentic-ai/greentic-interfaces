@@ -2,6 +2,8 @@
 members = [
     "crates/greentic-interfaces",
     "crates/greentic-interfaces-wasmtime",
+    "examples/component-describe",
+    "examples/crates-io-consumer",
 ]
 exclude = [
     "examples/component-describe",
@@ -14,6 +16,7 @@ license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
 repository = "https://github.com/greentic-ai/greentic-interfaces"
+version = "0.4.21"
 
 [workspace.dependencies]
 anyhow = "1"

@@ -1,6 +1,6 @@
 [package]
 name = "greentic-interfaces"
-version = "0.4.20"
+version.workspace = true
 edition = "2024"
 rust-version = "1.88"
 build = "build.rs"
@@ -18,6 +18,7 @@ default = [
     "component-v0-4",
     "pack-export-v0-4",
     "types-core-v0-4",
+    "host-import-v0-6",
     "host-import-v0-4",
     "host-import-v0-2",
     "pack-export-v0-2",
@@ -31,6 +32,7 @@ component-v0-4 = []
 describe-v1 = []
 pack-export-v0-4 = []
 types-core-v0-4 = []
+host-import-v0-6 = []
 host-import-v0-4 = []
 host-import-v0-2 = []
 runner-host-v1 = []
@@ -41,13 +43,14 @@ wasix-mcp-v0-0-5 = []
 oauth-v0-1 = []
 component-lifecycle-v1 = []
 events-v1 = []
-host-import-compat = ["host-import-v0-4", "host-import-v0-2"]
+host-import-compat = ["host-import-v0-6", "host-import-v0-4", "host-import-v0-2"]
 wit-all = [
     "bindings-rust",
     "component-v0-4",
     "describe-v1",
     "pack-export-v0-4",
     "types-core-v0-4",
+    "host-import-v0-6",
     "host-import-v0-4",
     "host-import-v0-2",
     "runner-host-v1",

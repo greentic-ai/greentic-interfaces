@@ -600,20 +600,6 @@ dependencies = [
 [[package]]
 name = "greentic-interfaces"
 version = "0.4.20"
-dependencies = [
- "anyhow",
- "greentic-types",
- "semver",
- "thiserror 2.0.17",
- "time",
- "wasmtime",
- "wit-bindgen-core",
- "wit-bindgen-rust",
-]
-
-[[package]]
-name = "greentic-interfaces"
-version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "638378c4256f585ae53c8d07fc8e9e0f663aa9a82d39a82990992d3acb7e7ba8"
 dependencies = [
@@ -628,12 +614,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "greentic-interfaces"
+version = "0.4.21"
+dependencies = [
+ "anyhow",
+ "greentic-types",
+ "semver",
+ "thiserror 2.0.17",
+ "time",
+ "wasmtime",
+ "wit-bindgen-core",
+ "wit-bindgen-rust",
+]
+
+[[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.2.3"
+version = "0.4.21"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
+ "greentic-interfaces 0.4.20",
  "proc-macro2",
  "quote",
  "syn",
@@ -1155,7 +1155,7 @@ name = "runner-host-smoke"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "greentic-interfaces 0.4.20",
+ "greentic-interfaces 0.4.21",
  "greentic-interfaces-wasmtime",
  "serde_json",
  "wasmtime",

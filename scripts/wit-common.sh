@@ -78,7 +78,7 @@ resolve_wit_source() {
   fi
 
   local found
-  found="$(grep -R -F -m1 -l "package ${ref};" "${WIT_ROOT}" || true)"
+  found="$(grep -R -F -l "package ${ref};" "${WIT_ROOT}" | head -n1 || true)"
   if [[ -n "${found}" ]]; then
     echo "${found}"
     return 0

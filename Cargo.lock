@@ -109,6 +109,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "component-describe"
+version = "0.4.21"
+dependencies = [
+ "wit-bindgen",
+]
+
+[[package]]
 name = "console"
 version = "0.15.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -404,26 +411,27 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.19"
+version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a855a4f822e2cea468a90ab254e4db12cbc1c2c24da98d1b5680e7c8254ba389"
+checksum = "638378c4256f585ae53c8d07fc8e9e0f663aa9a82d39a82990992d3acb7e7ba8"
 dependencies = [
  "anyhow",
- "greentic-types 0.2.3",
+ "greentic-types",
  "semver",
  "thiserror",
  "time",
  "wasmtime",
+ "wit-bindgen",
  "wit-bindgen-core",
  "wit-bindgen-rust",
 ]
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.20"
+version = "0.4.21"
 dependencies = [
  "anyhow",
- "greentic-types 0.3.0",
+ "greentic-types",
  "insta",
  "schemars",
  "semver",
@@ -439,12 +447,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "greentic-interfaces-crates-io-consumer"
+version = "0.4.21"
+dependencies = [
+ "greentic-interfaces 0.4.20",
+]
+
+[[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.2.3"
+version = "0.4.21"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.19",
+ "greentic-interfaces 0.4.20",
  "proc-macro2",
  "quote",
  "syn",
@@ -454,22 +469,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.2.3"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca06a03906add513c53951ba44f9d83efef547029cd09e61c89d9fff9ecd3338"
-dependencies = [
- "semver",
- "serde",
- "serde_with",
- "thiserror",
- "time",
-]
-
-[[package]]
-name = "greentic-types"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6362e86ec9aa970380ae6815a2704cbcf208b6cc8f5405bdca4b0fb8446a805"
+checksum = "f4e8fba9e6c5ac8d64ef3dc37b1a9378694c55c470f44f3abf3b1c6996015341"
 dependencies = [
  "schemars",
  "semver",
@@ -933,9 +935,9 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syn"
-version = "2.0.109"
+version = "2.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f17c7e013e88258aa9543dcbe81aca68a667a9ac37cd69c9fbc07858bfe0e2f"
+checksum = "a99801b5bd34ede4cf3fc688c5919368fea4e4814a4664359503e6015b280aea"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -125,6 +125,152 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "host-import-v0-6")]
+declare_world!(
+    mod host_import_v0_6,
+    path = "wit/greentic/host-import@0.6.0",
+    world = "greentic:host-import/host-imports@0.6.0",
+    legacy = {
+        use wasmtime::component::Linker;
+        use wasmtime::{Result, StoreContextMut};
+
+        pub use bindings::greentic::host_import::{http, mcp, secrets, session, state, telemetry};
+        pub use bindings::greentic::interfaces_types::types as iface_types;
+        pub use bindings::greentic::types_core::types;
+
+        /// Trait implemented by hosts to service the component imports.
+        pub trait HostImports {
+            fn secrets_get(
+                &mut self,
+                key: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<String, types::IfaceError>>;
+
+            fn telemetry_emit(
+                &mut self,
+                span_json: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<()>;
+
+            fn http_fetch(
+                &mut self,
+                req: http::HttpRequest,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<http::HttpResponse, types::IfaceError>>;
+
+            fn mcp_exec(
+                &mut self,
+                component: String,
+                action: String,
+                args_json: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<String, types::IfaceError>>;
+
+            fn state_get(
+                &mut self,
+                key: iface_types::StateKey,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<String, types::IfaceError>>;
+
+            fn state_set(
+                &mut self,
+                key: iface_types::StateKey,
+                value_json: String,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<state::OpAck, types::IfaceError>>;
+
+            fn session_update(
+                &mut self,
+                cursor: iface_types::SessionCursor,
+                ctx: Option<types::TenantCtx>,
+            ) -> Result<Result<String, types::IfaceError>>;
+        }
+
+        /// Registers the host import functions with the provided linker.
+        pub fn add_to_linker<T>(
+            linker: &mut Linker<T>,
+            get_host: impl Fn(&mut T) -> &mut (dyn HostImports + Send + Sync + 'static)
+                + Send
+                + Sync
+                + Copy
+                + 'static,
+        ) -> Result<()>
+        where
+            T: Send + 'static,
+        {
+            let mut secrets = linker.instance("greentic:host-import/secrets@0.6.0")?;
+            secrets.func_wrap(
+                "get",
+                move |mut caller: StoreContextMut<'_, T>, (key, ctx): (String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.secrets_get(key, ctx).map(|res| (res,))
+                },
+            )?;
+
+            let mut telemetry = linker.instance("greentic:host-import/telemetry@0.6.0")?;
+            telemetry.func_wrap(
+                "emit",
+                move |mut caller: StoreContextMut<'_, T>, (span, ctx): (String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.telemetry_emit(span, ctx)
+                },
+            )?;
+
+            let mut http_iface = linker.instance("greentic:host-import/http@0.6.0")?;
+            http_iface.func_wrap(
+                "fetch",
+                move |mut caller: StoreContextMut<'_, T>, (req, ctx): (http::HttpRequest, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.http_fetch(req, ctx).map(|res| (res,))
+                },
+            )?;
+
+            let mut mcp_iface = linker.instance("greentic:host-import/mcp@0.6.0")?;
+            mcp_iface.func_wrap(
+                "exec",
+                move |mut caller: StoreContextMut<'_, T>,
+                      (component, action, args, ctx): (String, String, String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.mcp_exec(component, action, args, ctx).map(|res| (res,))
+                },
+            )?;
+
+            let mut state_iface = linker.instance("greentic:host-import/state@0.6.0")?;
+            state_iface.func_wrap(
+                "get",
+                move |mut caller: StoreContextMut<'_, T>,
+                      (key, ctx): (iface_types::StateKey, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.state_get(key, ctx).map(|res| (res,))
+                },
+            )?;
+            state_iface.func_wrap(
+                "set",
+                move |mut caller: StoreContextMut<'_, T>,
+                      (key, value, ctx): (iface_types::StateKey, String, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.state_set(key, value, ctx).map(|res| (res,))
+                },
+            )?;
+
+            let mut session_iface = linker.instance("greentic:host-import/session@0.6.0")?;
+            session_iface.func_wrap(
+                "update",
+                move |mut caller: StoreContextMut<'_, T>,
+                      (cursor, ctx): (iface_types::SessionCursor, Option<types::TenantCtx>)| {
+                    let host = get_host(caller.data_mut());
+                    host.session_update(cursor, ctx).map(|res| (res,))
+                },
+            )?;
+
+            Ok(())
+        }
+
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:host-import@0.6.0";
+    }
+);
+
 #[cfg(feature = "host-import-v0-4")]
 declare_world!(
     mod host_import_v0_4,

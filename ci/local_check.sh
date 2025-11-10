@@ -12,6 +12,7 @@ cd "${ROOT}"
 : "${LOCAL_CHECK_VERBOSE:=0}"
 : "${LOCAL_CHECK_EXAMPLES:=0}"
 : "${LOCAL_CHECK_WASM_TARGET:=wasm32-wasip2}"
+WORKSPACE_EXCLUDES=(--exclude component-describe --exclude greentic-interfaces-crates-io-consumer)
 
 if [[ "${LOCAL_CHECK_VERBOSE}" == "1" ]]; then
     set -x
@@ -133,13 +134,13 @@ do_fmt() {
     cargo_cmd fmt --all -- --check
 }
 do_clippy() {
-    cargo_cmd clippy --workspace --all-targets --all-features -- -D warnings
+    cargo_cmd clippy --workspace --all-targets --all-features "${WORKSPACE_EXCLUDES[@]}" -- -D warnings
 }
 do_build() {
-    cargo_cmd build --workspace --all-features
+    cargo_cmd build --workspace --all-features "${WORKSPACE_EXCLUDES[@]}"
 }
 do_test() {
-    cargo_cmd test --workspace --all-features
+    cargo_cmd test --workspace --all-features "${WORKSPACE_EXCLUDES[@]}"
 }
 
 do_wit_validate() {
