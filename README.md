@@ -35,6 +35,7 @@ Two smoke-level examples live under `examples/`:
 
 - `component-describe`: a `no_std` component that implements `describe-v1::describe-json`.
 - `runner-host-smoke`: a host-side binary that links the new runner-host imports, instantiates the `component-describe` Wasm artifact, and executes `describe-json`.
+  The runner repository also ships a secrets-oriented guest fixture (`component-secrets`) that exercises the `secrets-v1` imports end-to-end.
 
 ### Running the examples locally
 
@@ -74,3 +75,30 @@ Toggles:
 - The example steps expect `rustup target add wasm32-wasip2 --toolchain 1.88.0` to have been run first.
 
 A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.
+
+## Using `secrets-v1` from guests
+
+The `runner-host-v1` feature gates the `greentic:host@1.0.0` package, which includes the `secrets-v1` interface. Components that need to read or write secrets should:
+
+1. Enable the `runner-host-v1` feature (or `wit-all`) when depending on `greentic-interfaces`.
+2. Import the interface in their WIT (`use greentic:host/secrets-v1@1.0.0`) or via `wit-bindgen`.
+3. Call the async host functions that the runner exposes:
+
+```wit
+interface secrets-v1 {
+  read: func(path: string) -> result<list<u8>, error>;
+  write: func(path: string, bytes: list<u8>) -> result<(), error>;
+  delete: func(path: string) -> result<(), error>;
+
+  variant error {
+    not-found(string),
+    permission(string),
+    backend(string),
+  }
+}
+```
+
+- `read` returns the raw bytes stored at `path` or a `not-found`/`permission`/`backend` error.
+- `write` and `delete` propagate the same error variants (for example, the default `EnvSecretsManager` denies writes/deletes and surfaces `permission`).
+
+The ABI maps directly onto the [`greentic-secrets-api`](https://github.com/greentic-ai/greentic-secrets) trait. Hosts created with `greentic-runner` currently use the `EnvSecretsManager`, so setting `TEST_KEY=value` in the environment and calling `secrets.read("TEST_KEY")` from a guest will yield `value`. For a working reference component, see the `component-secrets` fixture in the runner repository (`greentic-runner/tests/fixtures/component-secrets`), which reads `TEST_KEY` via `secrets-v1` and echoes it back to the host.
