@@ -82,6 +82,32 @@ Toggles:
 
 A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.
 
+## Fetching WIT packages from OCI
+
+The published WIT bundles live in GitHub Container Registry under `ghcr.io/greentic-ai/wit`. The registry metadata served from `https://greentic.ai/.well-known/wasm-pkg/registry.json` advertises this prefix, so any `wkg` client can resolve the `greentic:*` namespace automatically.
+
+```bash
+# 1. Install the wasm packaging CLI
+cargo install wkg
+
+# 2. Point your config at the Greentic registry (writes ~/.config/wasm-pkg/config.toml)
+wkg config --default-registry greentic.ai
+
+# 3. Fetch the desired package (auto-discovers ghcr.io/greentic-ai/wit/<namespace>/<pkg>)
+wkg get greentic:component@1.0.0 --output ./component.wasm
+# or grab the raw WIT:
+wkg get greentic:component@1.0.0 --output ./component.wit --format wit
+```
+
+If you prefer to edit the config file manually, add this stanza:
+
+```toml
+[namespace_registries]
+greentic = "greentic.ai"
+```
+
+With that mapping in place the CLI will transparently pull from GHCR using the namespace prefix advertised by the registry metadata (`greentic-ai/wit/`).
+
 ## Using `secrets-store-v1` from guests
 
 The `secrets-store-v1` feature gates the `greentic:secrets/store@1.0.0` package. Components that need to work with secrets should:

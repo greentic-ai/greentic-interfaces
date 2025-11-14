@@ -17,21 +17,7 @@ jobs:
         with:
           toolchain: 1.88.0
       - name: Install wkg
-        run: |
-          set -euo pipefail
-          curl -fsSL https://wkg.dev/install.sh | bash
-          for dir in "$HOME/.wkg/bin" "$HOME/.local/bin" "$HOME/.wasm/bin"; do
-            if [[ -x "${dir}/wkg" ]]; then
-              echo "${dir}" >> "${GITHUB_PATH}"
-              exit 0
-            fi
-          done
-          wkg_bin="$(find "$HOME" -type f -name wkg -perm -111 | head -n1 || true)"
-          if [[ -z "${wkg_bin}" ]]; then
-            echo "wkg install script did not produce a usable binary" >&2
-            exit 1
-          fi
-          echo "$(dirname "${wkg_bin}")" >> "${GITHUB_PATH}"
+        run: cargo install wkg --locked
       - name: Install wasm-tools
         run: cargo install wasm-tools --locked
       - name: Build packages
