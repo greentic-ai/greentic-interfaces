@@ -609,3 +609,64 @@ declare_world!(
         pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
     }
 );
+
+#[cfg(feature = "secrets-store-v1")]
+declare_world!(
+    mod secrets_store_v1,
+    path = "wit/greentic/secrets-store@1.0.0",
+    world = "greentic:secrets/store@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:secrets@1.0.0";
+    }
+);
+
+#[cfg(feature = "state-store-v1")]
+declare_world!(
+    mod state_store_v1,
+    path = "wit/greentic/state-store@1.0.0",
+    world = "greentic:state/store@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:state@1.0.0";
+    }
+);
+
+#[cfg(feature = "messaging-session-v1")]
+declare_world!(
+    mod messaging_session_v1,
+    path = "wit/greentic/messaging-session@1.0.0",
+    world = "greentic:messaging/session@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:messaging@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-emitter-v1")]
+declare_world!(
+    mod events_emitter_v1,
+    path = "wit/greentic/events-emitter@1.0.0",
+    world = "greentic:events/emitter@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
+    }
+);
+
+#[cfg(feature = "http-client-v1")]
+declare_world!(
+    mod http_client_v1,
+    path = "wit/greentic/http-client@1.0.0",
+    world = "greentic:http/client@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:http@1.0.0";
+    }
+);
+
+#[cfg(feature = "telemetry-logger-v1")]
+declare_world!(
+    mod telemetry_logger_v1,
+    path = "wit/greentic/telemetry-logger@1.0.0",
+    world = "greentic:telemetry/logger@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:telemetry@1.0.0";
+    }
+);

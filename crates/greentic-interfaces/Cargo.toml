@@ -25,7 +25,13 @@ default = [
     "types-core-v0-2",
     "secrets-v0-1",
     "wasix-mcp-v0-0-5",
-    "oauth-v0-1"
+    "oauth-v0-1",
+    "secrets-store-v1",
+    "state-store-v1",
+    "messaging-session-v1",
+    "events-emitter-v1",
+    "http-client-v1",
+    "telemetry-logger-v1",
 ]
 bindings-rust = ["dep:wit-bindgen"]
 component-v0-4 = []
@@ -44,6 +50,12 @@ oauth-v0-1 = []
 component-lifecycle-v1 = []
 events-v1 = []
 host-import-compat = ["host-import-v0-6", "host-import-v0-4", "host-import-v0-2"]
+secrets-store-v1 = []
+state-store-v1 = []
+messaging-session-v1 = []
+events-emitter-v1 = []
+http-client-v1 = []
+telemetry-logger-v1 = []
 wit-all = [
     "bindings-rust",
     "component-v0-4",
@@ -60,7 +72,13 @@ wit-all = [
     "component-lifecycle-v1",
     "events-v1",
     "wasix-mcp-v0-0-5",
-    "oauth-v0-1"
+    "oauth-v0-1",
+    "secrets-store-v1",
+    "state-store-v1",
+    "messaging-session-v1",
+    "events-emitter-v1",
+    "http-client-v1",
+    "telemetry-logger-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]
 

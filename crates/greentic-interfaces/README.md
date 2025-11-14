@@ -13,14 +13,19 @@ All Greentic runtimes, components, and tools **must** depend on these WIT packag
 
 ## WIT packages
 
-The `wit/` directory contains four additive packages:
+The `wit/` directory contains additive packages:
 
 | Package | Contents |
 |---------|----------|
 | `greentic:interfaces-types@0.1.0` | Canonical data structures (`TenantCtx`, `SessionCursor`, `Outcome`, `AllowList`, `NetworkPolicy`, `PackRef`, `SpanContext`, etc.). |
-| `greentic:interfaces-host@0.1.0`  | Host-side imports a pack can call (`secrets.get`, `telemetry.emit`, `state.get/set`, `session.update`). |
 | `greentic:interfaces-provider@0.1.0` | Provider self-description (`ProviderMeta`). |
-| `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution.
+| `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution. |
+| `greentic:secrets/store@1.0.0` | Generic secret store import (`read`, `write`, `delete`). |
+| `greentic:state/store@1.0.0` | Generic blob store keyed by `StateKey`. |
+| `greentic:messaging/session@1.0.0` | Session-scoped messaging replies routed via opaque payloads. |
+| `greentic:events/emitter@1.0.0` | Fire-and-forget event emission. |
+| `greentic:http/client@1.0.0` | HTTP client with structured request/response types. |
+| `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`.
 
 The build script stages each package (plus dependencies) into `$OUT_DIR/wit-staging` so downstream tooling resolves imports deterministically. The absolute path is exported as `WIT_STAGING_DIR`, so consumers never need write access to the package directory even when building from crates.io.
 

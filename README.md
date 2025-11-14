@@ -19,8 +19,14 @@ For local development you can override the crates.io dependency on `greentic-typ
 
 | Feature | World(s) enabled | Published package | Notes |
 | --- | --- | --- | --- |
+| `secrets-store-v1` | `greentic:secrets/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-store@1.0.0/package.wit) | Generic secret read/write/delete imports aligned with `HostCapabilities.secrets`. |
+| `state-store-v1` | `greentic:state/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/state-store@1.0.0/package.wit) | Tenant-scoped blob store aligned with `HostCapabilities.state`. |
+| `messaging-session-v1` | `greentic:messaging/session@1.0.0` (`session`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/messaging-session@1.0.0/package.wit) | Generic outbound messaging surface for session flows. |
+| `events-emitter-v1` | `greentic:events/emitter@1.0.0` (`emitter`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events-emitter@1.0.0/package.wit) | Fire-and-forget event emission aligned with `HostCapabilities.events`. |
+| `http-client-v1` | `greentic:http/client@1.0.0` (`client`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/http-client@1.0.0/package.wit) | Preview 2 HTTP client matching `HostCapabilities.http`. |
+| `telemetry-logger-v1` | `greentic:telemetry/logger@1.0.0` (`logger`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/telemetry-logger@1.0.0/package.wit) | Tenant-aware telemetry logger aligned with `HostCapabilities.telemetry`. |
 | `describe-v1` | `greentic:component@1.0.0` (`describe-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@1.0.0/package.wit) | Describe-only schema export for packs without the full component ABI. |
-| `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `secrets-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Host-side imports runner implementations can satisfy/mocks can replace. |
+| `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `secrets-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy host import bundle (still available for older packs). |
 | `component-lifecycle-v1` | `greentic:lifecycle@1.0.0` (`lifecycle-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/lifecycle@1.0.0/package.wit) | Optional lifecycle hooks (`init`, `health`, `shutdown`). |
 | `events-v1` | `greentic:events@1.0.0` (`events-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Shared telemetry/event envelope record. |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
@@ -76,29 +82,26 @@ Toggles:
 
 A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.
 
-## Using `secrets-v1` from guests
+## Using `secrets-store-v1` from guests
 
-The `runner-host-v1` feature gates the `greentic:host@1.0.0` package, which includes the `secrets-v1` interface. Components that need to read or write secrets should:
+The `secrets-store-v1` feature gates the `greentic:secrets/store@1.0.0` package. Components that need to work with secrets should:
 
-1. Enable the `runner-host-v1` feature (or `wit-all`) when depending on `greentic-interfaces`.
-2. Import the interface in their WIT (`use greentic:host/secrets-v1@1.0.0`) or via `wit-bindgen`.
-3. Call the async host functions that the runner exposes:
+1. Enable `secrets-store-v1` (or `wit-all`) on the dependency.
+2. Import the interface in their WIT (`use greentic:secrets/store@1.0.0`) or via `wit-bindgen`.
+3. Call the synchronous host functions surfaced by the runner:
 
 ```wit
-interface secrets-v1 {
-  read: func(path: string) -> result<list<u8>, error>;
-  write: func(path: string, bytes: list<u8>) -> result<(), error>;
-  delete: func(path: string) -> result<(), error>;
+interface secret-store {
+  record host-error { code: string, message: string }
+  enum op-ack { ok }
 
-  variant error {
-    not-found(string),
-    permission(string),
-    backend(string),
-  }
+  read: func(name: string) -> result<list<u8>, host-error>;
+  write: func(name: string, bytes: list<u8>) -> result<op-ack, host-error>;
+  delete: func(name: string) -> result<op-ack, host-error>;
 }
 ```
 
-- `read` returns the raw bytes stored at `path` or a `not-found`/`permission`/`backend` error.
-- `write` and `delete` propagate the same error variants (for example, the default `EnvSecretsManager` denies writes/deletes and surfaces `permission`).
+- `read` returns the raw bytes stored at `name` or a structured `host-error` describing the failure.
+- `write`/`delete` return `op-ack::ok` on success and otherwise raise `host-error` (for example, the default `EnvSecretsManager` denies writes/deletes and reports a `permission` error string).
 
-The ABI maps directly onto the [`greentic-secrets-api`](https://github.com/greentic-ai/greentic-secrets) trait. Hosts created with `greentic-runner` currently use the `EnvSecretsManager`, so setting `TEST_KEY=value` in the environment and calling `secrets.read("TEST_KEY")` from a guest will yield `value`. For a working reference component, see the `component-secrets` fixture in the runner repository (`greentic-runner/tests/fixtures/component-secrets`), which reads `TEST_KEY` via `secrets-v1` and echoes it back to the host.
+The ABI maps directly onto the [`greentic-secrets-api`](https://github.com/greentic-ai/greentic-secrets) trait. Hosts created with `greentic-runner` currently use the `EnvSecretsManager`, so setting `TEST_KEY=value` in the environment and calling `store.read("TEST_KEY")` from a guest yields `value`. For a working reference component, see the `component-secrets` fixture in the runner repository, which reads `TEST_KEY` via `secrets-store` and echoes it back to the host.

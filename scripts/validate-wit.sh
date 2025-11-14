@@ -8,7 +8,12 @@ source "${ROOT}/scripts/wit-common.sh"
 
 ensure_cmd wasm-tools
 
-mapfile -t WIT_SOURCES < <(list_wit_sources | sort -u)
+WIT_SOURCES=()
+while IFS= read -r src; do
+  if [[ -n "${src}" ]]; then
+    WIT_SOURCES+=("${src}")
+  fi
+done < <(list_wit_sources | sort -u)
 
 if [[ ${#WIT_SOURCES[@]} -eq 0 ]]; then
   echo "No WIT sources found under ${WIT_ROOT}"
