@@ -49,8 +49,10 @@ jobs:
         with:
           name: wit-toolchain
           path: toolchain
-      - name: Add toolchain to PATH
-        run: echo "${{ github.workspace }}/toolchain/bin" >> "${GITHUB_PATH}"
+      - name: Restore toolchain permissions
+        run: |
+          chmod +x toolchain/bin/*
+          echo "${{ github.workspace }}/toolchain/bin" >> "${GITHUB_PATH}"
       - name: Build packages
         run: bash scripts/package-wit.sh target/wit-packages
       - name: Bundle greentic 1.0.0 packages
@@ -87,8 +89,10 @@ jobs:
         with:
           name: wit-toolchain
           path: toolchain
-      - name: Add toolchain to PATH
-        run: echo "${{ github.workspace }}/toolchain/bin" >> "${GITHUB_PATH}"
+      - name: Restore toolchain permissions
+        run: |
+          chmod +x toolchain/bin/*
+          echo "${{ github.workspace }}/toolchain/bin" >> "${GITHUB_PATH}"
       - uses: actions/download-artifact@v4
         with:
           name: wit-packages
