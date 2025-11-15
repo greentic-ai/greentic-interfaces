@@ -110,9 +110,12 @@ jobs:
       - name: Publish all
         env:
           OCI_REPO_OWNER: ${{ github.repository_owner }}
+          WKG_OCI_USERNAME: ${{ github.actor }}
+          WKG_OCI_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           repo_root="${OCI_REPO_OWNER}/wit"
+          echo "Using wkg: $(wkg --version)"
           for f in target/wit-packages/*.wasm; do
             file="$(basename "$f" .wasm)"
             version="${file##*-}"
@@ -120,6 +123,6 @@ jobs:
             namespace="${name%%-*}"
             package="${name#${namespace}-}"
             image="ghcr.io/${repo_root}/${namespace}/${package}:${version}"
-            echo "Publishing ${image}"
+            echo "Publishing ${image} from ${f}"
             wkg oci push "${image}" "$f"
           done
