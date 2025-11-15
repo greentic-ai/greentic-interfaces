@@ -3,6 +3,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT_DIR="${1:-${ROOT}/target/wit-packages}"
+# Ensure OUT_DIR is absolute so later subshells (cd into tmp dirs) can still
+# write artifacts using the same path.
+if [[ "${OUT_DIR}" != /* ]]; then
+  OUT_DIR="${ROOT}/${OUT_DIR}"
+fi
 BUNDLE_VERSION="1.0.0"
 BUNDLE_NAME="greentic-interfaces-wit-${BUNDLE_VERSION}"
 TMP_DIR="${OUT_DIR}/${BUNDLE_NAME}"

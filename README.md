@@ -31,6 +31,15 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `events-v1` | `greentic:events@1.0.0` (`events-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Shared telemetry/event envelope record. |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
 
+## Deployment plan world
+
+Deployment packs can import `greentic:deploy-plan@1.0.0` to read the current `DeploymentPlan` and emit status updates. The world exposes two funcs:
+
+- `get-deployment-plan()` – returns the JSON-encoded `DeploymentPlan` built by the host/deployer for this execution.
+- `emit-status(message)` – reports a free-form status line that hosts may log or display in a UI.
+
+Hosts wire this world alongside the existing runner-host imports, so deployment flows still run as ordinary events flows with an additional channel for structured deployment context.
+
 ## Minimum Supported Rust Version
 
 The workspace targets **Rust 1.88** or newer (required by the 2024 edition). CI pins the same stable toolchain for formatting/clippy, so make sure your local toolchain matches 1.88+ when hacking.
