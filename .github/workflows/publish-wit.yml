@@ -18,6 +18,15 @@ jobs:
           toolchain: 1.88.0
       - name: Install wkg
         run: cargo install wkg --locked
+      - name: Install oras
+        run: |
+          set -euo pipefail
+          ORAS_VERSION=1.2.0
+          curl -sL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" -o oras.tar.gz
+          tar -xzf oras.tar.gz oras
+          mkdir -p "${HOME}/.local/bin"
+          install -m 755 oras "${HOME}/.local/bin/oras"
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
       - name: Install wasm-tools
         run: cargo install wasm-tools --locked
       - name: Build packages
@@ -53,9 +62,12 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish greentic-interfaces-wit bundle
         run: |
-          wkg oci push \
-            ghcr.io/greentic-ai/greentic-interfaces-wit:1.0.0 \
-            target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz
+          set -euo pipefail
+          bundle="target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz"
+          image="ghcr.io/greentic-ai/greentic-interfaces-wit:1.0.0"
+          oras push "${image}" \
+            --artifact-type application/vnd.greentic.wit.bundle.v1+tar \
+            "${bundle}:application/gzip"
       - name: Publish all
         run: |
           for f in target/wit-packages/*.wasm; do
