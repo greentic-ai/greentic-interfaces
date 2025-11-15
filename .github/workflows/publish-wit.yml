@@ -69,14 +69,18 @@ jobs:
             --artifact-type application/vnd.greentic.wit.bundle.v1+tar \
             "${bundle}:application/gzip"
       - name: Publish all
+        env:
+          OCI_REPO_OWNER: ${{ github.repository_owner }}
         run: |
+          set -euo pipefail
+          repo_root="${OCI_REPO_OWNER}/wit"
           for f in target/wit-packages/*.wasm; do
             file="$(basename "$f" .wasm)"
             version="${file##*-}"
             name="${file%-${version}}"
             namespace="${name%%-*}"
             package="${name#${namespace}-}"
-            image="ghcr.io/greentic-ai/wit/${namespace}/${package}:${version}"
+            image="ghcr.io/${repo_root}/${namespace}/${package}:${version}"
             echo "Publishing ${image}"
             wkg oci push "${image}" "$f"
           done
