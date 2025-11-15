@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.30"
+version = "0.4.31"
 dependencies = [
  "wit-bindgen",
 ]
@@ -411,12 +411,12 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.22"
+version = "0.4.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20003d003c72531a121c99d84d88c21b719aea0fc80dfe6d417cfe5c59ff5bae"
+checksum = "49e5d4722ff7e0cf9978f288d50a42bc035503da1c429ab9afeb82a7b5e41b40"
 dependencies = [
  "anyhow",
- "greentic-types 0.3.2",
+ "greentic-types",
  "semver",
  "thiserror",
  "time",
@@ -428,10 +428,10 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.30"
+version = "0.4.31"
 dependencies = [
  "anyhow",
- "greentic-types 0.4.0",
+ "greentic-types",
  "insta",
  "schemars",
  "semver",
@@ -448,18 +448,18 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.30"
+version = "0.4.31"
 dependencies = [
- "greentic-interfaces 0.4.22",
+ "greentic-interfaces 0.4.30",
 ]
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.30"
+version = "0.4.31"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.22",
+ "greentic-interfaces 0.4.30",
  "proc-macro2",
  "quote",
  "syn",
@@ -469,22 +469,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.3.2"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4620a6226cdcdeeb9205a474b0b96a8b51853743669098cce3c24842dbdced77"
-dependencies = [
- "semver",
- "serde",
- "serde_with",
- "thiserror",
- "time",
-]
-
-[[package]]
-name = "greentic-types"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36b490e53365d1d8562e3b4d750775643ae00a45ba7b6bb357740427a5d3f58c"
+checksum = "70b578f8b208a6024eb904479dcb862c9c0960600c9e2171fd0bfb18326e7408"
 dependencies = [
  "fnv",
  "indexmap",
@@ -891,9 +878,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "3.15.1"
+version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa66c845eee442168b2c8134fec70ac50dc20e760769c8ba0ad1319ca1959b04"
+checksum = "10574371d41b0d9b2cff89418eda27da52bcaff2cc8741db26382a77c29131f1"
 dependencies = [
  "base64",
  "chrono",
@@ -906,9 +893,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with_macros"
-version = "3.15.1"
+version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b91a903660542fced4e99881aa481bdbaec1634568ee02e0b8bd57c64cb38955"
+checksum = "08a72d8216842fdd57820dc78d840bef99248e35fb2554ff923319e60f2d686b"
 dependencies = [
  "darling",
  "proc-macro2",
