@@ -2,6 +2,7 @@ name: Publish WIT (OCI)
 
 on:
   push:
+    branches: ["master"]
     tags: ["wit-v*"]
   workflow_dispatch:
 
