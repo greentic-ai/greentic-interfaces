@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.32"
+version = "0.4.33"
 dependencies = [
  "wit-bindgen",
 ]
@@ -428,7 +428,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.32"
+version = "0.4.33"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -448,14 +448,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.32"
+version = "0.4.33"
 dependencies = [
  "greentic-interfaces 0.4.31",
 ]
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.32"
+version = "0.4.33"
 dependencies = [
  "anyhow",
  "camino",

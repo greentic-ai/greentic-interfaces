@@ -32,6 +32,7 @@ default = [
     "events-emitter-v1",
     "http-client-v1",
     "telemetry-logger-v1",
+    "oauth-broker-v1",
 ]
 bindings-rust = ["dep:wit-bindgen"]
 component-v0-4 = []
@@ -47,6 +48,7 @@ types-core-v0-2 = []
 secrets-v0-1 = []
 wasix-mcp-v0-0-5 = []
 oauth-v0-1 = []
+oauth-broker-v1 = []
 component-lifecycle-v1 = []
 events-v1 = []
 host-import-compat = ["host-import-v0-6", "host-import-v0-4", "host-import-v0-2"]
@@ -79,6 +81,7 @@ wit-all = [
     "events-emitter-v1",
     "http-client-v1",
     "telemetry-logger-v1",
+    "oauth-broker-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]
 

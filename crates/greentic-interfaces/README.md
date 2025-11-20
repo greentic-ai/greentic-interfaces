@@ -25,7 +25,9 @@ The `wit/` directory contains additive packages:
 | `greentic:messaging/session@1.0.0` | Session-scoped messaging replies routed via opaque payloads. |
 | `greentic:events/emitter@1.0.0` | Fire-and-forget event emission. |
 | `greentic:http/client@1.0.0` | HTTP client with structured request/response types. |
-| `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`.
+| `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`. |
+| `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
+| `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
 
 The build script stages each package (plus dependencies) into `$OUT_DIR/wit-staging` so downstream tooling resolves imports deterministically. The absolute path is exported as `WIT_STAGING_DIR`, so consumers never need write access to the package directory even when building from crates.io.
 

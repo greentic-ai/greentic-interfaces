@@ -29,6 +29,14 @@ need() {
 
 require_tool() {
     local tool="$1"
+    if [[ "${tool}" == "wasm-tools" && "${LOCAL_CHECK_ONLINE}" == "1" ]]; then
+        if ! need "${tool}" && need cargo; then
+            echo "[info] installing '${tool}' (LOCAL_CHECK_ONLINE=1)"
+            if ! cargo_cmd install wasm-tools --locked >/dev/null 2>&1; then
+                echo "[warn] failed to install '${tool}' automatically"
+            fi
+        fi
+    fi
     if need "${tool}"; then
         return 0
     fi
