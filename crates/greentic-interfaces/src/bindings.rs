@@ -7,10 +7,7 @@
 /// Rust bindings generated from the Greentic WIT worlds.
 #[cfg(feature = "bindings-rust")]
 pub mod generated {
-    include!(concat!(
-        env!("GREENTIC_INTERFACES_BINDINGS"),
-        "/bindings.rs"
-    ));
+    include!(concat!(env!("GREENTIC_INTERFACES_BINDINGS"), "/mod.rs"));
 }
 
 #[cfg(feature = "bindings-rust")]

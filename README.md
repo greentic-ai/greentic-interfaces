@@ -7,11 +7,54 @@ This repository contains the shared ABI contracts and Wasmtime runtime helpers u
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
 
 - [`crates/greentic-interfaces`](crates/greentic-interfaces) exposes the WebAssembly Interface Types (WIT) packages, generated Rust bindings, and thin mappers that bridge the generated types to the richer structures in [`greentic-types`](https://github.com/greentic-ai/greentic-types). It is intentionally ABI-only and has no Wasmtime dependency.
+- [`crates/greentic-interfaces-host`](crates/greentic-interfaces-host) curates the host-facing bindings: Wasmtime-ready WIT worlds plus the shared mappers.
+- [`crates/greentic-interfaces-guest`](crates/greentic-interfaces-guest) curates the guest-facing bindings for components built against `wasm32-wasip2`.
 - [`crates/greentic-interfaces-wasmtime`](crates/greentic-interfaces-wasmtime) hosts the Wasmtime integration layer. It wires the Greentic host imports into a Wasmtime linker, instantiates components, and forwards calls through the ABI bindings.
 
 > Node configuration schemas always live alongside their components. This repository only ships shared WIT contracts plus the corresponding bindings/mappers.
 
-Both crates are published from this workspace. Downstream components that only need the ABI can depend solely on `greentic-interfaces`. Runtimes that execute packs should add `greentic-interfaces-wasmtime` and choose whether to stay on the stable Wasmtime feature path or opt into the nightly configuration.
+These crates are published from this workspace. Downstream components that only need the ABI can depend solely on `greentic-interfaces`. Runtimes that execute packs should add `greentic-interfaces-wasmtime` and choose whether to stay on the stable Wasmtime feature path or opt into the nightly configuration. Hosts that just want re-exported bindings can depend on `greentic-interfaces-host`, while guest components can pull `greentic-interfaces-guest` for `wasm32-wasip2` builds.
+
+```rust
+// Host side: wire imports into a Wasmtime linker.
+use greentic_interfaces_host::host_import::v0_6::add_to_linker;
+
+// Guest side: call host capabilities from inside a component.
+use greentic_interfaces_guest::component::node::Guest;
+use greentic_interfaces_guest::secrets_store::secret_store;
+```
+
+## Which crate should I use?
+
+- Hosts (runner, deployer, gateways): `greentic-interfaces-host`
+- Wasm components (`wasm32-wasip2`): `greentic-interfaces-guest`
+- Wasmtime glue / linker helpers: `greentic-interfaces-wasmtime`
+- ABI/WIT tooling and validation: `greentic-interfaces`
+
+### Host examples
+
+```rust
+use greentic_interfaces_host::http::http_client;
+use greentic_interfaces_host::secrets::store_v1::secret_store;
+use greentic_interfaces_host::telemetry::log;
+```
+
+### Guest examples
+
+```rust
+use greentic_interfaces_guest::component::node::Guest;
+use greentic_interfaces_guest::secrets_store::secret_store;
+use greentic_interfaces_guest::http_client::http_client;
+use greentic_interfaces_guest::telemetry_logger::logger_api;
+```
+
+## Migration guide: move to host/guest crates
+
+1. Replace direct `greentic-interfaces` imports in hosts with `greentic-interfaces-host` and switch to the curated modules (`secrets`, `state`, `messaging`, `http`, `telemetry`, `oauth`).
+2. Replace direct bindgen usage in wasm components with `greentic-interfaces-guest`; import from the module for the capability you need (`secrets_store`, `state_store`, `messaging`, `oauth`).
+3. Update your target/toolchain: guests should build with `--target wasm32-wasip2`; hosts stay native.
+4. For Wasmtime wiring, depend on `greentic-interfaces-wasmtime` alongside the host crate if you need linker helpers.
+5. Drop local WIT regeneration: the host/guest crates ship the generated bindings; WIT remains the source of truth here.
 
 For local development you can override the crates.io dependency on `greentic-types` by copying `.cargo/local-patch.example.toml` to `.cargo/config.toml` and pointing it at a sibling checkout of `greentic-types`.
 

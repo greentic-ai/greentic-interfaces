@@ -151,6 +151,26 @@ do_test() {
     cargo_cmd test --workspace --all-features "${WORKSPACE_EXCLUDES[@]}"
 }
 
+build_component_example() {
+    CARGO_TARGET_DIR="$ROOT/target" cargo_cmd build \
+        --manifest-path examples/component-describe/Cargo.toml \
+        --target "${LOCAL_CHECK_WASM_TARGET}"
+}
+
+build_guest_crate() {
+    CARGO_TARGET_DIR="$ROOT/target" cargo_cmd build \
+        --manifest-path crates/greentic-interfaces-guest/Cargo.toml \
+        --target "${LOCAL_CHECK_WASM_TARGET}"
+}
+
+run_runner_example() {
+    local wasm_path="$ROOT/target/${LOCAL_CHECK_WASM_TARGET}/debug/component_describe.wasm"
+    CARGO_TARGET_DIR="$ROOT/target" \
+        COMPONENT_DESCRIBE_WASM="$wasm_path" \
+        cargo_cmd run \
+        --manifest-path examples/runner-host-smoke/Cargo.toml
+}
+
 do_wit_validate() {
     local dir="$1"
     if ! need bash || ! need wasm-tools; then
@@ -216,18 +236,15 @@ if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" d
 if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
 if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
 
-build_component_example() {
-    CARGO_TARGET_DIR="$ROOT/target" cargo_cmd build \
-        --manifest-path examples/component-describe/Cargo.toml \
-        --target "${LOCAL_CHECK_WASM_TARGET}"
-}
-run_runner_example() {
-    local wasm_path="$ROOT/target/${LOCAL_CHECK_WASM_TARGET}/debug/component_describe.wasm"
-    CARGO_TARGET_DIR="$ROOT/target" \
-        COMPONENT_DESCRIBE_WASM="$wasm_path" \
-        cargo_cmd run \
-        --manifest-path examples/runner-host-smoke/Cargo.toml
-}
+if [[ "${LOCAL_CHECK_EXAMPLES}" == "1" ]]; then
+    if require_cargo && ensure_rust_target "${LOCAL_CHECK_WASM_TARGET}"; then
+        run_step "Build greentic-interfaces-guest (${LOCAL_CHECK_WASM_TARGET})" build_guest_crate
+    else
+        skip_step "Build greentic-interfaces-guest (${LOCAL_CHECK_WASM_TARGET})" "missing cargo or target"
+    fi
+else
+    skip_step "Build greentic-interfaces-guest (${LOCAL_CHECK_WASM_TARGET})" "set LOCAL_CHECK_EXAMPLES=1 to enable"
+fi
 
 if [[ "${LOCAL_CHECK_EXAMPLES}" == "1" ]]; then
     if require_cargo && ensure_rust_target "${LOCAL_CHECK_WASM_TARGET}"; then

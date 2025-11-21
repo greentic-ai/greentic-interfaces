@@ -1,0 +1,14 @@
+[package]
+name = "greentic-interfaces-host"
+version.workspace = true
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+repository = "https://github.com/greentic-ai/greentic-interfaces"
+description = "Host-facing bindings and mappers for Greentic WIT packages"
+documentation = "https://docs.rs/greentic-interfaces-host"
+homepage = "https://github.com/greentic-ai/greentic-interfaces"
+
+[dependencies]
+greentic-interfaces = { path = "../greentic-interfaces", default-features = false, features = ["wit-all"] }
+greentic-types = { workspace = true }

@@ -169,3 +169,5 @@ jobs:
 
           publish_crate "crates/greentic-interfaces/Cargo.toml" "greentic-interfaces"
           publish_crate "crates/greentic-interfaces-wasmtime/Cargo.toml" "greentic-interfaces-wasmtime"
+          publish_crate "crates/greentic-interfaces-host/Cargo.toml" "greentic-interfaces-host"
+          publish_crate "crates/greentic-interfaces-guest/Cargo.toml" "greentic-interfaces-guest"

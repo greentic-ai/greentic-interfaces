@@ -1,0 +1,14 @@
+[package]
+name = "greentic-interfaces-guest"
+version.workspace = true
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+repository = "https://github.com/greentic-ai/greentic-interfaces"
+description = "Guest-facing bindings for Greentic components targeting wasm32-wasip2"
+documentation = "https://docs.rs/greentic-interfaces-guest"
+homepage = "https://github.com/greentic-ai/greentic-interfaces"
+
+[dependencies]
+greentic-interfaces = { path = "../greentic-interfaces", default-features = false, features = ["bindings-rust"] }
+greentic-types = { workspace = true }

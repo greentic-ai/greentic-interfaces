@@ -5,7 +5,9 @@
 //! ABI-oriented bindings for Greentic WIT packages.
 
 pub mod bindings;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod wit_all;
+#[cfg(not(target_arch = "wasm32"))]
 pub use wit_all::*;
 #[cfg(feature = "bindings-rust")]
 pub mod mappers;

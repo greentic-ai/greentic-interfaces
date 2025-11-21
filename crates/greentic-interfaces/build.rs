@@ -47,8 +47,7 @@ fn stage_package(
     fs::copy(src_path, dest_dir.join("package.wit"))?;
     println!("cargo:rerun-if-changed={}", src_path.display());
 
-    let mut visited = HashSet::new();
-    stage_dependencies(&dest_dir, src_path, wit_root, &mut visited)?;
+    stage_dependencies(&dest_dir, src_path, wit_root)?;
     Ok(())
 }
 
@@ -56,7 +55,6 @@ fn stage_dependencies(
     parent_dir: &Path,
     source_path: &Path,
     wit_root: &Path,
-    visited: &mut HashSet<String>,
 ) -> Result<(), Box<dyn Error>> {
     let deps = parse_deps(source_path)?;
     if deps.is_empty() {
@@ -67,17 +65,13 @@ fn stage_dependencies(
     fs::create_dir_all(&deps_dir)?;
 
     for dep in deps {
-        if !visited.insert(dep.clone()) {
-            continue;
-        }
-
         let dep_src = wit_path(&dep, wit_root)?;
         let dep_dest = deps_dir.join(sanitize(&dep));
         fs::create_dir_all(&dep_dest)?;
         fs::copy(&dep_src, dep_dest.join("package.wit"))?;
         println!("cargo:rerun-if-changed={}", dep_src.display());
 
-        stage_dependencies(&dep_dest, &dep_src, wit_root, visited)?;
+        stage_dependencies(&dep_dest, &dep_src, wit_root)?;
     }
 
     Ok(())
@@ -168,69 +162,89 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
     let bindings_dir = out_dir.join("bindings");
     reset_directory(&bindings_dir)?;
 
-    let mut resolve = Resolve::new();
-    let staged_pack = staged_root.join("greentic-interfaces-pack-0.1.0");
-    let staged_types = staged_root.join("greentic-interfaces-types-0.1.0");
+    let mut package_paths = Vec::new();
+    let mut inserted = HashSet::new();
 
-    if !staged_pack.exists() {
-        return Err(format!("expected staged WIT package at {}", staged_pack.display()).into());
+    for entry in fs::read_dir(staged_root)? {
+        let entry = entry?;
+        let path = entry.path();
+        if !path.is_dir() {
+            continue;
+        }
+        let package_path = path.join("package.wit");
+        if !package_path.exists() {
+            continue;
+        }
+
+        let package_ref = read_package_ref(&package_path)?;
+        if !inserted.insert(package_ref) {
+            continue;
+        }
+
+        package_paths.push(path);
     }
 
-    let deps_dir = staged_pack.join("deps");
-    if staged_types.exists() {
-        copy_dir_recursive(
-            &staged_types,
-            &deps_dir.join("greentic-interfaces-types-0.1.0"),
-        )?;
+    if package_paths.is_empty() {
+        return Err("no WIT worlds discovered to generate bindings for".into());
     }
 
-    let (pkg, _) = resolve.push_dir(&staged_pack)?;
-    let world = resolve.select_world(&[pkg], Some("greentic:interfaces-pack/component@0.1.0"))?;
+    package_paths.sort();
 
-    let mut files = Files::default();
     let opts = Opts {
         generate_all: true,
         generate_unused_types: true,
         ..Default::default()
     };
-    opts.build().generate(&resolve, world, &mut files)?;
 
-    for (name, contents) in files.iter() {
-        let dest = bindings_dir.join(name);
-        if let Some(parent) = dest.parent() {
-            fs::create_dir_all(parent)?;
+    let mut default_module = None;
+    let mut mod_rs = String::new();
+
+    for path in package_paths {
+        let mut resolve = Resolve::new();
+        let (pkg, _) = resolve.push_dir(&path)?;
+        let package = &resolve.packages[pkg];
+
+        let mut worlds: Vec<_> = package.worlds.iter().collect();
+        worlds.sort_by(|(a_name, _), (b_name, _)| a_name.cmp(b_name));
+
+        for (world_name, world_id) in worlds {
+            let module_name = module_name(&package.name, world_name);
+            let mut files = Files::default();
+            opts.clone()
+                .build()
+                .generate(&resolve, *world_id, &mut files)?;
+
+            let mut combined = Vec::new();
+            for (_, contents) in files.iter() {
+                combined.extend_from_slice(contents);
+            }
+            fs::write(bindings_dir.join(format!("{module_name}.rs")), combined)?;
+            mod_rs.push_str(&format!(
+                "pub mod {module_name} {{ include!(concat!(env!(\"GREENTIC_INTERFACES_BINDINGS\"), \"/{module_name}.rs\")); }}\n"
+            ));
+
+            if package.name.namespace == "greentic"
+                && package.name.name == "interfaces-pack"
+                && matches!(&package.name.version, Some(ver) if ver.major == 0 && ver.minor == 1)
+                && world_name == "component"
+            {
+                default_module = Some(module_name.clone());
+            }
         }
-        fs::write(&dest, contents)?;
     }
 
-    let component_rs = bindings_dir.join("component.rs");
-    let default_bindings = bindings_dir.join("bindings.rs");
-    if component_rs.exists() {
-        if default_bindings.exists() {
-            fs::remove_file(&default_bindings)?;
-        }
-        fs::rename(&component_rs, &default_bindings)?;
+    if let Some(default) = default_module {
+        mod_rs.push_str(&format!("pub use {default}::*;\n"));
     }
+
+    fs::write(bindings_dir.join("mod.rs"), mod_rs)?;
 
     Ok(bindings_dir)
 }
 
-fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn Error>> {
-    if dst.exists() {
-        fs::remove_dir_all(dst)?;
-    }
-    fs::create_dir_all(dst)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let path = entry.path();
-        let dest_path = dst.join(entry.file_name());
-        if path.is_dir() {
-            copy_dir_recursive(&path, &dest_path)?;
-        } else {
-            fs::copy(&path, &dest_path)?;
-        }
-    }
-    Ok(())
+fn module_name(name: &wit_bindgen_core::wit_parser::PackageName, world: &str) -> String {
+    let formatted = format!("{name}-{world}");
+    sanitize(&formatted).replace(['-', '.'], "_")
 }
 
 fn reset_directory(path: &Path) -> Result<(), Box<dyn Error>> {
