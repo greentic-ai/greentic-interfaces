@@ -5,6 +5,31 @@ package greentic:messaging@1.0.0;
 interface session-api {
   use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
 
+  /// Metadata entries preserved across adapters and bridges.
+  type metadata-entry = tuple<string, string>;
+
+  /// Generic attachment descriptor for channel messages.
+  record attachment {
+    mime-type: string,
+    url: string,
+    name: option<string>,
+    size-bytes: option<u64>,
+    description: option<string>,
+    metadata: list<metadata-entry>,
+  }
+
+  /// Provider-agnostic channel message envelope.
+  record channel-message-envelope {
+    id: string,
+    tenant: tenant-ctx,
+    channel: string,
+    session-id: string,
+    user-id: option<string>,
+    text: option<string>,
+    attachments: list<attachment>,
+    metadata: list<metadata-entry>,
+  }
+
   /// Canonical host error payload.
   record host-error {
     code: string,

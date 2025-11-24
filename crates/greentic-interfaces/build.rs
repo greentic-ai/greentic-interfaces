@@ -60,6 +60,13 @@ fn stage_dependencies(
     if deps.is_empty() {
         return Ok(());
     }
+    if env::var("DEBUG_STAGE_DEPS").is_ok() {
+        eprintln!(
+            "[debug] staging deps for {} -> {:?}",
+            source_path.display(),
+            deps
+        );
+    }
 
     let deps_dir = parent_dir.join("deps");
     fs::create_dir_all(&deps_dir)?;
@@ -69,6 +76,9 @@ fn stage_dependencies(
         let dep_dest = deps_dir.join(sanitize(&dep));
         fs::create_dir_all(&dep_dest)?;
         fs::copy(&dep_src, dep_dest.join("package.wit"))?;
+        if env::var("DEBUG_STAGE_DEPS").is_ok() {
+            println!("cargo:warning=staging dependency {dep}");
+        }
         println!("cargo:rerun-if-changed={}", dep_src.display());
 
         stage_dependencies(&dep_dest, &dep_src, wit_root)?;
@@ -129,7 +139,7 @@ fn parse_deps(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
             None => continue,
         };
 
-        let pkg = pkg_part;
+        let base_pkg = pkg_part.split('/').next().unwrap_or(pkg_part);
         let mut version = String::new();
         for ch in version_part.chars() {
             if ch.is_ascii_alphanumeric() || ch == '.' || ch == '-' || ch == '_' {
@@ -145,7 +155,7 @@ fn parse_deps(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
             continue;
         }
 
-        let dep_ref = format!("{pkg}@{version}");
+        let dep_ref = format!("{base_pkg}@{version}");
         if !deps.contains(&dep_ref) {
             deps.push(dep_ref);
         }

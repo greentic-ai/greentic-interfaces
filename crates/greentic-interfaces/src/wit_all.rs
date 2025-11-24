@@ -621,6 +621,39 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "events-broker-v1")]
+declare_world!(
+    mod events_broker_v1,
+    path = "wit/greentic/events@1.0.0",
+    world = "greentic:events/broker@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-source-v1")]
+declare_world!(
+    mod events_source_v1,
+    path = "wit/greentic/events@1.0.0",
+    world = "greentic:events/source@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-sink-v1")]
+declare_world!(
+    mod events_sink_v1,
+    path = "wit/greentic/events@1.0.0",
+    world = "greentic:events/sink@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
+    }
+);
+
 #[cfg(feature = "secrets-store-v1")]
 declare_world!(
     mod secrets_store_v1,
@@ -655,10 +688,30 @@ declare_world!(
 #[cfg(feature = "events-emitter-v1")]
 declare_world!(
     mod events_emitter_v1,
-    path = "wit/greentic/events-emitter@1.0.0",
+    path = "wit/greentic/events@1.0.0",
     world = "greentic:events/emitter@1.0.0",
     legacy = {
         pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-bridge-v1")]
+declare_world!(
+    mod events_bridge_message_to_event_v1,
+    path = "wit/greentic/events-bridge@1.0.0",
+    world = "greentic:events-bridge/message-to-event-bridge@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:events-bridge@1.0.0";
+    }
+);
+
+#[cfg(feature = "events-bridge-v1")]
+declare_world!(
+    mod events_bridge_event_to_message_v1,
+    path = "wit/greentic/events-bridge@1.0.0",
+    world = "greentic:events-bridge/event-to-message-bridge@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:events-bridge@1.0.0";
     }
 );
 

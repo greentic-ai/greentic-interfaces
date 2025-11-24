@@ -94,8 +94,24 @@ pub mod messaging_session {
 }
 
 /// v1 host capability contracts.
-pub mod events_emitter {
-    pub use greentic_interfaces::events_emitter_v1::*;
+pub mod events_broker {
+    pub use greentic_interfaces::events_broker_v1::*;
+}
+
+/// v1 host capability contracts.
+pub mod events_source {
+    pub use greentic_interfaces::events_source_v1::*;
+}
+
+/// v1 host capability contracts.
+pub mod events_sink {
+    pub use greentic_interfaces::events_sink_v1::*;
+}
+
+/// v1 host capability contracts.
+pub mod events_bridge {
+    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_event_to_message_bridge::exports::greentic::events_bridge::bridge_api as event_to_message_bridge;
+    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_message_to_event_bridge::exports::greentic::events_bridge::bridge_api as message_to_event_bridge;
 }
 
 /// v1 host capability contracts.

@@ -4,14 +4,20 @@ use quote::{format_ident, quote};
 use std::{env, fs};
 use walkdir::WalkDir;
 
-fn module_name_from_dirname(dir: &str) -> String {
+fn module_name_from_dir_and_world(dir: &str, world: &str) -> String {
     let mut parts = dir.split('@');
-    let raw_name = parts.next().unwrap_or(dir);
+    let raw_name = parts.next().unwrap_or(dir).replace('-', "_");
     let version = parts.next().unwrap_or("0.0.0");
     let mut ver_parts = version.trim_start_matches('v').split('.');
     let major = ver_parts.next().unwrap_or("0");
     let minor = ver_parts.next().unwrap_or("0");
-    format!("{}_v{}_{}", raw_name.replace('-', "_"), major, minor)
+    let world_part = world.replace('-', "_");
+
+    if world_part == raw_name {
+        format!("{raw_name}_v{major}_{minor}")
+    } else {
+        format!("{raw_name}_{world_part}_v{major}_{minor}")
+    }
 }
 
 fn main() {
@@ -56,67 +62,81 @@ fn main() {
             .rsplit_once('@')
             .unwrap_or((package_ref, "0.0.0"));
 
-        let world_line = content
+        let mut world_names: Vec<String> = content
             .lines()
-            .find(|line| line.trim_start().starts_with("world "))
-            .unwrap_or_else(|| panic!("world declaration missing in {package_path}"));
-        let mut world_iter = world_line
-            .trim_start()
-            .trim_start_matches("world")
-            .split_whitespace();
-        let mut world_name = world_iter.next().unwrap_or("world");
-        world_name = world_name.trim_end_matches('{');
-
-        let module_name = module_name_from_dirname(&dirname);
-        let mod_ident = format_ident!("{}", module_name);
-        let world_spec = format!("{package_id}/{world_name}@{version}");
-        let package_rel_path = format!("wit/greentic/{dirname}");
-
-        let has_control_helpers = dirname.starts_with("component@")
-            && content.contains("interface control")
-            && content.contains("import control");
-
-        let control_helpers = if has_control_helpers {
-            quote! {
-                #[cfg(feature = "control-helpers")]
-                pub use bindings::greentic::component::control::Host as ControlHost;
-
-                #[cfg(feature = "control-helpers")]
-                pub use bindings::greentic::component::control::add_to_linker as add_control_to_linker;
-            }
-        } else {
-            quote! {}
-        };
-
-        let module_tokens = quote! {
-            pub mod #mod_ident {
-                mod bindings {
-                    wasmtime::component::bindgen!({
-                        path: #package_rel_path,
-                        world: #world_spec
-                    });
+            .filter_map(|line| {
+                let trimmed = line.trim_start();
+                if let Some(rest) = trimmed.strip_prefix("world ") {
+                    let name = rest
+                        .split_whitespace()
+                        .next()
+                        .unwrap_or("world")
+                        .trim_end_matches('{')
+                        .to_string();
+                    return Some(name);
                 }
+                None
+            })
+            .collect();
 
-                #[allow(unused_imports)]
-                pub use bindings::*;
+        if world_names.is_empty() {
+            panic!("world declaration missing in {package_path}");
+        }
 
-                /// Convenience shim to instantiate a component binary.
-                pub struct Component;
-                impl Component {
-                    pub fn instantiate(
-                        engine: &wasmtime::Engine,
-                        component_wasm: &[u8],
-                    ) -> anyhow::Result<wasmtime::component::Component> {
-                        let component = wasmtime::component::Component::from_binary(engine, component_wasm)?;
-                        Ok(component)
+        world_names.sort();
+
+        for world_name in world_names {
+            let module_name = module_name_from_dir_and_world(&dirname, &world_name);
+            let mod_ident = format_ident!("{}", module_name);
+            let world_spec = format!("{package_id}/{world_name}@{version}");
+            let package_rel_path = format!("wit/greentic/{dirname}");
+
+            let has_control_helpers = dirname.starts_with("component@")
+                && content.contains("interface control")
+                && content.contains("import control");
+
+            let control_helpers = if has_control_helpers {
+                quote! {
+                    #[cfg(feature = "control-helpers")]
+                    pub use bindings::greentic::component::control::Host as ControlHost;
+
+                    #[cfg(feature = "control-helpers")]
+                    pub use bindings::greentic::component::control::add_to_linker as add_control_to_linker;
+                }
+            } else {
+                quote! {}
+            };
+
+            let module_tokens = quote! {
+                pub mod #mod_ident {
+                    mod bindings {
+                        wasmtime::component::bindgen!({
+                            path: #package_rel_path,
+                            world: #world_spec
+                        });
                     }
+
+                    #[allow(unused_imports)]
+                    pub use bindings::*;
+
+                    /// Convenience shim to instantiate a component binary.
+                    pub struct Component;
+                    impl Component {
+                        pub fn instantiate(
+                            engine: &wasmtime::Engine,
+                            component_wasm: &[u8],
+                        ) -> anyhow::Result<wasmtime::component::Component> {
+                            let component = wasmtime::component::Component::from_binary(engine, component_wasm)?;
+                            Ok(component)
+                        }
+                    }
+
+                    #control_helpers
                 }
+            };
 
-                #control_helpers
-            }
-        };
-
-        modules.push(module_tokens);
+            modules.push(module_tokens);
+        }
     }
 
     modules.sort_by_key(|tokens| tokens.to_string());

@@ -34,9 +34,25 @@ pub mod messaging_session {
     pub use greentic_interfaces::bindings::greentic_messaging_1_0_0_session::greentic::messaging::session_api::*;
 }
 
-/// Event emitter imports for `greentic:events/emitter@1.0.0`.
-pub mod events_emitter {
-    pub use greentic_interfaces::bindings::greentic_events_1_0_0_emitter::greentic::events::emitter_api::*;
+/// Event broker exports for `greentic:events/broker@1.0.0`.
+pub mod events_broker {
+    pub use greentic_interfaces::bindings::greentic_events_1_0_0_broker::exports::greentic::events::broker_api::*;
+}
+
+/// Event source exports for `greentic:events/source@1.0.0`.
+pub mod events_source {
+    pub use greentic_interfaces::bindings::greentic_events_1_0_0_source::exports::greentic::events::source_api::*;
+}
+
+/// Event sink exports for `greentic:events/sink@1.0.0`.
+pub mod events_sink {
+    pub use greentic_interfaces::bindings::greentic_events_1_0_0_sink::exports::greentic::events::sink_api::*;
+}
+
+/// Event/message bridge exports for `greentic:events-bridge@1.0.0`.
+pub mod events_bridge {
+    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_event_to_message_bridge::exports::greentic::events_bridge::bridge_api as event_to_message_bridge;
+    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_message_to_event_bridge::exports::greentic::events_bridge::bridge_api as message_to_event_bridge;
 }
 
 /// HTTP client imports for `greentic:http/client@1.0.0`.
