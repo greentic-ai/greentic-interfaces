@@ -34,6 +34,14 @@ default = [
     "events-sink-v1",
     "events-emitter-v1",
     "events-bridge-v1",
+    "source-v1",
+    "build-v1",
+    "scan-v1",
+    "signing-v1",
+    "attestation-v1",
+    "policy-v1",
+    "metadata-v1",
+    "oci-v1",
     "http-client-v1",
     "telemetry-logger-v1",
     "oauth-broker-v1",
@@ -64,6 +72,14 @@ state-store-v1 = []
 messaging-session-v1 = []
 events-emitter-v1 = []
 events-bridge-v1 = []
+source-v1 = []
+build-v1 = []
+scan-v1 = []
+signing-v1 = []
+attestation-v1 = []
+policy-v1 = []
+metadata-v1 = []
+oci-v1 = []
 http-client-v1 = []
 telemetry-logger-v1 = []
 wit-all = [
@@ -91,6 +107,14 @@ wit-all = [
     "messaging-session-v1",
     "events-emitter-v1",
     "events-bridge-v1",
+    "source-v1",
+    "build-v1",
+    "scan-v1",
+    "signing-v1",
+    "attestation-v1",
+    "policy-v1",
+    "metadata-v1",
+    "oci-v1",
     "http-client-v1",
     "telemetry-logger-v1",
     "oauth-broker-v1",

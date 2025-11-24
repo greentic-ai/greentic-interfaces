@@ -70,6 +70,42 @@ pub mod oauth_broker {
     pub use greentic_interfaces::bindings::greentic_oauth_broker_1_0_0_broker::exports::greentic::oauth_broker::broker_v1::*;
 }
 
+/// Supply-chain provider contracts implemented by components.
+pub mod supply_chain {
+    /// Source provider world `greentic:source/source-sync@1.0.0`.
+    pub mod source {
+        pub use greentic_interfaces::bindings::greentic_source_1_0_0_source_sync::exports::greentic::source::source_api::*;
+    }
+    /// Build provider world `greentic:build/builder@1.0.0`.
+    pub mod build {
+        pub use greentic_interfaces::bindings::greentic_build_1_0_0_builder::exports::greentic::build::builder_api::*;
+    }
+    /// Scanner world `greentic:scan/scanner@1.0.0`.
+    pub mod scan {
+        pub use greentic_interfaces::bindings::greentic_scan_1_0_0_scanner::exports::greentic::scan::scanner_api::*;
+    }
+    /// Signing world `greentic:signing/signer@1.0.0`.
+    pub mod signing {
+        pub use greentic_interfaces::bindings::greentic_signing_1_0_0_signer::exports::greentic::signing::signer_api::*;
+    }
+    /// Attestation world `greentic:attestation/attester@1.0.0`.
+    pub mod attestation {
+        pub use greentic_interfaces::bindings::greentic_attestation_1_0_0_attester::exports::greentic::attestation::attester_api::*;
+    }
+    /// Policy evaluation world `greentic:policy/policy-evaluator@1.0.0`.
+    pub mod policy {
+        pub use greentic_interfaces::bindings::greentic_policy_1_0_0_policy_evaluator::exports::greentic::policy::policy_api::*;
+    }
+    /// Metadata store world `greentic:metadata/metadata-store@1.0.0`.
+    pub mod metadata {
+        pub use greentic_interfaces::bindings::greentic_metadata_1_0_0_metadata_store::exports::greentic::metadata::metadata_api::*;
+    }
+    /// OCI distribution world `greentic:oci/oci-distribution@1.0.0`.
+    pub mod oci {
+        pub use greentic_interfaces::bindings::greentic_oci_1_0_0_oci_distribution::exports::greentic::oci::oci_api::*;
+    }
+}
+
 /// Stable alias for messaging/session imports.
 pub mod messaging {
     pub use super::messaging_session::*;

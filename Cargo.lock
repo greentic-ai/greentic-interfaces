@@ -75,9 +75,9 @@ checksum = "276a59bf2b2c967788139340c9f0c5b12d7fd6630315c15c217e559de85d2609"
 
 [[package]]
 name = "cc"
-version = "1.2.46"
+version = "1.2.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b97463e1064cb1b1c1384ad0a0b9c8abd0988e2a91f52606c80ef14aadb63e36"
+checksum = "cd405d82c84ff7f35739f175f67d8b9fb7687a0e84ccdc78bd3568839827cf07"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
  "wit-bindgen",
 ]
@@ -411,9 +411,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.31"
+version = "0.4.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1420451326a6be0a8efc7d70a88c9a18d4f3f1d704622a845370211b3ae04a03"
+checksum = "0b925f550df7f9f7ab6a35c84542b764c938652c9cf04b9abb38f51016800be6"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -428,7 +428,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -448,34 +448,34 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
- "greentic-interfaces 0.4.31",
+ "greentic-interfaces 0.4.35",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
- "greentic-interfaces 0.4.35",
+ "greentic-interfaces 0.4.36",
  "greentic-types",
 ]
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
- "greentic-interfaces 0.4.35",
+ "greentic-interfaces 0.4.36",
  "greentic-types",
 ]
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.35"
+version = "0.4.36"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.31",
+ "greentic-interfaces 0.4.35",
  "proc-macro2",
  "quote",
  "syn",
@@ -485,10 +485,11 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.2"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "507d0ae02e13d8605f1fbee32e022ce3a8e7df75f3fd26966f4540e55cfb9ee2"
+checksum = "abe7cc7b2622ecb9cb9b99ec20b4d213c99f6c27b2e0e59a33a89ef0ecb54317"
 dependencies = [
+ "chrono",
  "fnv",
  "indexmap",
  "schemars",
@@ -512,9 +513,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.16.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d"
+checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
 
 [[package]]
 name = "heck"
@@ -542,21 +543,21 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "indexmap"
-version = "2.12.0"
+version = "2.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6717a8d2a5a929a1a2eb43a12812498ed141a0bcfb7e8f7844fbdbe4303bba9f"
+checksum = "0ad4bb2b565bca0645f4d68c5c9af97fba094e9791da685bf83cb5f3ce74acf2"
 dependencies = [
  "equivalent",
- "hashbrown 0.16.0",
+ "hashbrown 0.16.1",
  "serde",
  "serde_core",
 ]
 
 [[package]]
 name = "insta"
-version = "1.43.2"
+version = "1.44.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46fdb647ebde000f43b5b53f773c30cf9b0cb4300453208713fa38b2c70935a0"
+checksum = "e8732d3774162a0851e3f2b150eb98f31a9885dd75985099421d393385a01dfd"
 dependencies = [
  "console",
  "once_cell",
@@ -809,6 +810,7 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9558e172d4e8533736ba97870c4b2cd63f84b382a3d6eb063da41b91cce17289"
 dependencies = [
+ "chrono",
  "dyn-clone",
  "ref-cast",
  "schemars_derive",
@@ -954,9 +956,9 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "syn"
-version = "2.0.110"
+version = "2.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a99801b5bd34ede4cf3fc688c5919368fea4e4814a4664359503e6015b280aea"
+checksum = "390cc9a294ab71bdb1aa2e99d13be9c753cd2d7bd6560c77118597410c4d2e87"
 dependencies = [
  "proc-macro2",
  "quote",

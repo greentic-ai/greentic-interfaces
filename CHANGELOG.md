@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Add tenant-scoped supply-chain WIT worlds @1.0.0: source-sync, builder, scanner, signer, attester, policy-evaluator, metadata-store, and oci-distribution, all using shared `TenantCtx` and structured records with provider-agnostic `extra` fields.
+
 ## v0.4.20
 - Add `greentic:component@1.0.0` describe-only world so runners can fetch schema/default metadata over JSON without binding to a specific component ABI.
 - Add `greentic:host@1.0.0` with `http-v1`, `secrets-v1`, and `kv-v1` host imports to model runner capabilities that mocks/dev profiles can override.

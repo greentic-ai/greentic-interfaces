@@ -29,11 +29,11 @@ package_ref_from_file() {
   echo "${ref}"
 }
 
-sanitize_ref() {
+dest_dir_for_ref() {
   local ref="$1"
-  ref="${ref//[:@]/-}"
-  ref="${ref//\//-}"
-  echo "${ref}"
+  local sanitized="${ref//[:@]/-}"
+  sanitized="${sanitized//\//-}"
+  echo "${sanitized}"
 }
 
 parse_deps() {
@@ -52,14 +52,6 @@ parse_deps() {
 
 resolve_wit_source() {
   local ref="$1"
-  local sanitized
-  sanitized="$(sanitize_ref "${ref}")"
-  local candidate="${WIT_ROOT}/${sanitized}.wit"
-  if [[ -f "${candidate}" ]]; then
-    echo "${candidate}"
-    return 0
-  fi
-
   local pkg="${ref%@*}"
   local ver="${ref##*@}"
   local namespace="${pkg%%:*}"
@@ -93,9 +85,9 @@ copy_with_deps() {
 
   [[ -z "${ref}" ]] && return 0
 
-  local sanitized
-  sanitized="$(sanitize_ref "${ref}")"
-  local dest_dir="${dest_root}/${sanitized}"
+  local rel_dest
+  rel_dest="$(dest_dir_for_ref "${ref}")"
+  local dest_dir="${dest_root}/${rel_dest}"
   if [[ -d "${dest_dir}" ]]; then
     return 0
   fi

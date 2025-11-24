@@ -77,6 +77,14 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `secrets-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy host import bundle (still available for older packs). |
 | `component-lifecycle-v1` | `greentic:lifecycle@1.0.0` (`lifecycle-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/lifecycle@1.0.0/package.wit) | Optional lifecycle hooks (`init`, `health`, `shutdown`). |
 | `events-v1` | `greentic:events@1.0.0` (`events-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Legacy telemetry envelope (retained for back-compat alongside the new broker/source/sink worlds). |
+| `source-v1` | `greentic:source/source-sync@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/source@1.0.0/package.wit) | Tenant-scoped source provider interface (list repos/branches, commit metadata, webhooks). |
+| `build-v1` | `greentic:build/builder@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/build@1.0.0/package.wit) | Tenant-scoped build execution (build plan/status/log refs). |
+| `scan-v1` | `greentic:scan/scanner@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/scan@1.0.0/package.wit) | Tenant-scoped scan execution (scan kind/result/SBOM refs). |
+| `signing-v1` | `greentic:signing/signer@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/signing@1.0.0/package.wit) | Tenant-scoped signing/verification using signing key refs. |
+| `attestation-v1` | `greentic:attestation/attester@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/attestation@1.0.0/package.wit) | Tenant-scoped attestation generation (predicate/statement refs). |
+| `policy-v1` | `greentic:policy/policy-evaluator@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/policy@1.0.0/package.wit) | Tenant-scoped policy evaluation (allow/deny with reasons). |
+| `metadata-v1` | `greentic:metadata/metadata-store@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/metadata@1.0.0/package.wit) | Tenant-scoped metadata upsert/query for components/versions. |
+| `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
 
 ## Deployment plan world

@@ -734,3 +734,83 @@ declare_world!(
         pub const PACKAGE_ID: &str = "greentic:telemetry@1.0.0";
     }
 );
+
+#[cfg(feature = "source-v1")]
+declare_world!(
+    mod source_v1,
+    path = "wit/greentic/source@1.0.0",
+    world = "greentic:source/source-sync@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:source@1.0.0";
+    }
+);
+
+#[cfg(feature = "build-v1")]
+declare_world!(
+    mod build_v1,
+    path = "wit/greentic/build@1.0.0",
+    world = "greentic:build/builder@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:build@1.0.0";
+    }
+);
+
+#[cfg(feature = "scan-v1")]
+declare_world!(
+    mod scan_v1,
+    path = "wit/greentic/scan@1.0.0",
+    world = "greentic:scan/scanner@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:scan@1.0.0";
+    }
+);
+
+#[cfg(feature = "signing-v1")]
+declare_world!(
+    mod signing_v1,
+    path = "wit/greentic/signing@1.0.0",
+    world = "greentic:signing/signer@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:signing@1.0.0";
+    }
+);
+
+#[cfg(feature = "attestation-v1")]
+declare_world!(
+    mod attestation_v1,
+    path = "wit/greentic/attestation@1.0.0",
+    world = "greentic:attestation/attester@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:attestation@1.0.0";
+    }
+);
+
+#[cfg(feature = "policy-v1")]
+declare_world!(
+    mod policy_v1,
+    path = "wit/greentic/policy@1.0.0",
+    world = "greentic:policy/policy-evaluator@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:policy@1.0.0";
+    }
+);
+
+#[cfg(feature = "metadata-v1")]
+declare_world!(
+    mod metadata_v1,
+    path = "wit/greentic/metadata@1.0.0",
+    world = "greentic:metadata/metadata-store@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:metadata@1.0.0";
+    }
+);
+
+#[cfg(feature = "oci-v1")]
+declare_world!(
+    mod oci_v1,
+    path = "wit/greentic/oci@1.0.0",
+    world = "greentic:oci/oci-distribution@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:oci@1.0.0";
+    }
+);
