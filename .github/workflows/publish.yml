@@ -114,6 +114,8 @@ jobs:
           publish_crate() {
             local manifest="$1"
             local crate="$2"
+            local curl_check
+            curl_check="curl -fsSL -A greentic-publish-check/1.0"
 
             local metadata
             metadata=$(cargo metadata --manifest-path "${manifest}" --format-version 1 --no-deps)
@@ -122,7 +124,7 @@ jobs:
 
             echo "::group::Processing ${crate}@${version}"
 
-            if curl -fsSL "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
+            if ${curl_check} "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
               echo "${crate}@${version} already published; skipping."
               echo "::endgroup::"
               return 0
@@ -146,14 +148,17 @@ jobs:
             fi
             rm -f "${publish_log}"
 
-            for attempt in {1..20}; do
-              if curl -fsSL "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
+            # Allow some propagation time after publish before checking.
+            sleep 10
+
+            for attempt in {1..30}; do
+              if ${curl_check} "https://crates.io/api/v1/crates/${crate}/${version}" >/dev/null; then
                 echo "${crate}@${version} now visible on crates.io."
                 echo "::endgroup::"
                 return 0
               fi
               echo "Waiting for ${crate}@${version} to appear (attempt ${attempt})..."
-              sleep 15
+              sleep 20
             done
 
             if cargo publish --locked --manifest-path "${manifest}" --dry-run 2>&1 | grep -q "already exists"; then
