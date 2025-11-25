@@ -118,6 +118,9 @@ jobs:
           greentic-interfaces = { path = "crates/greentic-interfaces" }
           EOF
 
+          # Refresh lockfile to reflect the patched source before --locked publishes.
+          cargo update -p greentic-interfaces --workspace
+
           publish_crate() {
             local manifest="$1"
             local crate="$2"
