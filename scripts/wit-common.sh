@@ -12,6 +12,12 @@ ensure_cmd() {
   }
 }
 
+# Replace any character not allowed in file names / OCI tags with "-".
+sanitize_ref() {
+  local ref="$1"
+  echo "${ref}" | tr -c 'A-Za-z0-9._-' '-' | sed -e 's/--*/-/g' -e 's/^-//' -e 's/-$//'
+}
+
 list_wit_sources() {
   find "${WIT_ROOT}" -maxdepth 1 -type f -name "*.wit"
   find "${WIT_ROOT}" -mindepth 1 -type f -name "package.wit" ! -path "*/deps/*"
