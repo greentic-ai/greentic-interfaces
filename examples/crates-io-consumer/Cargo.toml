@@ -5,4 +5,4 @@ edition = "2024"
 publish = false
 
 [dependencies]
-greentic-interfaces = "0.4"
+greentic-interfaces = { workspace = true }
