@@ -1,3 +1,4 @@
+#![cfg(not(target_arch = "wasm32"))]
 //! Unified Wasmtime bindings for every WIT world shipped with this crate.
 #![allow(clippy::all)]
 #![allow(missing_docs)]

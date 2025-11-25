@@ -11,15 +11,14 @@ use wit_bindgen_rust::Opts;
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
     if target_arch == "wasm32" {
-        // Host bindings are not generated for wasm targets.
-        return Ok(());
+        // Generate guest bindings even when targeting wasm; build happens on host.
     }
 
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
     let staged_root = out_dir.join("wit-staging");
     reset_directory(&staged_root)?;
 
-    let wit_root = Path::new("wit");
+    let wit_root = Path::new("../greentic-interfaces/wit");
     let mut package_paths = Vec::new();
     discover_packages(wit_root, &mut package_paths)?;
 
@@ -32,10 +31,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let bindings_dir = generate_rust_bindings(&staged_root, &out_dir)?;
-
-    println!("cargo:rustc-env=WIT_STAGING_DIR={}", staged_root.display());
     println!(
-        "cargo:rustc-env=GREENTIC_INTERFACES_BINDINGS={}",
+        "cargo:rustc-env=GREENTIC_INTERFACES_GUEST_BINDINGS={}",
         bindings_dir.display()
     );
 
@@ -66,13 +63,6 @@ fn stage_dependencies(
     if deps.is_empty() {
         return Ok(());
     }
-    if env::var("DEBUG_STAGE_DEPS").is_ok() {
-        eprintln!(
-            "[debug] staging deps for {} -> {:?}",
-            source_path.display(),
-            deps
-        );
-    }
 
     let deps_dir = parent_dir.join("deps");
     fs::create_dir_all(&deps_dir)?;
@@ -82,9 +72,6 @@ fn stage_dependencies(
         let dep_dest = deps_dir.join(sanitize(&dep));
         fs::create_dir_all(&dep_dest)?;
         fs::copy(&dep_src, dep_dest.join("package.wit"))?;
-        if env::var("DEBUG_STAGE_DEPS").is_ok() {
-            println!("cargo:warning=staging dependency {dep}");
-        }
         println!("cargo:rerun-if-changed={}", dep_src.display());
 
         stage_dependencies(&dep_dest, &dep_src, wit_root)?;
@@ -212,7 +199,6 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
         ..Default::default()
     };
 
-    let mut default_module = None;
     let mut mod_rs = String::new();
 
     for path in package_paths {
@@ -236,21 +222,9 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
             }
             fs::write(bindings_dir.join(format!("{module_name}.rs")), combined)?;
             mod_rs.push_str(&format!(
-                "pub mod {module_name} {{ include!(concat!(env!(\"GREENTIC_INTERFACES_BINDINGS\"), \"/{module_name}.rs\")); }}\n"
+                "pub mod {module_name} {{ include!(concat!(env!(\"GREENTIC_INTERFACES_GUEST_BINDINGS\"), \"/{module_name}.rs\")); }}\n"
             ));
-
-            if package.name.namespace == "greentic"
-                && package.name.name == "interfaces-pack"
-                && matches!(&package.name.version, Some(ver) if ver.major == 0 && ver.minor == 1)
-                && world_name == "component"
-            {
-                default_module = Some(module_name.clone());
-            }
         }
-    }
-
-    if let Some(default) = default_module {
-        mod_rs.push_str(&format!("pub use {default}::*;\n"));
     }
 
     fs::write(bindings_dir.join("mod.rs"), mod_rs)?;

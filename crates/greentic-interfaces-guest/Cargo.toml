@@ -10,5 +10,15 @@ documentation = "https://docs.rs/greentic-interfaces-guest"
 homepage = "https://github.com/greentic-ai/greentic-interfaces"
 
 [dependencies]
-greentic-interfaces = { workspace = true, features = ["bindings-rust"] }
 greentic-types = { workspace = true }
+greentic-interfaces = { workspace = true, optional = true, default-features = false, features = ["bindings-rust"] }
+wit-bindgen = { version = "0.48" }
+
+[features]
+guest = []
+host-bridge = ["greentic-interfaces"]
+default = ["guest"]
+
+[build-dependencies]
+wit-bindgen-core = "0.48"
+wit-bindgen-rust = "0.48"

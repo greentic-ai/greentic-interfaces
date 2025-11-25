@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "wit-bindgen 0.48.1",
 ]
@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -650,22 +650,25 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
+ "wit-bindgen 0.48.1",
+ "wit-bindgen-core 0.48.1",
+ "wit-bindgen-rust 0.48.1",
 ]
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -673,7 +676,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.38"
+version = "0.4.39"
 dependencies = [
  "anyhow",
  "camino",
@@ -2406,6 +2409,7 @@ version = "0.48.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f8c2adb5f74ac9395bc3121c99a1254bf9310482c27b13f97167aedb5887138"
 dependencies = [
+ "bitflags",
  "wit-bindgen-rust-macro 0.48.1",
 ]
 
