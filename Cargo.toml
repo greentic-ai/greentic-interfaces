@@ -22,8 +22,12 @@ version = "0.4.38"
 
 [workspace.dependencies]
 anyhow = "1"
-greentic-interfaces = { path = "crates/greentic-interfaces", version = "0.4.38", default-features = false }
+greentic-interfaces = { path = "crates/greentic-interfaces", version = "0.4", default-features = false }
+greentic-interfaces-wasmtime = { path = "crates/greentic-interfaces-wasmtime", version = "0.4", default-features = false }
 greentic-types = { version = "0.4"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
+wasmtime = { version = "39", default-features = false, features = ["component-model"] }
+wasmtime-wasi = "39"
+wit-bindgen = { version = "0.47", default-features = false, features = ["macros", "realloc"] }
