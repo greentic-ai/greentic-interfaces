@@ -30,4 +30,4 @@ serde_json = "1"
 thiserror = "2"
 wasmtime = { version = "39", default-features = false, features = ["component-model"] }
 wasmtime-wasi = "39"
-wit-bindgen = { version = "0.47", default-features = false, features = ["macros", "realloc"] }
+wit-bindgen = { version = "0.48", default-features = false, features = ["macros", "realloc"] }
