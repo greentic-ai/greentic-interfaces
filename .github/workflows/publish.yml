@@ -114,9 +114,9 @@ jobs:
           # Ensure publish dry-run for dependents resolves greentic-interfaces from the workspace.
           mkdir -p .cargo
           cat > .cargo/config.toml <<'EOF'
-[patch.crates-io]
-greentic-interfaces = { path = "crates/greentic-interfaces" }
-EOF
+          [patch.crates-io]
+          greentic-interfaces = { path = "crates/greentic-interfaces" }
+          EOF
 
           publish_crate() {
             local manifest="$1"

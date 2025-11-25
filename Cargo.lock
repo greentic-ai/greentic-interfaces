@@ -411,23 +411,6 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.35"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b925f550df7f9f7ab6a35c84542b764c938652c9cf04b9abb38f51016800be6"
-dependencies = [
- "anyhow",
- "greentic-types",
- "semver",
- "thiserror",
- "time",
- "wasmtime",
- "wit-bindgen",
- "wit-bindgen-core",
- "wit-bindgen-rust",
-]
-
-[[package]]
-name = "greentic-interfaces"
 version = "0.4.36"
 dependencies = [
  "anyhow",
@@ -447,10 +430,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "greentic-interfaces"
+version = "0.4.36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d9c4d2588dffdcc5c10f4120cfebe7b4d38d03f1300ae6dcab88c3be0e81b4f"
+dependencies = [
+ "anyhow",
+ "greentic-types",
+ "semver",
+ "thiserror",
+ "time",
+ "wasmtime",
+ "wit-bindgen",
+ "wit-bindgen-core",
+ "wit-bindgen-rust",
+]
+
+[[package]]
 name = "greentic-interfaces-crates-io-consumer"
 version = "0.4.36"
 dependencies = [
- "greentic-interfaces 0.4.35",
+ "greentic-interfaces 0.4.36 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -475,7 +475,7 @@ version = "0.4.36"
 dependencies = [
  "anyhow",
  "camino",
- "greentic-interfaces 0.4.35",
+ "greentic-interfaces 0.4.36 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2",
  "quote",
  "syn",
@@ -485,9 +485,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.4"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abe7cc7b2622ecb9cb9b99ec20b4d213c99f6c27b2e0e59a33a89ef0ecb54317"
+checksum = "4413c671ed982b3ff7f15445cb02f43502437b695af82bcdd8dd3b90513609b1"
 dependencies = [
  "chrono",
  "fnv",
