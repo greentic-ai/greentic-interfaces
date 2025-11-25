@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.88.0
+          toolchain: 1.89.0
           components: rustfmt,clippy
       - uses: Swatinem/rust-cache@v2
       - name: Lint & Test
@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.88.0
+          toolchain: 1.89.0
       - uses: Swatinem/rust-cache@v2
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.88.0
+          toolchain: 1.89.0
       - uses: Swatinem/rust-cache@v2
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq

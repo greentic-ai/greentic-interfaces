@@ -5,9 +5,9 @@ edition = "2024"
 publish = false
 
 [dependencies]
-anyhow = "1"
-greentic-interfaces = { workspace=true, path = "../../crates/greentic-interfaces", default-features = false, features = ["runner-host-v1"] }
-greentic-interfaces-wasmtime = { workspace=true,path = "../../crates/greentic-interfaces-wasmtime" }
-serde_json.workspace=true
-wasmtime = { workspace=true, default-features = false, features = ["component-model"] }
-wasmtime-wasi.workspace=true
+anyhow = { workspace = true }
+greentic-interfaces = { workspace = true, features = ["runner-host-v1"] }
+greentic-interfaces-wasmtime = { workspace = true }
+serde_json = { workspace = true }
+wasmtime = { workspace = true }
+wasmtime-wasi = { workspace = true }

@@ -48,13 +48,28 @@ require_tool() {
     return 1
 }
 
+CARGO_BIN=()
 declare -a CARGO_BIN
 if [[ -n "${LOCAL_CHECK_CARGO_BIN:-}" ]]; then
     # shellcheck disable=SC2206
     CARGO_BIN=(${LOCAL_CHECK_CARGO_BIN})
-elif need rustup && rustup toolchain list 2>/dev/null | grep -q '1\.88\.0'; then
-    CARGO_BIN=("rustup" "run" "1.88.0" "cargo")
-else
+elif need rustup; then
+    TARGET_TOOLCHAIN="1.89.0"
+    if ! rustup toolchain list 2>/dev/null | grep -q "${TARGET_TOOLCHAIN}"; then
+        if [[ "${LOCAL_CHECK_ONLINE}" == "1" ]]; then
+            echo "[info] installing rustup toolchain ${TARGET_TOOLCHAIN}"
+            rustup toolchain install "${TARGET_TOOLCHAIN}" >/dev/null 2>&1 || true
+        else
+            echo "[warn] rustup toolchain ${TARGET_TOOLCHAIN} missing; set LOCAL_CHECK_ONLINE=1 to auto-install"
+        fi
+    fi
+    if ! rustup toolchain list 2>/dev/null | grep -q "${TARGET_TOOLCHAIN}"; then
+        echo "[err] rustup toolchain ${TARGET_TOOLCHAIN} not available; install it or set LOCAL_CHECK_CARGO_BIN"
+        exit 1
+    fi
+    CARGO_BIN=("rustup" "run" "${TARGET_TOOLCHAIN}" "cargo")
+fi
+if [[ ${#CARGO_BIN[@]} -eq 0 ]]; then
     CARGO_BIN=("cargo")
 fi
 CARGO_DISPLAY="${CARGO_BIN[*]}"

@@ -5,11 +5,11 @@ members = [
     "crates/greentic-interfaces-host",
     "crates/greentic-interfaces-guest",
     "examples/component-describe",
+    "examples/runner-host-smoke",
     "examples/crates-io-consumer",
 ]
 exclude = [
     "examples/component-describe",
-    "examples/runner-host-smoke",
 ]
 resolver = "2"
 
@@ -28,6 +28,6 @@ greentic-types = { version = "0.4"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-wasmtime = { version = "39", default-features = false, features = ["component-model"] }
+wasmtime = { version = "39", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 wasmtime-wasi = "39"
 wit-bindgen = { version = "0.48", default-features = false, features = ["macros", "realloc"] }

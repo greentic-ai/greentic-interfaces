@@ -16,9 +16,7 @@ anyhow = "1"
 greentic-interfaces = { workspace = true }
 
 [dependencies.wasmtime]
-version = "38"
-default-features = false
-features = ["component-model"]
+workspace = true
 
 [build-dependencies]
 camino = "1"

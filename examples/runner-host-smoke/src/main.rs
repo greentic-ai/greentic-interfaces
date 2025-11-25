@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use greentic_interfaces::runner_host_v1;
 use greentic_interfaces_wasmtime::component_v1_0;
 use serde_json::Value;
@@ -8,7 +8,7 @@ use std::process::Command;
 use std::vec::Vec;
 use wasmtime::component::{Linker, ResourceTable};
 use wasmtime::{Config, Engine, Store};
-use wasmtime_wasi::{p2, WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView};
+use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView, p2};
 
 fn main() -> Result<()> {
     let component_path = ensure_component_artifact()?;
@@ -82,11 +82,14 @@ struct AppState {
 
 impl AppState {
     fn new() -> Result<Self> {
-        let wasi = WasiCtxBuilder::new().inherit_stdout().inherit_stderr().build();
+        let wasi = WasiCtxBuilder::new()
+            .inherit_stdout()
+            .inherit_stderr()
+            .build();
         Ok(Self {
             wasi,
             table: ResourceTable::new(),
-            host: HostMocks::default(),
+            host: HostMocks,
         })
     }
 }
