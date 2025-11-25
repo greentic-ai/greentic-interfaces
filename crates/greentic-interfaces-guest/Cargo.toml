@@ -10,5 +10,5 @@ documentation = "https://docs.rs/greentic-interfaces-guest"
 homepage = "https://github.com/greentic-ai/greentic-interfaces"
 
 [dependencies]
-greentic-interfaces = { version = "0.4.36", path = "../greentic-interfaces", default-features = false, features = ["bindings-rust"] }
+greentic-interfaces = { version = "0.4.37", path = "../greentic-interfaces", default-features = false, features = ["bindings-rust"] }
 greentic-types = { workspace = true }
