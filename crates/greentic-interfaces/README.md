@@ -54,6 +54,7 @@ let legacy = TenantCtx {
     team_id: None,
     user: None,
     user_id: None,
+    attributes: Default::default(),
     session_id: None,
     flow_id: None,
     node_id: None,

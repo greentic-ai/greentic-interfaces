@@ -24,6 +24,7 @@ fn sample_tenant_ctx() -> types::TenantCtx {
         team_id: Some(fixture_id("team")),
         user: Some(fixture_id("user")),
         user_id: Some(fixture_id("user")),
+        attributes: Default::default(),
         session_id: Some("sess-1".into()),
         flow_id: Some("flow-1".into()),
         node_id: Some("node-1".into()),

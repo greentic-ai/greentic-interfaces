@@ -25,14 +25,12 @@ default = [
     "types-core-v0-2",
     "secrets-v0-1",
     "wasix-mcp-v0-0-5",
-    "oauth-v0-1",
     "secrets-store-v1",
     "state-store-v1",
     "messaging-session-v1",
     "events-broker-v1",
     "events-source-v1",
     "events-sink-v1",
-    "events-emitter-v1",
     "events-bridge-v1",
     "source-v1",
     "build-v1",
@@ -41,6 +39,7 @@ default = [
     "attestation-v1",
     "policy-v1",
     "metadata-v1",
+    "distribution-v1",
     "oci-v1",
     "http-client-v1",
     "telemetry-logger-v1",
@@ -59,7 +58,6 @@ pack-export-v0-2 = []
 types-core-v0-2 = []
 secrets-v0-1 = []
 wasix-mcp-v0-0-5 = []
-oauth-v0-1 = []
 oauth-broker-v1 = []
 component-lifecycle-v1 = []
 events-v1 = []
@@ -70,7 +68,6 @@ host-import-compat = ["host-import-v0-6", "host-import-v0-4", "host-import-v0-2"
 secrets-store-v1 = []
 state-store-v1 = []
 messaging-session-v1 = []
-events-emitter-v1 = []
 events-bridge-v1 = []
 source-v1 = []
 build-v1 = []
@@ -79,6 +76,7 @@ signing-v1 = []
 attestation-v1 = []
 policy-v1 = []
 metadata-v1 = []
+distribution-v1 = []
 oci-v1 = []
 http-client-v1 = []
 telemetry-logger-v1 = []
@@ -101,11 +99,9 @@ wit-all = [
     "events-source-v1",
     "events-sink-v1",
     "wasix-mcp-v0-0-5",
-    "oauth-v0-1",
     "secrets-store-v1",
     "state-store-v1",
     "messaging-session-v1",
-    "events-emitter-v1",
     "events-bridge-v1",
     "source-v1",
     "build-v1",
@@ -114,6 +110,7 @@ wit-all = [
     "attestation-v1",
     "policy-v1",
     "metadata-v1",
+    "distribution-v1",
     "oci-v1",
     "http-client-v1",
     "telemetry-logger-v1",

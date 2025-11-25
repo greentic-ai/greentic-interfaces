@@ -103,19 +103,6 @@ interface sink-api {
   deliver: func(event: event-envelope, config: sink-config) -> result<delivery-result, host-error>;
 }
 
-/// Canonical host error payload (emitter compatibility).
-interface emitter-api {
-  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
-  use event-types.{host-error, op-ack};
-
-  /// Emits a fire-and-forget event payload.
-  emit: func(
-    event-type: string,
-    payload-json: string,
-    ctx: option<tenant-ctx>
-  ) -> result<op-ack, host-error>;
-}
-
 /// Back-compat telemetry envelope world.
 interface events-v1 {
   /// Envelope shared by runner telemetry streams.
@@ -134,10 +121,6 @@ interface events-v1 {
 
 world events {
   export events-v1;
-}
-
-world emitter {
-  import emitter-api;
 }
 
 world broker {

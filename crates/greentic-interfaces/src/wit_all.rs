@@ -577,17 +577,6 @@ declare_world!(
     }
 );
 
-#[cfg(feature = "oauth-v0-1")]
-declare_world!(
-    mod oauth_v0_1,
-    path = "wit/greentic/oauth@0.1.0",
-    world = "greentic:oauth/oauth@0.1.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:oauth@0.1.0";
-    }
-);
-
 #[cfg(feature = "oauth-broker-v1")]
 declare_world!(
     mod oauth_broker_v1,
@@ -682,16 +671,6 @@ declare_world!(
     world = "greentic:messaging/session@1.0.0",
     legacy = {
         pub const PACKAGE_ID: &str = "greentic:messaging@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-emitter-v1")]
-declare_world!(
-    mod events_emitter_v1,
-    path = "wit/greentic/events@1.0.0",
-    world = "greentic:events/emitter@1.0.0",
-    legacy = {
-        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
     }
 );
 
@@ -802,6 +781,16 @@ declare_world!(
     world = "greentic:metadata/metadata-store@1.0.0",
     legacy = {
         pub const PACKAGE_ID: &str = "greentic:metadata@1.0.0";
+    }
+);
+
+#[cfg(feature = "distribution-v1")]
+declare_world!(
+    mod distribution_v1,
+    path = "wit/greentic/distribution@1.0.0",
+    world = "greentic:distribution/distribution@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:distribution@1.0.0";
     }
 );
 

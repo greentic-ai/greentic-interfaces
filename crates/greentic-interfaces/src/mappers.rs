@@ -1,5 +1,6 @@
 //! Conversion helpers between generated WIT bindings and `greentic-types`.
 
+use std::collections::BTreeMap;
 use std::convert::{TryFrom, TryInto};
 
 use greentic_types as types;
@@ -94,6 +95,7 @@ impl TryFrom<WitTenantCtx> for types::TenantCtx {
             attempt,
             idempotency_key,
             impersonation,
+            attributes,
         } = value;
 
         let deadline =
@@ -109,6 +111,7 @@ impl TryFrom<WitTenantCtx> for types::TenantCtx {
         let impersonation = impersonation
             .map(types::Impersonation::try_from)
             .transpose()?;
+        let attributes: BTreeMap<String, String> = attributes.into_iter().collect();
 
         Ok(Self {
             env,
@@ -124,6 +127,7 @@ impl TryFrom<WitTenantCtx> for types::TenantCtx {
             provider_id,
             trace_id,
             correlation_id,
+            attributes,
             deadline,
             attempt,
             idempotency_key,
@@ -140,6 +144,7 @@ impl TryFrom<types::TenantCtx> for WitTenantCtx {
             Some(deadline) => Some(i128_to_i64(deadline.unix_millis())?),
             None => None,
         };
+        let attributes: Vec<(String, String)> = value.attributes.into_iter().collect();
 
         Ok(Self {
             env: value.env.into(),
@@ -155,6 +160,7 @@ impl TryFrom<types::TenantCtx> for WitTenantCtx {
             provider_id: value.provider_id,
             trace_id: value.trace_id,
             correlation_id: value.correlation_id,
+            attributes,
             deadline_ms,
             attempt: value.attempt,
             idempotency_key: value.idempotency_key,
@@ -455,6 +461,7 @@ mod tests {
             team_id: Some(fixture_id("team-42")),
             user: Some(fixture_id("user-7")),
             user_id: Some(fixture_id("user-7")),
+            attributes: BTreeMap::new(),
             session_id: Some("sess-42".into()),
             flow_id: Some("flow-42".into()),
             node_id: Some("node-42".into()),

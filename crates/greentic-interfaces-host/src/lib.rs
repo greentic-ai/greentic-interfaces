@@ -129,11 +129,6 @@ pub mod oauth_broker {
     pub use greentic_interfaces::oauth_broker_v1::*;
 }
 
-/// Legacy/compat helpers.
-pub mod misc {
-    pub use greentic_interfaces::oauth_v0_1::*;
-}
-
 /// Supply-chain provider contracts.
 pub mod supply_chain {
     /// Source provider world `greentic:source/source-sync@1.0.0`.
@@ -167,6 +162,14 @@ pub mod supply_chain {
     /// OCI distribution world `greentic:oci/oci-distribution@1.0.0`.
     pub mod oci {
         pub use greentic_interfaces::bindings::greentic_oci_1_0_0_oci_distribution::exports::greentic::oci::oci_api::*;
+    }
+}
+
+/// Desired state distribution contracts.
+pub mod distribution {
+    /// `greentic:distribution/distribution@1.0.0`.
+    pub mod v1 {
+        pub use greentic_interfaces::bindings::greentic_distribution_1_0_0_distribution::exports::greentic::distribution::distribution_api::*;
     }
 }
 

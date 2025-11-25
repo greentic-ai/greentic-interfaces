@@ -1,11 +1,10 @@
 # Events WIT packages
 
-The `greentic:events@1.0.0` package now groups the shared event envelope and four worlds:
+The `greentic:events@1.0.0` package now groups the shared event envelope and three worlds:
 
 - `broker`: publish/subscribe with pull-based `subscribe` + `next-event` + `ack-event`.
 - `source`: start a provider source and pull events via `next-event`.
 - `sink`: deliver an event to an external transport and return a structured `delivery-result`.
-- `emitter`: fire-and-forget emission (host import), kept for back-compat.
 
 The canonical `event-envelope` mirrors the shared types crate: id/topic/type/source, tenant context, subject, RFC3339 time, correlation id, JSON payload, and metadata key/value pairs. Subscription options are durable/deliver-existing with manual or auto ack.
 
@@ -34,4 +33,4 @@ Channel message envelopes live in `greentic:messaging/session@1.0.0` and remain 
 
 ## Backwards compatibility
 
-- The old standalone `events-emitter@1.0.0` packages were removed; the emitter world now lives inside `events@1.0.0` and is considered legacy. Prefer the broker/source/sink worlds for new work.
+- The legacy emitter world has been removed; prefer the broker/source/sink worlds for all new work.

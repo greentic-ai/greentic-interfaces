@@ -1,7 +1,12 @@
 # Changelog
 
 ## Unreleased
-- Add tenant-scoped supply-chain WIT worlds @1.0.0: source-sync, builder, scanner, signer, attester, policy-evaluator, metadata-store, and oci-distribution, all using shared `TenantCtx` and structured records with provider-agnostic `extra` fields.
+
+## v0.4.37
+- Add `greentic:distribution@1.0.0` WIT world for generic desired-state submission/fetch (tenant + IDs + JSON blobs) and wire it through host/wasmtime bindings.
+- Remove deprecated `greentic:oauth@0.1.0` and the legacy `events/emitter` world; `oauth-broker@1.0.0` and the broker/source/sink events worlds are the supported surfaces.
+- Extend `TenantCtx` with `attributes` and propagate through all WIT copies, mappers, doctests, and round-trip tests.
+- Refresh CI/publish guards (wit packaging/validation, local_check) to cover the new world and removed legacy packages.
 
 ## v0.4.20
 - Add `greentic:component@1.0.0` describe-only world so runners can fetch schema/default metadata over JSON without binding to a specific component ABI.
