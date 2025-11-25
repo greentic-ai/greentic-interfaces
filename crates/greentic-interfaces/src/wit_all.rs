@@ -2,6 +2,7 @@
 //! Unified Wasmtime bindings for every WIT world shipped with this crate.
 #![allow(clippy::all)]
 #![allow(missing_docs)]
+#![allow(unused_macros)]
 
 macro_rules! declare_world {
     (
