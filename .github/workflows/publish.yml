@@ -119,7 +119,8 @@ jobs:
           EOF
 
           # Refresh lockfile to reflect the patched source before --locked publishes.
-          cargo update -p greentic-interfaces --workspace
+          pkgid="path+file://${GITHUB_WORKSPACE}/crates/greentic-interfaces#0.4.36"
+          cargo update -p "${pkgid}" --workspace
 
           publish_crate() {
             local manifest="$1"
