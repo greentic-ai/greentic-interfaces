@@ -14,6 +14,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Generate guest bindings even when targeting wasm; build happens on host.
     }
 
+    let active_features = active_features();
+    ensure_any_world_feature(&active_features)?;
+
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
     let staged_root = out_dir.join("wit-staging");
     reset_directory(&staged_root)?;
@@ -41,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let bindings_dir = generate_rust_bindings(&staged_root, &out_dir)?;
+    let bindings_dir = generate_rust_bindings(&staged_root, &out_dir, &active_features)?;
     println!(
         "cargo:rustc-env=GREENTIC_INTERFACES_GUEST_BINDINGS={}",
         bindings_dir.display()
@@ -172,7 +175,11 @@ fn sanitize(package_ref: &str) -> String {
     package_ref.replace([':', '@', '/'], "-")
 }
 
-fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
+fn generate_rust_bindings(
+    staged_root: &Path,
+    out_dir: &Path,
+    active_features: &HashSet<String>,
+) -> Result<PathBuf, Box<dyn Error>> {
     let bindings_dir = out_dir.join("bindings");
     reset_directory(&bindings_dir)?;
 
@@ -216,11 +223,15 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
         let mut resolve = Resolve::new();
         let (pkg, _) = resolve.push_dir(&path)?;
         let package = &resolve.packages[pkg];
+        let package_ref = read_package_ref(&path.join("package.wit"))?;
 
         let mut worlds: Vec<_> = package.worlds.iter().collect();
         worlds.sort_by(|(a_name, _), (b_name, _)| a_name.cmp(b_name));
 
         for (world_name, world_id) in worlds {
+            if !world_enabled(&package_ref, world_name, active_features) {
+                continue;
+            }
             let module_name = module_name(&package.name, world_name);
             let mut files = Files::default();
             opts.clone()
@@ -308,4 +319,221 @@ fn find_package_recursive(
         }
     }
     Ok(None)
+}
+
+#[derive(Debug)]
+struct WorldFeature {
+    package: &'static str,
+    world: &'static str,
+    feature: &'static str,
+}
+
+const WORLD_FEATURES: &[WorldFeature] = &[
+    WorldFeature {
+        package: "greentic:component@0.4.0",
+        world: "component",
+        feature: "component-node",
+    },
+    WorldFeature {
+        package: "greentic:component@1.0.0",
+        world: "component",
+        feature: "component-v1",
+    },
+    WorldFeature {
+        package: "greentic:lifecycle@1.0.0",
+        world: "component-lifecycle",
+        feature: "lifecycle",
+    },
+    WorldFeature {
+        package: "greentic:build@1.0.0",
+        world: "builder",
+        feature: "build",
+    },
+    WorldFeature {
+        package: "greentic:deploy-plan@1.0.0",
+        world: "plan",
+        feature: "deploy-plan",
+    },
+    WorldFeature {
+        package: "greentic:distribution@1.0.0",
+        world: "distribution",
+        feature: "distribution",
+    },
+    WorldFeature {
+        package: "greentic:events@1.0.0",
+        world: "events",
+        feature: "events",
+    },
+    WorldFeature {
+        package: "greentic:events@1.0.0",
+        world: "broker",
+        feature: "events",
+    },
+    WorldFeature {
+        package: "greentic:events@1.0.0",
+        world: "source",
+        feature: "events-source",
+    },
+    WorldFeature {
+        package: "greentic:events@1.0.0",
+        world: "sink",
+        feature: "events-sink",
+    },
+    WorldFeature {
+        package: "greentic:events-bridge@1.0.0",
+        world: "event-to-message-bridge",
+        feature: "events-bridge",
+    },
+    WorldFeature {
+        package: "greentic:events-bridge@1.0.0",
+        world: "message-to-event-bridge",
+        feature: "events-bridge",
+    },
+    WorldFeature {
+        package: "greentic:http@1.0.0",
+        world: "client",
+        feature: "http-client",
+    },
+    WorldFeature {
+        package: "greentic:telemetry@1.0.0",
+        world: "logger",
+        feature: "telemetry",
+    },
+    WorldFeature {
+        package: "greentic:oauth-broker@1.0.0",
+        world: "broker",
+        feature: "oauth-broker",
+    },
+    WorldFeature {
+        package: "greentic:secrets@1.0.0",
+        world: "store",
+        feature: "secrets",
+    },
+    WorldFeature {
+        package: "greentic:secrets@0.1.0",
+        world: "host",
+        feature: "secrets",
+    },
+    WorldFeature {
+        package: "greentic:state@1.0.0",
+        world: "store",
+        feature: "state-store",
+    },
+    WorldFeature {
+        package: "greentic:messaging@1.0.0",
+        world: "session",
+        feature: "messaging",
+    },
+    WorldFeature {
+        package: "greentic:metadata@1.0.0",
+        world: "metadata-store",
+        feature: "metadata",
+    },
+    WorldFeature {
+        package: "greentic:pack-export@0.2.0",
+        world: "pack-exports",
+        feature: "pack-export",
+    },
+    WorldFeature {
+        package: "greentic:pack-export@0.4.0",
+        world: "pack-exports",
+        feature: "pack-export",
+    },
+    WorldFeature {
+        package: "greentic:interfaces-pack@0.1.0",
+        world: "component",
+        feature: "pack-export",
+    },
+    WorldFeature {
+        package: "greentic:source@1.0.0",
+        world: "source-sync",
+        feature: "repo",
+    },
+    WorldFeature {
+        package: "greentic:scan@1.0.0",
+        world: "scanner",
+        feature: "scan",
+    },
+    WorldFeature {
+        package: "greentic:signing@1.0.0",
+        world: "signer",
+        feature: "signing",
+    },
+    WorldFeature {
+        package: "greentic:attestation@1.0.0",
+        world: "attester",
+        feature: "attestation",
+    },
+    WorldFeature {
+        package: "greentic:policy@1.0.0",
+        world: "policy-evaluator",
+        feature: "policy",
+    },
+    WorldFeature {
+        package: "greentic:oci@1.0.0",
+        world: "oci-distribution",
+        feature: "oci",
+    },
+    WorldFeature {
+        package: "greentic:host@1.0.0",
+        world: "runner-host",
+        feature: "runner",
+    },
+    WorldFeature {
+        package: "greentic:host-import@0.2.0",
+        world: "host-imports",
+        feature: "runner",
+    },
+    WorldFeature {
+        package: "greentic:host-import@0.4.0",
+        world: "host-imports",
+        feature: "runner",
+    },
+    WorldFeature {
+        package: "greentic:host-import@0.6.0",
+        world: "host-imports",
+        feature: "runner",
+    },
+    WorldFeature {
+        package: "greentic:types-core@0.2.0",
+        world: "core",
+        feature: "types-core",
+    },
+    WorldFeature {
+        package: "greentic:types-core@0.4.0",
+        world: "core",
+        feature: "types-core",
+    },
+];
+
+fn active_features() -> HashSet<String> {
+    env::vars()
+        .filter_map(|(key, _)| {
+            key.strip_prefix("CARGO_FEATURE_")
+                .map(|value| value.to_ascii_lowercase().replace('_', "-"))
+        })
+        .collect()
+}
+
+fn ensure_any_world_feature(active_features: &HashSet<String>) -> Result<(), Box<dyn Error>> {
+    if active_features
+        .iter()
+        .any(|feature| WORLD_FEATURES.iter().any(|wf| wf.feature == feature))
+    {
+        return Ok(());
+    }
+
+    Err("no world features enabled; enable at least one (e.g. component-node)".into())
+}
+
+fn world_enabled(package_ref: &str, world: &str, active_features: &HashSet<String>) -> bool {
+    let guest_enabled = active_features.contains("guest");
+    if let Some(world_feature) = WORLD_FEATURES
+        .iter()
+        .find(|wf| wf.package == package_ref && wf.world == world)
+    {
+        return active_features.contains(world_feature.feature);
+    }
+
+    guest_enabled
 }

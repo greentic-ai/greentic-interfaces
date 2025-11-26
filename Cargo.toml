@@ -5,8 +5,9 @@ members = [
     "crates/greentic-interfaces-host",
     "crates/greentic-interfaces-guest",
     "examples/component-describe",
-    "examples/runner-host-smoke",
     "examples/crates-io-consumer",
+    "examples/guest-node-minimal",
+    "examples/runner-host-smoke",
 ]
 exclude = [
     "examples/component-describe",
@@ -18,12 +19,13 @@ license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
 repository = "https://github.com/greentic-ai/greentic-interfaces"
-version = "0.4.39"
+version = "0.4.40"
 
 [workspace.dependencies]
 anyhow = "1"
 greentic-interfaces = { path = "crates/greentic-interfaces", version = "0.4", default-features = false }
 greentic-interfaces-wasmtime = { path = "crates/greentic-interfaces-wasmtime", version = "0.4", default-features = false }
+greentic-interfaces-guest = { path = "crates/greentic-interfaces-guest", version = "0.4", default-features = false }
 greentic-types = { version = "0.4"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

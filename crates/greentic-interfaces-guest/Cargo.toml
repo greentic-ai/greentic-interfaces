@@ -15,7 +15,58 @@ greentic-interfaces = { workspace = true, optional = true, default-features = fa
 wit-bindgen = { version = "0.48" }
 
 [features]
-guest = []
+component-node = []
+component-v1 = []
+lifecycle = []
+build = []
+events-sink = []
+events-source = []
+events = ["events-sink", "events-source"]
+events-bridge = []
+secrets = []
+state-store = []
+messaging = []
+http-client = []
+telemetry = []
+oauth-broker = []
+repo = []
+scan = []
+signing = []
+attestation = []
+policy = []
+metadata = []
+oci = []
+distribution = []
+deploy-plan = []
+pack-export = []
+runner = []
+types-core = []
+guest = [
+    "component-node",
+    "component-v1",
+    "lifecycle",
+    "build",
+    "events",
+    "events-bridge",
+    "secrets",
+    "state-store",
+    "messaging",
+    "http-client",
+    "telemetry",
+    "oauth-broker",
+    "repo",
+    "scan",
+    "signing",
+    "attestation",
+    "policy",
+    "metadata",
+    "oci",
+    "distribution",
+    "deploy-plan",
+    "pack-export",
+    "runner",
+    "types-core",
+]
 host-bridge = ["greentic-interfaces"]
 default = ["guest"]
 

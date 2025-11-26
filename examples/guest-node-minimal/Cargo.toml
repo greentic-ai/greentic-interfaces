@@ -1,0 +1,12 @@
+[package]
+name = "guest-node-minimal"
+version.workspace = true
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+greentic-interfaces-guest = { workspace = true, default-features = false, features = ["component-node"] }
+greentic-types = { workspace = true }
