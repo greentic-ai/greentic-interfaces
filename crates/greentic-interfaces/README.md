@@ -26,8 +26,14 @@ The `wit/` directory contains additive packages:
 | `greentic:events/emitter@1.0.0` | Fire-and-forget event emission. |
 | `greentic:http/client@1.0.0` | HTTP client with structured request/response types. |
 | `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`. |
+| `greentic:repo-ui-actions@1.0.0` | UI action handler world for tenant-skinned consoles (`handle-action`). |
 | `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
-| `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
+
+### Using repo-ui-actions bindings
+
+- Guest (UI action handler component): enable `repo-ui-actions` feature in `greentic-interfaces-guest`, then implement `handle_action` on the generated trait to parse JSON input and call into other WIT worlds as needed.
+- Host (router): enable `repo-ui-actions-v1` in `greentic-interfaces` or import via `greentic-interfaces-host::ui_actions::repo_ui_worker`, instantiate the component with Wasmtime, and invoke `handle-action(tenant, page, action, payload-json)`.
+- All components must target `wasm32-wasip2`; the host bindings are ABI-only and stay domain-agnostic.
 
 The build script stages each package (plus dependencies) into `$OUT_DIR/wit-staging` so downstream tooling resolves imports deterministically. The absolute path is exported as `WIT_STAGING_DIR`, so consumers never need write access to the package directory even when building from crates.io.
 

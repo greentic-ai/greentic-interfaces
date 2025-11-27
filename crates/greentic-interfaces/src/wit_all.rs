@@ -805,3 +805,13 @@ declare_world!(
         pub const PACKAGE_ID: &str = "greentic:oci@1.0.0";
     }
 );
+
+#[cfg(feature = "repo-ui-actions-v1")]
+declare_world!(
+    mod repo_ui_actions_repo_ui_worker_v1,
+    path = "wit/greentic/repo-ui-actions@1.0.0",
+    world = "greentic:repo-ui-actions/repo-ui-worker@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:repo-ui-actions@1.0.0";
+    }
+);

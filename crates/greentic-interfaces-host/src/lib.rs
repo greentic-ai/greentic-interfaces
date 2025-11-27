@@ -187,3 +187,11 @@ pub mod http {
 pub mod oauth {
     pub use super::oauth_broker::*;
 }
+
+/// UI action handler contracts.
+pub mod ui_actions {
+    /// UI action handler world `greentic:repo-ui-actions/repo-ui-worker@1.0.0`.
+    pub mod repo_ui_worker {
+        pub use greentic_interfaces::bindings::greentic_repo_ui_actions_1_0_0_repo_ui_worker::exports::greentic::repo_ui_actions::ui_action_api::*;
+    }
+}

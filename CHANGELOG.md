@@ -49,3 +49,8 @@
 - Drop the unused `greentic:component@0.3.0` schema and `component_v0_3` bindings.
 - Expand the Rust crate with `types_core_v0_2`, `host_import_v0_2`, and `pack_export_v0_2` modules.
 - Update validation/publish scripts to cover all new WIT packages.
+## 0.4.42
+- Added `greentic:repo-ui-actions@1.0.0` WIT package and wired host/guest/wasmtime bindings behind a feature flag.
+- Introduced a minimal repo-ui-actions end-to-end test scaffold (currently ignored pending stable component validation).
+- Documented repo-ui-actions usage and bumped workspace version.
+  - New generation script `scripts/build-repo-ui-actions-dummy.sh` builds a tool-generated component for the wasmtime test; test skips if the asset is missing.

@@ -24,3 +24,7 @@ proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full"] }
 walkdir = "2"
+
+[dev-dependencies]
+wat = "1"
+wasmtime-wasi = { workspace = true }

@@ -1,0 +1,21 @@
+[package]
+name = "repo-ui-actions-dummy"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+wit-bindgen = { version = "0.44", default-features = false, features = ["macros"] }
+wit-bindgen-rt = "0.44"
+
+[package.metadata.component]
+package = "greentic:repo-ui-actions"
+
+[package.metadata.component.target]
+path = "wit"
+world = "repo-ui-worker"
+
+[package.metadata.component.target.dependencies]
+
+[target.'cfg(target_arch = "wasm32")'.lib]
+crate-type = ["cdylib"]

@@ -38,6 +38,7 @@ metadata = []
 oci = []
 distribution = []
 deploy-plan = []
+repo-ui-actions = []
 pack-export = []
 runner = []
 types-core = []
@@ -63,6 +64,7 @@ guest = [
     "oci",
     "distribution",
     "deploy-plan",
+    "repo-ui-actions",
     "pack-export",
     "runner",
     "types-core",

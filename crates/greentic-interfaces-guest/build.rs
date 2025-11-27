@@ -475,6 +475,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "oci",
     },
     WorldFeature {
+        package: "greentic:repo-ui-actions@1.0.0",
+        world: "repo-ui-worker",
+        feature: "repo-ui-actions",
+    },
+    WorldFeature {
         package: "greentic:host@1.0.0",
         world: "runner-host",
         feature: "runner",

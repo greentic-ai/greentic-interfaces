@@ -195,6 +195,12 @@ pub mod supply_chain {
     }
 }
 
+/// UI action handler world `greentic:repo-ui-actions/repo-ui-worker@1.0.0`.
+#[cfg(feature = "repo-ui-actions")]
+pub mod repo_ui_actions {
+    pub use crate::bindings::greentic_repo_ui_actions_1_0_0_repo_ui_worker::exports::greentic::repo_ui_actions::ui_action_api::*;
+}
+
 /// Stable alias for messaging/session imports.
 #[cfg(feature = "messaging")]
 pub mod messaging {
