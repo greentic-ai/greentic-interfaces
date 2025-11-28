@@ -15,6 +15,56 @@ The canonical `event-envelope` mirrors the shared types crate: id/topic/type/sou
 
 Channel message envelopes live in `greentic:messaging/session@1.0.0` and remain provider-agnostic (id, tenant, channel, session, optional text/user, generic attachments, metadata).
 
+## Host/guest examples
+
+Host-side (Wasmtime) instantiation and call into a message→event bridge:
+
+```rust
+use greentic_interfaces_host::events_bridge::MessageToEventBridge;
+use wasmtime::component::{Component, Linker};
+use wasmtime::Store;
+
+let engine = wasmtime::Engine::default();
+let component = Component::from_file(&engine, "bridge.component.wasm")?;
+let mut store = Store::new(&engine, ());
+let mut linker = Linker::new(&engine);
+
+let bindings = MessageToEventBridge::instantiate(&mut store, &component, &linker)?;
+let api = bindings.greentic_events_bridge_bridge_api();
+let emitted = api.call_handle_message(&mut store, incoming_message)?;
+```
+
+Guest-side export for the same world:
+
+```rust
+use greentic_interfaces_guest::events_bridge::message_to_event_bridge::{export, bridge_api, Guest};
+
+struct MyBridge;
+
+impl Guest for MyBridge {
+    fn handle_message(msg: bridge_api::ChannelMessageEnvelope) -> Vec<bridge_api::EventEnvelope> {
+        vec![bridge_api::EventEnvelope {
+            id: "id-1".into(),
+            topic: "topic".into(),
+            type_: "example".into(),
+            source: "component://demo".into(),
+            tenant: msg.tenant.clone(),
+            subject: None,
+            time: "2024-01-01T00:00:00Z".into(),
+            correlation_id: None,
+            payload_json: msg.payload_json.clone(),
+            metadata: vec![],
+        }]
+    }
+
+    fn handle_event(_ev: bridge_api::EventEnvelope) -> Vec<bridge_api::ChannelMessageEnvelope> {
+        Vec::new()
+    }
+}
+
+export!(MyBridge);
+```
+
 ## Ack semantics (broker/source)
 
 - If `ack-mode` is `manual`, the host **must** call `ack-event(sub, event-id)` after successfully handling an event. Failure to ack means the host may redeliver according to its retry/DLQ policy; the ABI does not enforce timing.

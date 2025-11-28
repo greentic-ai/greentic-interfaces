@@ -110,6 +110,9 @@ pub mod events_sink {
 
 /// v1 host capability contracts.
 pub mod events_bridge {
+    pub use greentic_interfaces::events_bridge_event_to_message_v1::EventToMessageBridge;
+    pub use greentic_interfaces::events_bridge_message_to_event_v1::MessageToEventBridge;
+
     pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_event_to_message_bridge::exports::greentic::events_bridge::bridge_api as event_to_message_bridge;
     pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_message_to_event_bridge::exports::greentic::events_bridge::bridge_api as message_to_event_bridge;
 }
