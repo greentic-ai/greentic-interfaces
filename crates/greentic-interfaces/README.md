@@ -30,6 +30,18 @@ The `wit/` directory contains additive packages:
 | `greentic:worker@1.0.0` | Generic worker envelope (WorkerRequest/WorkerResponse/messages) for assistants/workers; see [`docs/worker.md`](../docs/worker.md). |
 | `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
 
+### MCP router WIT
+
+All MCP protocol WIT packages live in this repository. Routers must not redefine them elsewhere.
+
+| WIT package | MCP spec revision | Link |
+|-------------|-------------------|------|
+| `wasix:mcp@24.11.5` | 2024-11-05 (+ legacy Greentic config/secrets/output descriptors) | https://modelcontextprotocol.io/specification/2024-11-05 |
+| `wasix:mcp@25.3.26` | 2025-03-26 (annotations, audio content, completions, progress; metadata carries config/secrets/output hints) | https://modelcontextprotocol.io/specification/2025-03-26 |
+| `wasix:mcp@25.6.18` | 2025-06-18 (structured output, resource/resource-link, elicitation, titles/_meta, tightened auth/resource metadata) | https://modelcontextprotocol.io/specification/2025-06-18 |
+
+New development should target `wasix:mcp@25.6.18` (current spec). Older versions remain only for compatibility with existing routers.
+
 ### Using repo-ui-actions bindings
 
 - Guest (UI action handler component): enable `repo-ui-actions` feature in `greentic-interfaces-guest`, then implement `handle_action` on the generated trait to parse JSON input and call into other WIT worlds as needed.

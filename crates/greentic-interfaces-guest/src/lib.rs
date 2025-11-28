@@ -201,6 +201,32 @@ pub mod supply_chain {
     }
 }
 
+/// MCP router exports for multiple protocol snapshots.
+#[cfg(any(
+    feature = "wasix-mcp-24-11-05-guest",
+    feature = "wasix-mcp-25-03-26-guest",
+    feature = "wasix-mcp-25-06-18-guest"
+))]
+pub mod mcp {
+    /// `wasix:mcp@24.11.5` snapshot (2024-11-05 spec).
+    #[cfg(feature = "wasix-mcp-24-11-05-guest")]
+    pub mod v24_11_05 {
+        pub use crate::bindings::wasix_mcp_24_11_5_mcp_router::exports::wasix::mcp::router::*;
+    }
+
+    /// `wasix:mcp@25.3.26` snapshot with annotations/audio/completions/progress.
+    #[cfg(feature = "wasix-mcp-25-03-26-guest")]
+    pub mod v25_03_26 {
+        pub use crate::bindings::wasix_mcp_25_3_26_mcp_router::exports::wasix::mcp::router::*;
+    }
+
+    /// `wasix:mcp@25.6.18` snapshot with structured output/resources/elicitation.
+    #[cfg(feature = "wasix-mcp-25-06-18-guest")]
+    pub mod v25_06_18 {
+        pub use crate::bindings::wasix_mcp_25_6_18_mcp_router::exports::wasix::mcp::router::*;
+    }
+}
+
 /// UI action handler world `greentic:repo-ui-actions/repo-ui-worker@1.0.0`.
 #[cfg(feature = "repo-ui-actions")]
 pub mod repo_ui_actions {

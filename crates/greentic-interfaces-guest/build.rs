@@ -514,6 +514,21 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         world: "core",
         feature: "types-core",
     },
+    WorldFeature {
+        package: "wasix:mcp@24.11.5",
+        world: "mcp-router",
+        feature: "wasix-mcp-24-11-05-guest",
+    },
+    WorldFeature {
+        package: "wasix:mcp@25.3.26",
+        world: "mcp-router",
+        feature: "wasix-mcp-25-03-26-guest",
+    },
+    WorldFeature {
+        package: "wasix:mcp@25.6.18",
+        world: "mcp-router",
+        feature: "wasix-mcp-25-06-18-guest",
+    },
 ];
 
 fn active_features() -> HashSet<String> {

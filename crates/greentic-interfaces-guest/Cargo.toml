@@ -43,6 +43,9 @@ repo-ui-actions = []
 pack-export = []
 runner = []
 types-core = []
+wasix-mcp-24-11-05-guest = []
+wasix-mcp-25-03-26-guest = []
+wasix-mcp-25-06-18-guest = []
 guest = [
     "component-node",
     "component-v1",
@@ -70,6 +73,9 @@ guest = [
     "pack-export",
     "runner",
     "types-core",
+    "wasix-mcp-24-11-05-guest",
+    "wasix-mcp-25-03-26-guest",
+    "wasix-mcp-25-06-18-guest",
 ]
 host-bridge = ["greentic-interfaces"]
 default = ["guest"]
