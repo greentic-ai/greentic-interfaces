@@ -815,3 +815,13 @@ declare_world!(
         pub const PACKAGE_ID: &str = "greentic:repo-ui-actions@1.0.0";
     }
 );
+
+#[cfg(feature = "worker-api")]
+declare_world!(
+    mod worker_v1,
+    path = "wit/greentic/worker@1.0.0",
+    world = "greentic:worker/worker@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:worker@1.0.0";
+    }
+);

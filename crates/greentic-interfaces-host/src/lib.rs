@@ -132,6 +132,11 @@ pub mod oauth_broker {
     pub use greentic_interfaces::oauth_broker_v1::*;
 }
 
+/// Generic worker ABI world.
+pub mod worker {
+    pub use greentic_interfaces::worker_v1::*;
+}
+
 /// Supply-chain provider contracts.
 pub mod supply_chain {
     /// Source provider world `greentic:source/source-sync@1.0.0`.

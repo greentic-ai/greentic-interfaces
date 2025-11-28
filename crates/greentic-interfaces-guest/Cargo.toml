@@ -29,6 +29,7 @@ messaging = []
 http-client = []
 telemetry = []
 oauth-broker = []
+worker = []
 repo = []
 scan = []
 signing = []
@@ -55,6 +56,7 @@ guest = [
     "http-client",
     "telemetry",
     "oauth-broker",
+    "worker",
     "repo",
     "scan",
     "signing",

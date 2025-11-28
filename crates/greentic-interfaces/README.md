@@ -27,6 +27,7 @@ The `wit/` directory contains additive packages:
 | `greentic:http/client@1.0.0` | HTTP client with structured request/response types. |
 | `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`. |
 | `greentic:repo-ui-actions@1.0.0` | UI action handler world for tenant-skinned consoles (`handle-action`). |
+| `greentic:worker@1.0.0` | Generic worker envelope (WorkerRequest/WorkerResponse/messages) for assistants/workers; see [`docs/worker.md`](../docs/worker.md). |
 | `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
 
 ### Using repo-ui-actions bindings

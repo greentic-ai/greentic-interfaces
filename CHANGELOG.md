@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add `greentic:worker@1.0.0` generic worker ABI (WorkerRequest/Response + exec world), wire host/guest/wasmtime bindings behind `worker-api`, and document the package.
 
 ## v0.4.37
 - Add `greentic:distribution@1.0.0` WIT world for generic desired-state submission/fetch (tenant + IDs + JSON blobs) and wire it through host/wasmtime bindings.

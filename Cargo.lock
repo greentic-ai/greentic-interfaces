@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "wit-bindgen 0.48.1",
 ]
@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -650,14 +650,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -668,7 +668,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -676,7 +676,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "anyhow",
  "camino",
@@ -692,9 +692,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.10"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf697b153b042da7ecc1666de13b853bfa73c803bde51976b77f90e12cfd4a5e"
+checksum = "b4ccf0dcc42157400a643b90e359f1b37e5a5f1f3f5887075eec7bc6ace34ba3"
 dependencies = [
  "chrono",
  "fnv",
@@ -710,7 +710,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.43"
+version = "0.4.44"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",

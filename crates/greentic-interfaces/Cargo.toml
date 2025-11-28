@@ -44,6 +44,7 @@ default = [
     "http-client-v1",
     "telemetry-logger-v1",
     "repo-ui-actions-v1",
+    "worker-api",
     "oauth-broker-v1",
 ]
 bindings-rust = ["dep:wit-bindgen"]
@@ -82,6 +83,7 @@ oci-v1 = []
 http-client-v1 = []
 telemetry-logger-v1 = []
 repo-ui-actions-v1 = []
+worker-api = []
 wit-all = [
     "bindings-rust",
     "component-v0-4",
@@ -117,6 +119,7 @@ wit-all = [
     "http-client-v1",
     "telemetry-logger-v1",
     "repo-ui-actions-v1",
+    "worker-api",
     "oauth-broker-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]

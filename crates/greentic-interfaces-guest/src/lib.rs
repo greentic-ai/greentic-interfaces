@@ -141,6 +141,12 @@ pub mod oauth_broker {
     pub use crate::bindings::greentic_oauth_broker_1_0_0_broker::exports::greentic::oauth_broker::broker_v1::*;
 }
 
+/// Generic worker world `greentic:worker/worker@1.0.0`.
+#[cfg(feature = "worker")]
+pub mod worker {
+    pub use crate::bindings::greentic_worker_1_0_0_worker::exports::greentic::worker::worker::*;
+}
+
 /// Supply-chain provider contracts implemented by components.
 #[cfg(any(
     feature = "repo",
