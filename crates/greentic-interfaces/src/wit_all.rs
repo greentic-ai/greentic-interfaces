@@ -829,7 +829,7 @@ declare_world!(
 #[cfg(feature = "wasix-mcp-24-11-05")]
 declare_world!(
     mod wasix_mcp_24_11_05,
-    path = "wit/wasix:mcp@24.11.05.wit",
+    path = "wit/wasix-mcp@24.11.05.wit",
     world = "mcp-router",
     legacy = {
         /// Canonical package identifier.
@@ -840,7 +840,7 @@ declare_world!(
 #[cfg(feature = "wasix-mcp-25-03-26")]
 declare_world!(
     mod wasix_mcp_25_03_26,
-    path = "wit/wasix:mcp@25.03.26.wit",
+    path = "wit/wasix-mcp@25.03.26.wit",
     world = "mcp-router",
     legacy = {
         /// Canonical package identifier.
@@ -851,7 +851,7 @@ declare_world!(
 #[cfg(feature = "wasix-mcp-25-06-18")]
 declare_world!(
     mod wasix_mcp_25_06_18,
-    path = "wit/wasix:mcp@25.06.18.wit",
+    path = "wit/wasix-mcp@25.06.18.wit",
     world = "mcp-router",
     legacy = {
         /// Canonical package identifier.
