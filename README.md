@@ -88,6 +88,16 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
 
+### MCP router WIT
+
+All MCP protocol WIT packages live here; routers should not redefine them elsewhere. New work should target `wasix:mcp@25.06.18`; older snapshots remain only for compatibility.
+
+| WIT package | MCP spec revision | Link |
+|-------------|-------------------|------|
+| `wasix:mcp@24.11.05` | 2024-11-05 (+ Greentic config/secret/output descriptors) | https://modelcontextprotocol.io/specification/2024-11-05 |
+| `wasix:mcp@25.03.26` | 2025-03-26 (annotations, audio content, completions, progress; metadata carries config/secrets/output hints) | https://modelcontextprotocol.io/specification/2025-03-26 |
+| `wasix:mcp@25.06.18` | 2025-06-18 (structured output, resource/resource-link, elicitation, titles/_meta, tightened auth/resource metadata) | https://modelcontextprotocol.io/specification/2025-06-18 |
+
 ## Deployment plan world
 
 Deployment packs can import `greentic:deploy-plan@1.0.0` to read the current `DeploymentPlan` and emit status updates. The world exposes two funcs:

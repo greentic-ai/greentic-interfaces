@@ -151,6 +151,7 @@ wit-bindgen-rust = "0.47"
 wasmtime = { workspace = true }
 
 [dev-dependencies]
+serde = { workspace = true }
 serde_json = { workspace = true }
 insta = { version = "1", features = ["json"] }
 wit-parser = "0.240"
