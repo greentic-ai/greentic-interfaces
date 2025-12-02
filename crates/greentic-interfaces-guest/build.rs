@@ -360,6 +360,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "distribution",
     },
     WorldFeature {
+        package: "greentic:distributor-api@1.0.0",
+        world: "distributor-api",
+        feature: "distributor-api",
+    },
+    WorldFeature {
         package: "greentic:events@1.0.0",
         world: "events",
         feature: "events",

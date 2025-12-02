@@ -201,6 +201,18 @@ pub mod supply_chain {
     }
 }
 
+/// Desired state distribution API (experimental).
+#[cfg(feature = "distribution")]
+pub mod distribution {
+    pub use crate::bindings::greentic_distribution_1_0_0_distribution::exports::greentic::distribution::distribution_api::*;
+}
+
+/// Distributor API for resolving pack components (active).
+#[cfg(feature = "distributor-api")]
+pub mod distributor_api {
+    pub use crate::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::greentic::distributor_api::distributor::*;
+}
+
 /// MCP router exports for multiple protocol snapshots.
 #[cfg(any(
     feature = "wasix-mcp-24-11-05-guest",

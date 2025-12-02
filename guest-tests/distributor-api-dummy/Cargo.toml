@@ -1,0 +1,11 @@
+[package]
+name = "distributor-api-dummy"
+version.workspace = true
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wit-bindgen = { workspace = true }

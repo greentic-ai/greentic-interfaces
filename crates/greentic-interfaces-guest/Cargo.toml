@@ -38,6 +38,7 @@ policy = []
 metadata = []
 oci = []
 distribution = []
+distributor-api = []
 deploy-plan = []
 repo-ui-actions = []
 pack-export = []
@@ -67,6 +68,7 @@ guest = [
     "policy",
     "metadata",
     "oci",
+    "distributor-api",
     "distribution",
     "deploy-plan",
     "repo-ui-actions",

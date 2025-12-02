@@ -42,6 +42,7 @@ default = [
     "attestation-v1",
     "policy-v1",
     "metadata-v1",
+    "distributor-api",
     "distribution-v1",
     "oci-v1",
     "http-client-v1",
@@ -84,6 +85,7 @@ signing-v1 = []
 attestation-v1 = []
 policy-v1 = []
 metadata-v1 = []
+distributor-api = []
 distribution-v1 = []
 oci-v1 = []
 http-client-v1 = []
@@ -123,6 +125,7 @@ wit-all = [
     "attestation-v1",
     "policy-v1",
     "metadata-v1",
+    "distributor-api",
     "distribution-v1",
     "oci-v1",
     "http-client-v1",

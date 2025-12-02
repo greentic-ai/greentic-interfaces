@@ -5,6 +5,7 @@ members = [
     "crates/greentic-interfaces-host",
     "crates/greentic-interfaces-guest",
     "guest-tests/repo-ui-actions-dummy",
+    "guest-tests/distributor-api-dummy",
     "examples/component-describe",
     "examples/crates-io-consumer",
     "examples/guest-node-minimal",
@@ -19,7 +20,7 @@ resolver = "2"
 license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
-version = "0.4.47"
+version = "0.4.48"
 repository = "https://github.com/greentic-ai/greentic-interfaces"
 
 [workspace.dependencies]

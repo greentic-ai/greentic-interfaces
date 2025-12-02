@@ -29,6 +29,8 @@ The `wit/` directory contains additive packages:
 | `greentic:repo-ui-actions@1.0.0` | UI action handler world for tenant-skinned consoles (`handle-action`). |
 | `greentic:worker@1.0.0` | Generic worker envelope (WorkerRequest/WorkerResponse/messages) for assistants/workers; see [`docs/worker.md`](../docs/worker.md). |
 | `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. |
+| `greentic:distributor-api@1.0.0` | Runner/Deployer distributor API: resolve-component, pack status, warm-pack; canonical surface for runtime artifact lookup. |
+| `greentic:distribution@1.0.0` | Experimental desired-state submission/fetch ABI (future-facing control plane surface, unused by current runner flows). |
 
 ### MCP router WIT
 

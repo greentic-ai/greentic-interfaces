@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "wit-bindgen 0.48.1",
 ]
@@ -436,6 +436,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "distributor-api-dummy"
+version = "0.4.48"
+dependencies = [
+ "wit-bindgen 0.48.1",
+]
+
+[[package]]
 name = "dyn-clone"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -630,7 +637,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -650,14 +657,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -668,7 +675,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -676,7 +683,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "anyhow",
  "camino",
@@ -692,9 +699,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.11"
+version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4ccf0dcc42157400a643b90e359f1b37e5a5f1f3f5887075eec7bc6ace34ba3"
+checksum = "7825bbb6775070fedd6b786124ebe28135b50e32953ea2819bd82c54ad78cd64"
 dependencies = [
  "chrono",
  "fnv",
@@ -710,7 +717,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.47"
+version = "0.4.48"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",
@@ -2813,18 +2820,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.30"
+version = "0.8.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ea879c944afe8a2b25fef16bb4ba234f47c694565e97383b36f3a878219065c"
+checksum = "fd74ec98b9250adb3ca554bdde269adf631549f51d8a8f8f0a10b50f1cb298c3"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.30"
+version = "0.8.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf955aa904d6040f70dc8e9384444cb1030aed272ba3cb09bbc4ab9e7c1f34f5"
+checksum = "d8a8d209fdf45cf5138cbb5a506f6b52522a25afccc534d1475dad8e31105c6a"
 dependencies = [
  "proc-macro2",
  "quote",

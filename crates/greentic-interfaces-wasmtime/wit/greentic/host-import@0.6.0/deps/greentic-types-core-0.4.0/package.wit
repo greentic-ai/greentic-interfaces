@@ -28,6 +28,10 @@ interface types {
     user: option<user-id>,
     deployment: deployment-ctx,
     trace-id: option<string>,
+    session-id: option<string>,
+    flow-id: option<string>,
+    node-id: option<string>,
+    provider-id: option<string>,
   }
 
   /// flow registration information

@@ -181,6 +181,14 @@ pub mod distribution {
     }
 }
 
+/// Distributor API contracts.
+pub mod distributor_api {
+    /// `greentic:distributor-api/distributor-api@1.0.0`.
+    pub mod v1 {
+        pub use greentic_interfaces::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::greentic::distributor_api::distributor::*;
+    }
+}
+
 /// Stable alias for messaging session imports.
 pub mod messaging {
     pub use super::messaging_session::*;
