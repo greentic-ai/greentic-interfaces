@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "wit-bindgen 0.48.1",
 ]
@@ -437,7 +437,7 @@ dependencies = [
 
 [[package]]
 name = "distributor-api-dummy"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "wit-bindgen 0.48.1",
 ]
@@ -637,7 +637,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -649,6 +649,7 @@ dependencies = [
  "thiserror 2.0.17",
  "time",
  "wasmtime",
+ "wasmtime-wasi",
  "wit-bindgen 0.47.0",
  "wit-bindgen-core 0.47.0",
  "wit-bindgen-rust 0.47.0",
@@ -657,14 +658,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -675,7 +676,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -683,7 +684,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "anyhow",
  "camino",
@@ -717,7 +718,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.48"
+version = "0.4.49"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",
@@ -1062,6 +1063,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "oauth-broker-client-harness"
+version = "0.4.49"
+dependencies = [
+ "wit-bindgen 0.48.1",
 ]
 
 [[package]]

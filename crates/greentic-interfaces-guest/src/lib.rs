@@ -141,6 +141,12 @@ pub mod oauth_broker {
     pub use crate::bindings::greentic_oauth_broker_1_0_0_broker::exports::greentic::oauth_broker::broker_v1::*;
 }
 
+/// OAuth broker client imports for `greentic:oauth-broker/broker-client@1.0.0`.
+#[cfg(feature = "oauth-broker")]
+pub mod oauth_broker_client {
+    pub use crate::bindings::greentic_oauth_broker_1_0_0_broker_client::greentic::oauth_broker::broker_v1::*;
+}
+
 /// Generic worker world `greentic:worker/worker@1.0.0`.
 #[cfg(feature = "worker")]
 pub mod worker {

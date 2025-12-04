@@ -590,6 +590,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "oauth-broker-v1")]
+declare_world!(
+    mod oauth_broker_client_v1,
+    path = "wit/greentic/oauth-broker@1.0.0",
+    world = "greentic:oauth-broker/broker-client@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:oauth-broker@1.0.0";
+    }
+);
+
 #[cfg(feature = "component-lifecycle-v1")]
 declare_world!(
     mod component_lifecycle_v1,

@@ -132,6 +132,11 @@ pub mod oauth_broker {
     pub use greentic_interfaces::oauth_broker_v1::*;
 }
 
+/// v1 OAuth broker client imports.
+pub mod oauth_broker_client {
+    pub use greentic_interfaces::oauth_broker_client_v1::*;
+}
+
 /// Generic worker ABI world.
 pub mod worker {
     pub use greentic_interfaces::worker_v1::*;

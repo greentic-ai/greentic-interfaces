@@ -410,6 +410,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "oauth-broker",
     },
     WorldFeature {
+        package: "greentic:oauth-broker@1.0.0",
+        world: "broker-client",
+        feature: "oauth-broker",
+    },
+    WorldFeature {
         package: "greentic:worker@1.0.0",
         world: "worker",
         feature: "worker",

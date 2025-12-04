@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: MIT
+
+package test:oauth-broker-client-harness@0.1.0;
+
+use greentic:oauth-broker/broker-v1@1.0.0;
+
+interface harness-api {
+  run: func() -> list<string>;
+}
+
+world harness {
+  import broker-v1;
+  export harness-api;
+}

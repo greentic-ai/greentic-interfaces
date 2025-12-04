@@ -50,3 +50,8 @@ interface broker-v1 {
 world broker {
   export broker-v1;
 }
+
+/// World used by components to import the OAuth broker host service.
+world broker-client {
+  import broker-v1;
+}
