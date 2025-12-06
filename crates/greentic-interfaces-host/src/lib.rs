@@ -142,6 +142,14 @@ pub mod worker {
     pub use greentic_interfaces::worker_v1::*;
 }
 
+/// GUI fragment renderers implemented by components.
+#[cfg(feature = "gui-fragment")]
+pub mod gui_fragment {
+    pub use greentic_interfaces::bindings::greentic_gui_1_0_0_gui_fragment::exports::greentic::gui::fragment_api as bindings;
+    pub use bindings::FragmentContext;
+    pub use bindings::Guest as GuiFragment;
+}
+
 /// Supply-chain provider contracts.
 pub mod supply_chain {
     /// Source provider world `greentic:source/source-sync@1.0.0`.

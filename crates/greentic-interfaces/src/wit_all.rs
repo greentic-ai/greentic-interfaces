@@ -837,6 +837,16 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "gui-fragment")]
+declare_world!(
+    mod gui_fragment_v1,
+    path = "wit/greentic/gui@1.0.0",
+    world = "greentic:gui/gui-fragment@1.0.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:gui@1.0.0";
+    }
+);
+
 #[cfg(feature = "worker-api")]
 declare_world!(
     mod worker_v1,

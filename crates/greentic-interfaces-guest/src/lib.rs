@@ -156,6 +156,12 @@ pub mod worker {
     pub use crate::bindings::greentic_worker_1_0_0_worker::exports::greentic::worker::worker_api::*;
 }
 
+/// GUI fragment world `greentic:gui/gui-fragment@1.0.0`.
+#[cfg(feature = "gui-fragment")]
+pub mod gui_fragment {
+    pub use crate::bindings::greentic_gui_1_0_0_gui_fragment::exports::greentic::gui::fragment_api::*;
+}
+
 /// Supply-chain provider contracts implemented by components.
 #[cfg(any(
     feature = "repo",

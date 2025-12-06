@@ -49,6 +49,7 @@ default = [
     "telemetry-logger-v1",
     "repo-ui-actions-v1",
     "worker-api",
+    "gui-fragment",
     "oauth-broker-v1",
 ]
 bindings-rust = ["dep:wit-bindgen"]
@@ -92,6 +93,7 @@ http-client-v1 = []
 telemetry-logger-v1 = []
 repo-ui-actions-v1 = []
 worker-api = []
+gui-fragment = []
 wit-all = [
     "bindings-rust",
     "component-v0-4",

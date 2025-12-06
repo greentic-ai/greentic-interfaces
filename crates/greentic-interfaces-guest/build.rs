@@ -425,6 +425,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "worker",
     },
     WorldFeature {
+        package: "greentic:gui@1.0.0",
+        world: "gui-fragment",
+        feature: "gui-fragment",
+    },
+    WorldFeature {
         package: "greentic:secrets@1.0.0",
         world: "store",
         feature: "secrets",
