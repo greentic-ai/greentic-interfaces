@@ -39,6 +39,7 @@ metadata = []
 oci = []
 distribution = []
 distributor-api = []
+distributor-api-imports = ["distributor-api"]
 deploy-plan = []
 repo-ui-actions = []
 pack-export = []
@@ -69,6 +70,7 @@ guest = [
     "metadata",
     "oci",
     "distributor-api",
+    "distributor-api-imports",
     "distribution",
     "deploy-plan",
     "repo-ui-actions",

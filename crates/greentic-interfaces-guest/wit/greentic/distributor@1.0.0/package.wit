@@ -92,3 +92,8 @@ interface distributor {
 world distributor-api {
   export distributor;
 }
+
+/// Import-facing view so guests can call into a distributor host.
+world distributor-api-imports {
+  import distributor;
+}

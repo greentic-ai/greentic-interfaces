@@ -7,6 +7,9 @@ pub mod bindings;
 #[cfg(all(not(target_arch = "wasm32"), feature = "host-bridge"))]
 pub mod host_bridge;
 
+#[cfg(feature = "distributor-api-imports")]
+mod distributor_api_imports;
+
 /// Component exports for `greentic:component/component@0.4.0`.
 #[cfg(feature = "component-node")]
 pub mod component {
@@ -214,9 +217,20 @@ pub mod distribution {
 }
 
 /// Distributor API for resolving pack components (active).
-#[cfg(feature = "distributor-api")]
+#[cfg(any(feature = "distributor-api", feature = "distributor-api-imports"))]
 pub mod distributor_api {
+    #[cfg(feature = "distributor-api")]
     pub use crate::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::greentic::distributor_api::distributor::*;
+
+    /// Raw imports generated from `greentic:distributor-api@1.0.0`.
+    #[cfg(feature = "distributor-api-imports")]
+    pub mod imports {
+        pub use crate::bindings::greentic_distributor_api_1_0_0_distributor_api_imports::greentic::distributor_api::distributor::*;
+    }
+
+    /// Convenience wrapper around the distributor imports.
+    #[cfg(feature = "distributor-api-imports")]
+    pub use crate::distributor_api_imports::DistributorApiImports;
 }
 
 /// MCP router exports for multiple protocol snapshots.
