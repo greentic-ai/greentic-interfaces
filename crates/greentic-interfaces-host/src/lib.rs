@@ -142,9 +142,12 @@ pub mod oauth_broker_client {
 /// Generic worker ABI world.
 #[cfg(feature = "worker-v1")]
 pub mod worker {
-    use greentic_interfaces::worker_v1::exports::greentic::worker::worker_api::{
-        WorkerError as WitWorkerError, WorkerMessage as WitWorkerMessage,
-        WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
+    use greentic_interfaces::worker_v1::exports::greentic::{
+        types_core::types as worker_types_core,
+        worker::worker_api::{
+            TenantCtx as WitWorkerTenantCtx, WorkerMessage as WitWorkerMessage,
+            WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
+        },
     };
     use greentic_types::{ErrorCode, GreenticError, TenantCtx};
     use serde::{Deserialize, Serialize};
@@ -153,6 +156,64 @@ pub mod worker {
     pub use greentic_interfaces::worker_v1::*;
 
     type MapperResult<T> = Result<T, GreenticError>;
+
+    fn to_worker_tenant(ctx: TenantCtx) -> MapperResult<WitWorkerTenantCtx> {
+        let base = crate::mappers::tenant_ctx_to_wit(ctx)?;
+        Ok(WitWorkerTenantCtx {
+            env: base.env,
+            tenant: base.tenant,
+            tenant_id: base.tenant_id,
+            team: base.team,
+            team_id: base.team_id,
+            user: base.user,
+            user_id: base.user_id,
+            trace_id: base.trace_id,
+            correlation_id: base.correlation_id,
+            session_id: base.session_id,
+            flow_id: base.flow_id,
+            node_id: base.node_id,
+            provider_id: base.provider_id,
+            deadline_ms: base.deadline_ms,
+            attempt: base.attempt,
+            idempotency_key: base.idempotency_key,
+            impersonation: base
+                .impersonation
+                .map(|imp| worker_types_core::Impersonation {
+                    actor_id: imp.actor_id,
+                    reason: imp.reason,
+                }),
+            attributes: base.attributes,
+        })
+    }
+
+    fn from_worker_tenant(ctx: WitWorkerTenantCtx) -> MapperResult<TenantCtx> {
+        let base = greentic_interfaces::bindings::greentic::interfaces_types::types::TenantCtx {
+            env: ctx.env,
+            tenant: ctx.tenant,
+            tenant_id: ctx.tenant_id,
+            team: ctx.team,
+            team_id: ctx.team_id,
+            user: ctx.user,
+            user_id: ctx.user_id,
+            trace_id: ctx.trace_id,
+            correlation_id: ctx.correlation_id,
+            session_id: ctx.session_id,
+            flow_id: ctx.flow_id,
+            node_id: ctx.node_id,
+            provider_id: ctx.provider_id,
+            deadline_ms: ctx.deadline_ms,
+            attempt: ctx.attempt,
+            idempotency_key: ctx.idempotency_key,
+            impersonation: ctx
+                .impersonation
+                .map(|imp| worker_types_core::Impersonation {
+                    actor_id: imp.actor_id,
+                    reason: imp.reason,
+                }),
+            attributes: ctx.attributes,
+        };
+        crate::mappers::tenant_ctx_from_wit(base)
+    }
 
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct HostWorkerRequest {
@@ -297,12 +358,6 @@ pub mod worker {
                 messages,
                 timestamp_utc: value.timestamp_utc,
             })
-        }
-    }
-
-    impl From<WitWorkerError> for GreenticError {
-        fn from(value: WitWorkerError) -> Self {
-            GreenticError::new(ErrorCode::InvalidInput, value.message).with_code(value.code)
         }
     }
 }
