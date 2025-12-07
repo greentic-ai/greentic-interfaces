@@ -105,6 +105,19 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
 
+### Host crate feature gates
+
+`greentic-interfaces-host` exposes optional features for host bindings:
+
+- `worker-v1`: enables `greentic_interfaces_host::worker::*` for `greentic:worker@1.0.0`.
+- `oauth-broker-v1`: enables `greentic_interfaces_host::oauth_broker::*` for `greentic:oauth-broker@1.0.0`; pair this with `greentic-oauth-sdk` when calling the broker from services.
+
+Example:
+
+```toml
+greentic-interfaces-host = { version = "0.4", features = ["worker-v1", "oauth-broker-v1"] }
+```
+
 ### MCP router WIT
 
 All MCP protocol WIT packages live here; routers should not redefine them elsewhere. New work should target `wasix:mcp@25.06.18`; older snapshots remain only for compatibility.

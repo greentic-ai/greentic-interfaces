@@ -128,16 +128,19 @@ pub mod telemetry {
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "oauth-broker-v1")]
 pub mod oauth_broker {
     pub use greentic_interfaces::oauth_broker_v1::*;
 }
 
 /// v1 OAuth broker client imports.
+#[cfg(feature = "oauth-broker-v1")]
 pub mod oauth_broker_client {
     pub use greentic_interfaces::oauth_broker_client_v1::*;
 }
 
 /// Generic worker ABI world.
+#[cfg(feature = "worker-v1")]
 pub mod worker {
     pub use greentic_interfaces::worker_v1::*;
 }
@@ -213,6 +216,7 @@ pub mod http {
 }
 
 /// Stable alias for OAuth broker imports.
+#[cfg(feature = "oauth-broker-v1")]
 pub mod oauth {
     pub use super::oauth_broker::*;
 }
