@@ -142,7 +142,169 @@ pub mod oauth_broker_client {
 /// Generic worker ABI world.
 #[cfg(feature = "worker-v1")]
 pub mod worker {
+    use greentic_interfaces::worker_v1::exports::greentic::worker::worker_api::{
+        WorkerError as WitWorkerError, WorkerMessage as WitWorkerMessage,
+        WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
+    };
+    use greentic_types::{ErrorCode, GreenticError, TenantCtx};
+    use serde::{Deserialize, Serialize};
+    use serde_json::Value;
+
     pub use greentic_interfaces::worker_v1::*;
+
+    type MapperResult<T> = Result<T, GreenticError>;
+
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    pub struct HostWorkerRequest {
+        pub version: String,
+        pub tenant: TenantCtx,
+        pub worker_id: String,
+        pub payload: Value,
+        pub timestamp_utc: String,
+        pub correlation_id: Option<String>,
+        pub session_id: Option<String>,
+        pub thread_id: Option<String>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    pub struct HostWorkerMessage {
+        pub kind: String,
+        pub payload: Value,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    pub struct HostWorkerResponse {
+        pub version: String,
+        pub tenant: TenantCtx,
+        pub worker_id: String,
+        pub timestamp_utc: String,
+        pub messages: Vec<HostWorkerMessage>,
+        pub correlation_id: Option<String>,
+        pub session_id: Option<String>,
+        pub thread_id: Option<String>,
+    }
+
+    impl TryFrom<HostWorkerMessage> for WitWorkerMessage {
+        type Error = GreenticError;
+
+        fn try_from(value: HostWorkerMessage) -> MapperResult<Self> {
+            let payload_json = serde_json::to_string(&value.payload)
+                .map_err(|err| GreenticError::new(ErrorCode::InvalidInput, err.to_string()))?;
+            Ok(Self {
+                kind: value.kind,
+                payload_json,
+            })
+        }
+    }
+
+    impl TryFrom<WitWorkerMessage> for HostWorkerMessage {
+        type Error = GreenticError;
+
+        fn try_from(value: WitWorkerMessage) -> MapperResult<Self> {
+            let payload = serde_json::from_str(&value.payload_json).map_err(|err| {
+                GreenticError::new(
+                    ErrorCode::InvalidInput,
+                    format!("invalid worker payload: {err}"),
+                )
+            })?;
+            Ok(Self {
+                kind: value.kind,
+                payload,
+            })
+        }
+    }
+
+    impl TryFrom<HostWorkerRequest> for WitWorkerRequest {
+        type Error = GreenticError;
+
+        fn try_from(value: HostWorkerRequest) -> MapperResult<Self> {
+            let payload_json = serde_json::to_string(&value.payload)
+                .map_err(|err| GreenticError::new(ErrorCode::InvalidInput, err.to_string()))?;
+            Ok(Self {
+                version: value.version,
+                tenant: crate::mappers::tenant_ctx_to_wit(value.tenant)?,
+                worker_id: value.worker_id,
+                correlation_id: value.correlation_id,
+                session_id: value.session_id,
+                thread_id: value.thread_id,
+                payload_json,
+                timestamp_utc: value.timestamp_utc,
+            })
+        }
+    }
+
+    impl TryFrom<WitWorkerRequest> for HostWorkerRequest {
+        type Error = GreenticError;
+
+        fn try_from(value: WitWorkerRequest) -> MapperResult<Self> {
+            let payload: Value = serde_json::from_str(&value.payload_json).map_err(|err| {
+                GreenticError::new(
+                    ErrorCode::InvalidInput,
+                    format!("invalid worker payload: {err}"),
+                )
+            })?;
+            Ok(Self {
+                version: value.version,
+                tenant: crate::mappers::tenant_ctx_from_wit(value.tenant)?,
+                worker_id: value.worker_id,
+                correlation_id: value.correlation_id,
+                session_id: value.session_id,
+                thread_id: value.thread_id,
+                payload,
+                timestamp_utc: value.timestamp_utc,
+            })
+        }
+    }
+
+    impl TryFrom<HostWorkerResponse> for WitWorkerResponse {
+        type Error = GreenticError;
+
+        fn try_from(value: HostWorkerResponse) -> MapperResult<Self> {
+            let messages = value
+                .messages
+                .into_iter()
+                .map(WitWorkerMessage::try_from)
+                .collect::<MapperResult<Vec<_>>>()?;
+            Ok(Self {
+                version: value.version,
+                tenant: crate::mappers::tenant_ctx_to_wit(value.tenant)?,
+                worker_id: value.worker_id,
+                correlation_id: value.correlation_id,
+                session_id: value.session_id,
+                thread_id: value.thread_id,
+                messages,
+                timestamp_utc: value.timestamp_utc,
+            })
+        }
+    }
+
+    impl TryFrom<WitWorkerResponse> for HostWorkerResponse {
+        type Error = GreenticError;
+
+        fn try_from(value: WitWorkerResponse) -> MapperResult<Self> {
+            let messages = value
+                .messages
+                .into_iter()
+                .map(HostWorkerMessage::try_from)
+                .collect::<MapperResult<Vec<_>>>()?;
+            Ok(Self {
+                version: value.version,
+                tenant: crate::mappers::tenant_ctx_from_wit(value.tenant)?,
+                worker_id: value.worker_id,
+                correlation_id: value.correlation_id,
+                session_id: value.session_id,
+                thread_id: value.thread_id,
+                messages,
+                timestamp_utc: value.timestamp_utc,
+            })
+        }
+    }
+
+    impl From<WitWorkerError> for GreenticError {
+        fn from(value: WitWorkerError) -> Self {
+            GreenticError::new(ErrorCode::InvalidInput, value.message).with_code(value.code)
+        }
+    }
 }
 
 /// GUI fragment renderers implemented by components.

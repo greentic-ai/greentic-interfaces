@@ -123,6 +123,7 @@ Host quickstart (workers + broker):
 ```rust
 use greentic_interfaces_host::{mappers, worker};
 use greentic_types::TenantCtx;
+use serde_json::json;
 
 // Convert the shared TenantCtx into the WIT shape expected by worker bindings.
 let wit_ctx = mappers::tenant_ctx_to_wit(TenantCtx::default())?;
@@ -144,6 +145,26 @@ let tenant_ctx = mappers::tenant_ctx_from_wit(request.tenant.clone())?;
 
 // OAuth broker bindings live under:
 // greentic_interfaces_host::oauth_broker::exports::greentic::oauth_broker::broker_v1
+
+// Host-friendly worker request/response with serde_json payloads:
+use greentic_interfaces_host::worker::{HostWorkerRequest, HostWorkerResponse};
+
+let host_req = HostWorkerRequest {
+    version: "1.0".into(),
+    tenant: TenantCtx::default(),
+    worker_id: "my-worker".into(),
+    payload: json!({"input": "value"}),
+    timestamp_utc: "2025-01-01T00:00:00Z".into(),
+    correlation_id: None,
+    session_id: None,
+    thread_id: None,
+};
+
+// Convert to WIT and invoke via generated bindings (e.g., Wasmtime host):
+let wit_req = greentic_interfaces_host::worker::exports::greentic::worker::worker_api::WorkerRequest::try_from(host_req)?;
+
+// Convert responses back to host types:
+let host_resp: HostWorkerResponse = wit_resp.try_into()?;
 ```
 
 ### MCP router WIT

@@ -12,6 +12,8 @@ homepage = "https://github.com/greentic-ai/greentic-interfaces"
 [dependencies]
 greentic-interfaces = { workspace = true, features = ["wit-all"] }
 greentic-types = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
 
 [features]
 default = []
