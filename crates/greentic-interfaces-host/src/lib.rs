@@ -142,12 +142,13 @@ pub mod oauth_broker_client {
 /// Generic worker ABI world.
 #[cfg(feature = "worker-v1")]
 pub mod worker {
-    use greentic_interfaces::worker_v1::exports::greentic::{
-        types_core::types as worker_types_core,
-        worker::worker_api::{
-            TenantCtx as WitWorkerTenantCtx, WorkerMessage as WitWorkerMessage,
-            WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
-        },
+    use greentic_interfaces::bindings::greentic::interfaces_types::types as interfaces_types;
+    use greentic_interfaces::worker_v1::exports::greentic::worker::worker_api::{
+        TenantCtx as WitWorkerTenantCtx, WorkerMessage as WitWorkerMessage,
+        WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
+    };
+    use greentic_interfaces::worker_v1::greentic::types_core::types::{
+        Cloud, DeploymentCtx, Platform,
     };
     use greentic_types::{ErrorCode, GreenticError, TenantCtx};
     use serde::{Deserialize, Serialize};
@@ -160,88 +161,95 @@ pub mod worker {
     fn to_worker_tenant(ctx: TenantCtx) -> MapperResult<WitWorkerTenantCtx> {
         let base = crate::mappers::tenant_ctx_to_wit(ctx)?;
         Ok(WitWorkerTenantCtx {
-            env: base.env,
             tenant: base.tenant,
-            tenant_id: base.tenant_id,
             team: base.team,
-            team_id: base.team_id,
             user: base.user,
-            user_id: base.user_id,
+            deployment: DeploymentCtx {
+                cloud: Cloud::Other,
+                region: None,
+                platform: Platform::Other,
+                runtime: None,
+            },
             trace_id: base.trace_id,
-            correlation_id: base.correlation_id,
             session_id: base.session_id,
             flow_id: base.flow_id,
             node_id: base.node_id,
             provider_id: base.provider_id,
-            deadline_ms: base.deadline_ms,
-            attempt: base.attempt,
-            idempotency_key: base.idempotency_key,
-            impersonation: base
-                .impersonation
-                .map(|imp| worker_types_core::Impersonation {
-                    actor_id: imp.actor_id,
-                    reason: imp.reason,
-                }),
-            attributes: base.attributes,
         })
     }
 
     fn from_worker_tenant(ctx: WitWorkerTenantCtx) -> MapperResult<TenantCtx> {
-        let base = greentic_interfaces::bindings::greentic::interfaces_types::types::TenantCtx {
-            env: ctx.env,
-            tenant: ctx.tenant,
-            tenant_id: ctx.tenant_id,
-            team: ctx.team,
-            team_id: ctx.team_id,
-            user: ctx.user,
-            user_id: ctx.user_id,
+        let base = interfaces_types::TenantCtx {
+            env: "unknown".to_string(),
+            tenant: ctx.tenant.clone(),
+            tenant_id: ctx.tenant,
+            team: ctx.team.clone(),
+            team_id: ctx.team,
+            user: ctx.user.clone(),
+            user_id: ctx.user,
             trace_id: ctx.trace_id,
-            correlation_id: ctx.correlation_id,
+            correlation_id: None,
             session_id: ctx.session_id,
             flow_id: ctx.flow_id,
             node_id: ctx.node_id,
             provider_id: ctx.provider_id,
-            deadline_ms: ctx.deadline_ms,
-            attempt: ctx.attempt,
-            idempotency_key: ctx.idempotency_key,
-            impersonation: ctx
-                .impersonation
-                .map(|imp| worker_types_core::Impersonation {
-                    actor_id: imp.actor_id,
-                    reason: imp.reason,
-                }),
-            attributes: ctx.attributes,
+            deadline_ms: None,
+            attempt: 0,
+            idempotency_key: None,
+            impersonation: None,
+            attributes: Vec::new(),
         };
         crate::mappers::tenant_ctx_from_wit(base)
     }
 
+    /// Host-friendly request wrapper for worker invocations (uses `greentic-types` and `serde_json` payloads).
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct HostWorkerRequest {
+        /// ABI version identifier (e.g. "1.0").
         pub version: String,
+        /// Shared tenant context from `greentic-types`.
         pub tenant: TenantCtx,
+        /// Target worker identifier.
         pub worker_id: String,
+        /// JSON payload for the worker.
         pub payload: Value,
+        /// ISO8601 UTC timestamp of the request.
         pub timestamp_utc: String,
+        /// Optional correlation identifier.
         pub correlation_id: Option<String>,
+        /// Optional session identifier.
         pub session_id: Option<String>,
+        /// Optional thread identifier.
         pub thread_id: Option<String>,
     }
 
+    /// Host-friendly worker message envelope.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct HostWorkerMessage {
+        /// Message kind (e.g. "text", "card").
         pub kind: String,
+        /// JSON payload content.
         pub payload: Value,
     }
 
+    /// Host-friendly worker response wrapper with typed tenant context.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct HostWorkerResponse {
+        /// Mirrors the request version.
         pub version: String,
+        /// Shared tenant context from `greentic-types`.
         pub tenant: TenantCtx,
+        /// Worker identifier that produced the response.
         pub worker_id: String,
+        /// ISO8601 UTC timestamp.
         pub timestamp_utc: String,
+        /// Accumulated worker messages.
         pub messages: Vec<HostWorkerMessage>,
+        /// Optional correlation identifier.
         pub correlation_id: Option<String>,
+        /// Optional session identifier.
         pub session_id: Option<String>,
+        /// Optional thread identifier.
         pub thread_id: Option<String>,
     }
 
@@ -283,7 +291,7 @@ pub mod worker {
                 .map_err(|err| GreenticError::new(ErrorCode::InvalidInput, err.to_string()))?;
             Ok(Self {
                 version: value.version,
-                tenant: crate::mappers::tenant_ctx_to_wit(value.tenant)?,
+                tenant: to_worker_tenant(value.tenant)?,
                 worker_id: value.worker_id,
                 correlation_id: value.correlation_id,
                 session_id: value.session_id,
@@ -306,7 +314,7 @@ pub mod worker {
             })?;
             Ok(Self {
                 version: value.version,
-                tenant: crate::mappers::tenant_ctx_from_wit(value.tenant)?,
+                tenant: from_worker_tenant(value.tenant)?,
                 worker_id: value.worker_id,
                 correlation_id: value.correlation_id,
                 session_id: value.session_id,
@@ -328,7 +336,7 @@ pub mod worker {
                 .collect::<MapperResult<Vec<_>>>()?;
             Ok(Self {
                 version: value.version,
-                tenant: crate::mappers::tenant_ctx_to_wit(value.tenant)?,
+                tenant: to_worker_tenant(value.tenant)?,
                 worker_id: value.worker_id,
                 correlation_id: value.correlation_id,
                 session_id: value.session_id,
@@ -350,7 +358,7 @@ pub mod worker {
                 .collect::<MapperResult<Vec<_>>>()?;
             Ok(Self {
                 version: value.version,
-                tenant: crate::mappers::tenant_ctx_from_wit(value.tenant)?,
+                tenant: from_worker_tenant(value.tenant)?,
                 worker_id: value.worker_id,
                 correlation_id: value.correlation_id,
                 session_id: value.session_id,
