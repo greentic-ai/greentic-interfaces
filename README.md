@@ -118,6 +118,34 @@ Example:
 greentic-interfaces-host = { version = "0.4", features = ["worker-v1", "oauth-broker-v1"] }
 ```
 
+Host quickstart (workers + broker):
+
+```rust
+use greentic_interfaces_host::{mappers, worker};
+use greentic_types::TenantCtx;
+
+// Convert the shared TenantCtx into the WIT shape expected by worker bindings.
+let wit_ctx = mappers::tenant_ctx_to_wit(TenantCtx::default())?;
+
+// Build a worker request using the host bindings.
+let request = worker::exports::greentic::worker::worker_api::WorkerRequest {
+    version: "1.0".into(),
+    tenant: wit_ctx,
+    worker_id: "example-worker".into(),
+    correlation_id: None,
+    session_id: None,
+    thread_id: None,
+    payload_json: "{}".into(),
+    timestamp_utc: "2025-01-01T00:00:00Z".into(),
+};
+
+// Reverse mapping when you need to turn a WIT tenant back into greentic_types::TenantCtx:
+let tenant_ctx = mappers::tenant_ctx_from_wit(request.tenant.clone())?;
+
+// OAuth broker bindings live under:
+// greentic_interfaces_host::oauth_broker::exports::greentic::oauth_broker::broker_v1
+```
+
 ### MCP router WIT
 
 All MCP protocol WIT packages live here; routers should not redefine them elsewhere. New work should target `wasix:mcp@25.06.18`; older snapshots remain only for compatibility.

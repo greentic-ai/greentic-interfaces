@@ -53,6 +53,16 @@ type WitPackRef = bindings::greentic::interfaces_types::types::PackRef;
 type WitSignature = bindings::greentic::interfaces_types::types::Signature;
 type WitSignatureAlgorithm = bindings::greentic::interfaces_types::types::SignatureAlgorithm;
 
+/// Convert a WIT `TenantCtx` into the shared `greentic_types::TenantCtx`.
+pub fn tenant_ctx_from_wit(ctx: WitTenantCtx) -> MapperResult<types::TenantCtx> {
+    types::TenantCtx::try_from(ctx)
+}
+
+/// Convert a shared `greentic_types::TenantCtx` into the WIT `TenantCtx`.
+pub fn tenant_ctx_to_wit(ctx: types::TenantCtx) -> MapperResult<WitTenantCtx> {
+    WitTenantCtx::try_from(ctx)
+}
+
 impl TryFrom<WitImpersonation> for types::Impersonation {
     type Error = types::GreenticError;
 
