@@ -35,6 +35,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
     let mut package_paths = Vec::new();
     discover_packages(&wit_root, &mut package_paths)?;
+    // Explicitly ensure new v1 surfaces are staged even if discovery misses them.
+    for rel in [
+        "greentic/common-types@0.1.0/package.wit",
+        "greentic/component-v1@0.1.0/package.wit",
+        "greentic/pack-export-v1@0.1.0/package.wit",
+    ] {
+        let path = wit_root.join(rel);
+        if path.exists() && !package_paths.contains(&path) {
+            package_paths.push(path);
+        }
+    }
 
     let mut staged = HashSet::new();
     for package_path in package_paths {
@@ -340,6 +351,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "component-v1",
     },
     WorldFeature {
+        package: "greentic:component-v1@0.1.0",
+        world: "component-host",
+        feature: "component-v1",
+    },
+    WorldFeature {
         package: "greentic:lifecycle@1.0.0",
         world: "component-lifecycle",
         feature: "lifecycle",
@@ -463,6 +479,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         package: "greentic:pack-export@0.4.0",
         world: "pack-exports",
         feature: "pack-export",
+    },
+    WorldFeature {
+        package: "greentic:pack-export-v1@0.1.0",
+        world: "pack-host",
+        feature: "pack-export-v1",
     },
     WorldFeature {
         package: "greentic:interfaces-pack@0.1.0",

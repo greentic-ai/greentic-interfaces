@@ -17,5 +17,5 @@ world = "repo-ui-worker"
 
 [package.metadata.component.target.dependencies]
 
-[target.'cfg(target_arch = "wasm32")'.lib]
+[lib]
 crate-type = ["cdylib"]

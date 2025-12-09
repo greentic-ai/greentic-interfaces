@@ -40,6 +40,28 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "component-v1")]
+declare_world!(
+    mod component_v1,
+    path = "wit/greentic/component-v1@0.1.0",
+    world = "greentic:component-v1/component-host@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:component-v1@0.1.0";
+    }
+);
+
+#[cfg(feature = "common-types-v0-1")]
+declare_world!(
+    mod common_types_v0_1,
+    path = "wit/greentic/common-types@0.1.0",
+    world = "greentic:common-types/common@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:common-types@0.1.0";
+    }
+);
+
 #[cfg(feature = "component-v0-4")]
 declare_world!(
     mod component_v0_4,
@@ -113,6 +135,17 @@ declare_world!(
     legacy = {
         /// Canonical package identifier.
         pub const PACKAGE_ID: &str = "greentic:pack-export@0.4.0";
+    }
+);
+
+#[cfg(feature = "pack-export-v1")]
+declare_world!(
+    mod pack_export_v1,
+    path = "wit/greentic/pack-export-v1@0.1.0",
+    world = "greentic:pack-export-v1/pack-host@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:pack-export-v1@0.1.0";
     }
 );
 

@@ -13,6 +13,12 @@ pub mod component {
     pub mod v0_4 {
         pub use greentic_interfaces::component_v0_4::*;
     }
+    /// Generic component invocation world `greentic:component-v1/component-host@0.1.0`.
+    pub mod v1 {
+        pub use greentic_interfaces::component_v1::*;
+        pub use greentic_interfaces::mappers::ComponentOutcome;
+        pub use greentic_interfaces::mappers::ComponentOutcomeStatus;
+    }
     /// Describe-only schema export world `greentic:component/component@1.0.0`.
     pub mod describe_v1 {
         pub use greentic_interfaces::component_describe_v1::*;
@@ -53,10 +59,21 @@ pub mod pack_exports {
     pub mod v0_4 {
         pub use greentic_interfaces::pack_export_v0_4::*;
     }
+    /// Pack metadata/flow discovery world `greentic:pack-export-v1/pack-host@0.1.0`.
+    pub mod v1 {
+        pub use greentic_interfaces::mappers::{
+            FlowDescriptor as HostFlowDescriptor, PackDescriptor as HostPackDescriptor,
+        };
+        pub use greentic_interfaces::pack_export_v1::*;
+    }
 }
 
 /// Core types.
 pub mod types {
+    /// Shared flow/component fundamentals `greentic:common-types/common@0.1.0`.
+    pub mod common_v0_1 {
+        pub use greentic_interfaces::common_types_v0_1::*;
+    }
     /// Shared event envelope types.
     pub mod events_v1 {
         pub use greentic_interfaces::events_v1::*;

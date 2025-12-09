@@ -15,6 +15,9 @@ categories = ["wasm", "api-bindings"]
 [features]
 default = [
     "bindings-rust",
+    "common-types-v0-1",
+    "component-v1",
+    "pack-export-v1",
     "component-v0-4",
     "pack-export-v0-4",
     "types-core-v0-4",
@@ -53,8 +56,11 @@ default = [
     "oauth-broker-v1",
 ]
 bindings-rust = ["dep:wit-bindgen"]
+common-types-v0-1 = []
+component-v1 = []
 component-v0-4 = []
 describe-v1 = []
+pack-export-v1 = []
 pack-export-v0-4 = []
 types-core-v0-4 = []
 host-import-v0-6 = []
@@ -96,8 +102,11 @@ worker-api = []
 gui-fragment = []
 wit-all = [
     "bindings-rust",
+    "common-types-v0-1",
+    "component-v1",
     "component-v0-4",
     "describe-v1",
+    "pack-export-v1",
     "pack-export-v0-4",
     "types-core-v0-4",
     "host-import-v0-6",

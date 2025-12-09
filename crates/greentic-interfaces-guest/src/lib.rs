@@ -16,6 +16,13 @@ pub mod component {
     pub use crate::bindings::greentic_component_0_4_0_component::exports::greentic::component::*;
 }
 
+/// Generic component host ABI `greentic:component-v1/component-host@0.1.0`.
+#[cfg(feature = "component-v1")]
+pub mod component_v1 {
+    pub use crate::bindings::greentic_component_v1_0_1_0_component_host::exports::greentic::component_v1::*;
+    pub use greentic_interfaces::mappers::{ComponentOutcome, ComponentOutcomeStatus};
+}
+
 /// Helper macro to export an implementation of `greentic:component/node@0.4.0`.
 #[cfg(feature = "component-node")]
 #[macro_export]
@@ -160,6 +167,29 @@ pub mod worker {
 #[cfg(feature = "gui-fragment")]
 pub mod gui_fragment {
     pub use crate::bindings::greentic_gui_1_0_0_gui_fragment::exports::greentic::gui::fragment_api::*;
+}
+
+/// Pack metadata/flow discovery worlds.
+#[cfg(any(feature = "pack-export", feature = "pack-export-v1"))]
+pub mod pack_exports {
+    /// Pack exports `0.2.0` world.
+    #[cfg(feature = "pack-export")]
+    pub mod v0_2 {
+        pub use crate::bindings::greentic_pack_export_0_2_0_pack_exports::exports::greentic::pack_export::*;
+    }
+    /// Pack exports `0.4.0` world.
+    #[cfg(feature = "pack-export")]
+    pub mod v0_4 {
+        pub use crate::bindings::greentic_pack_export_0_4_0_pack_exports::exports::greentic::pack_export::*;
+    }
+    /// Pack host metadata world `greentic:pack-export-v1/pack-host@0.1.0`.
+    #[cfg(feature = "pack-export-v1")]
+    pub mod v1 {
+        pub use crate::bindings::greentic_pack_export_v1_0_1_0_pack_host::exports::greentic::pack_export_v1::*;
+        pub use greentic_interfaces::mappers::{
+            FlowDescriptor as GuestFlowDescriptor, PackDescriptor as GuestPackDescriptor,
+        };
+    }
 }
 
 /// Supply-chain provider contracts implemented by components.

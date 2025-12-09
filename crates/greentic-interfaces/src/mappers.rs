@@ -52,6 +52,69 @@ type WitSpanContext = bindings::greentic::interfaces_types::types::SpanContext;
 type WitPackRef = bindings::greentic::interfaces_types::types::PackRef;
 type WitSignature = bindings::greentic::interfaces_types::types::Signature;
 type WitSignatureAlgorithm = bindings::greentic::interfaces_types::types::SignatureAlgorithm;
+type WitCommonFlowKind =
+    bindings::greentic_common_types_0_1_0_common::exports::greentic::common_types::types::FlowKind;
+type WitCommonTenantCtx =
+    bindings::greentic_common_types_0_1_0_common::exports::greentic::common_types::types::TenantCtx;
+type WitOutcomeStatus = bindings::greentic_common_types_0_1_0_common::exports::greentic::common_types::types::OutcomeStatus;
+type WitComponentOutcome = bindings::greentic_common_types_0_1_0_common::exports::greentic::common_types::types::ComponentOutcome;
+type WitPackKind = bindings::greentic_pack_export_v1_0_1_0_pack_host::exports::greentic::pack_export_v1::pack_api::PackKind;
+type WitPackDescriptor =
+    bindings::greentic_pack_export_v1_0_1_0_pack_host::exports::greentic::pack_export_v1::pack_api::PackDescriptor;
+type WitFlowDescriptor =
+    bindings::greentic_pack_export_v1_0_1_0_pack_host::exports::greentic::pack_export_v1::pack_api::FlowDescriptor;
+type WitPackFlowKind =
+    bindings::greentic_pack_export_v1_0_1_0_pack_host::greentic::common_types::types::FlowKind;
+
+/// Normalized component outcome mirroring `greentic:common-types/component-outcome`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ComponentOutcomeStatus {
+    /// Component finished successfully.
+    Done,
+    /// Component needs more input.
+    Pending,
+    /// Component failed.
+    Error,
+}
+
+/// Component outcome payload used by the v1 ABI.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ComponentOutcome {
+    /// Status reported by the component.
+    pub status: ComponentOutcomeStatus,
+    /// Optional routing code.
+    pub code: Option<String>,
+    /// JSON payload returned by the component.
+    pub payload: String,
+    /// Optional metadata JSON blob.
+    pub metadata: Option<String>,
+}
+
+/// Minimal pack descriptor mirroring the v1 pack-export ABI.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PackDescriptor {
+    /// Logical pack identifier.
+    pub pack_id: types::PackId,
+    /// Pack version.
+    pub version: Version,
+    /// Pack kind classification.
+    pub kind: types::PackKind,
+    /// Declared publisher.
+    pub publisher: String,
+}
+
+/// Minimal flow descriptor mirroring the v1 pack-export ABI.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FlowDescriptor {
+    /// Flow identifier.
+    pub id: types::FlowId,
+    /// Flow kind classification.
+    pub kind: types::FlowKind,
+    /// Flow tags.
+    pub tags: Vec<String>,
+    /// Flow entrypoints.
+    pub entrypoints: Vec<String>,
+}
 
 /// Convert a WIT `TenantCtx` into the shared `greentic_types::TenantCtx`.
 pub fn tenant_ctx_from_wit(ctx: WitTenantCtx) -> MapperResult<types::TenantCtx> {
@@ -446,6 +509,188 @@ impl From<types::PackRef> for WitPackRef {
             digest: value.digest,
             signatures: value.signatures.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+/// Convert the shared `FlowKind` into the WIT `flow-kind`.
+pub fn flow_kind_to_wit(kind: types::FlowKind) -> WitCommonFlowKind {
+    match kind {
+        types::FlowKind::Messaging => WitCommonFlowKind::Messaging,
+        types::FlowKind::Event => WitCommonFlowKind::Event,
+        types::FlowKind::ComponentConfig => WitCommonFlowKind::ComponentConfig,
+        types::FlowKind::Job => WitCommonFlowKind::Job,
+        types::FlowKind::Http => WitCommonFlowKind::Http,
+    }
+}
+
+/// Convert a WIT `flow-kind` into the shared `FlowKind`.
+pub fn flow_kind_from_wit(kind: WitCommonFlowKind) -> types::FlowKind {
+    match kind {
+        WitCommonFlowKind::Messaging => types::FlowKind::Messaging,
+        WitCommonFlowKind::Event => types::FlowKind::Event,
+        WitCommonFlowKind::ComponentConfig => types::FlowKind::ComponentConfig,
+        WitCommonFlowKind::Job => types::FlowKind::Job,
+        WitCommonFlowKind::Http => types::FlowKind::Http,
+    }
+}
+
+fn flow_kind_from_pack_wit(kind: WitPackFlowKind) -> types::FlowKind {
+    match kind {
+        WitPackFlowKind::Messaging => types::FlowKind::Messaging,
+        WitPackFlowKind::Event => types::FlowKind::Event,
+        WitPackFlowKind::ComponentConfig => types::FlowKind::ComponentConfig,
+        WitPackFlowKind::Job => types::FlowKind::Job,
+        WitPackFlowKind::Http => types::FlowKind::Http,
+    }
+}
+
+fn flow_kind_to_pack_wit(kind: types::FlowKind) -> WitPackFlowKind {
+    match kind {
+        types::FlowKind::Messaging => WitPackFlowKind::Messaging,
+        types::FlowKind::Event => WitPackFlowKind::Event,
+        types::FlowKind::ComponentConfig => WitPackFlowKind::ComponentConfig,
+        types::FlowKind::Job => WitPackFlowKind::Job,
+        types::FlowKind::Http => WitPackFlowKind::Http,
+    }
+}
+
+/// Convert the shared `PackKind` into the WIT `pack-kind`.
+pub fn pack_kind_to_wit(kind: types::PackKind) -> WitPackKind {
+    match kind {
+        types::PackKind::Application => WitPackKind::Application,
+        types::PackKind::Provider => WitPackKind::Provider,
+        types::PackKind::Infrastructure => WitPackKind::Infrastructure,
+        types::PackKind::Library => WitPackKind::Library,
+    }
+}
+
+/// Convert a WIT `pack-kind` into the shared `PackKind`.
+pub fn pack_kind_from_wit(kind: WitPackKind) -> types::PackKind {
+    match kind {
+        WitPackKind::Application => types::PackKind::Application,
+        WitPackKind::Provider => types::PackKind::Provider,
+        WitPackKind::Infrastructure => types::PackKind::Infrastructure,
+        WitPackKind::Library => types::PackKind::Library,
+    }
+}
+
+/// Convert a WIT `tenant-ctx` (v1 subset) into the shared `TenantCtx`.
+pub fn tenant_ctx_from_common(ctx: WitCommonTenantCtx) -> MapperResult<types::TenantCtx> {
+    let WitCommonTenantCtx {
+        env,
+        tenant_id,
+        team_id,
+        user_id,
+        session_id,
+        flow_id,
+        node_id,
+    } = ctx;
+
+    Ok(types::TenantCtx {
+        env: env.try_into()?,
+        tenant: tenant_id.clone().try_into()?,
+        tenant_id: tenant_id.try_into()?,
+        team: team_id.clone().map(|id| id.try_into()).transpose()?,
+        team_id: team_id.map(|id| id.try_into()).transpose()?,
+        user: user_id.clone().map(|id| id.try_into()).transpose()?,
+        user_id: user_id.map(|id| id.try_into()).transpose()?,
+        session_id,
+        flow_id,
+        node_id,
+        provider_id: None,
+        trace_id: None,
+        correlation_id: None,
+        attributes: BTreeMap::new(),
+        deadline: None,
+        attempt: 0,
+        idempotency_key: None,
+        impersonation: None,
+    })
+}
+
+/// Convert a shared `TenantCtx` into the WIT `tenant-ctx` (v1 subset).
+pub fn tenant_ctx_to_common(ctx: types::TenantCtx) -> MapperResult<WitCommonTenantCtx> {
+    Ok(WitCommonTenantCtx {
+        env: ctx.env.into(),
+        tenant_id: ctx.tenant_id.into(),
+        team_id: ctx.team_id.map(Into::into),
+        user_id: ctx.user_id.map(Into::into),
+        session_id: ctx.session_id,
+        flow_id: ctx.flow_id,
+        node_id: ctx.node_id,
+    })
+}
+
+/// Convert a WIT `component-outcome` into the normalized struct.
+pub fn component_outcome_from_wit(outcome: WitComponentOutcome) -> ComponentOutcome {
+    let status = match outcome.status {
+        WitOutcomeStatus::Done => ComponentOutcomeStatus::Done,
+        WitOutcomeStatus::Pending => ComponentOutcomeStatus::Pending,
+        WitOutcomeStatus::Error => ComponentOutcomeStatus::Error,
+    };
+
+    ComponentOutcome {
+        status,
+        code: outcome.code,
+        payload: outcome.payload_json,
+        metadata: outcome.metadata_json,
+    }
+}
+
+/// Convert a normalized component outcome into the WIT `component-outcome`.
+pub fn component_outcome_to_wit(outcome: ComponentOutcome) -> WitComponentOutcome {
+    let status = match outcome.status {
+        ComponentOutcomeStatus::Done => WitOutcomeStatus::Done,
+        ComponentOutcomeStatus::Pending => WitOutcomeStatus::Pending,
+        ComponentOutcomeStatus::Error => WitOutcomeStatus::Error,
+    };
+
+    WitComponentOutcome {
+        status,
+        code: outcome.code,
+        payload_json: outcome.payload,
+        metadata_json: outcome.metadata,
+    }
+}
+
+/// Convert a WIT pack descriptor into the shared struct.
+pub fn pack_descriptor_from_wit(desc: WitPackDescriptor) -> MapperResult<PackDescriptor> {
+    Ok(PackDescriptor {
+        pack_id: desc.pack_id.try_into()?,
+        version: Version::parse(&desc.version)
+            .map_err(|err| invalid_input(format!("invalid version: {err}")))?,
+        kind: pack_kind_from_wit(desc.kind),
+        publisher: desc.publisher,
+    })
+}
+
+/// Convert a pack descriptor into the WIT shape.
+pub fn pack_descriptor_to_wit(desc: PackDescriptor) -> WitPackDescriptor {
+    WitPackDescriptor {
+        pack_id: desc.pack_id.into(),
+        version: desc.version.to_string(),
+        kind: pack_kind_to_wit(desc.kind),
+        publisher: desc.publisher,
+    }
+}
+
+/// Convert a WIT flow descriptor into the shared struct.
+pub fn flow_descriptor_from_wit(desc: WitFlowDescriptor) -> MapperResult<FlowDescriptor> {
+    Ok(FlowDescriptor {
+        id: desc.id.try_into()?,
+        kind: flow_kind_from_pack_wit(desc.kind),
+        tags: desc.tags,
+        entrypoints: desc.entrypoints,
+    })
+}
+
+/// Convert a flow descriptor into the WIT shape.
+pub fn flow_descriptor_to_wit(desc: FlowDescriptor) -> WitFlowDescriptor {
+    WitFlowDescriptor {
+        id: desc.id.into(),
+        kind: flow_kind_to_pack_wit(desc.kind),
+        tags: desc.tags,
+        entrypoints: desc.entrypoints,
     }
 }
 

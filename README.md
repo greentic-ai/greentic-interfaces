@@ -6,6 +6,17 @@ This repository contains the shared ABI contracts and Wasmtime runtime helpers u
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
 
+> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. Legacy worlds (`component@0.4.0`, `pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat and are considered frozen.
+
+- Host/guest reexports: `greentic-interfaces-host` and `greentic-interfaces-guest` now surface the v1 worlds plus mapper helpers: component outcomes (`ComponentOutcome`, `ComponentOutcomeStatus`) and pack/flow descriptors (`PackDescriptor`, `FlowDescriptor`) for the new pack-export-v1 ABI.
+
+### Feature flags for the new v1 worlds
+
+- `common-types-v0-1`: enables `greentic:common-types@0.1.0`.
+- `component-v1`: enables `greentic:component-v1@0.1.0` (component-host world) and reexports the component outcome mappers.
+- `pack-export-v1`: enables `greentic:pack-export-v1@0.1.0` (pack-host world) and reexports the pack/flow descriptor mappers.
+- Default and `wit-all` now include these flags; guest builds also stage the v1 WIT packages when the features are on.
+
 - [`crates/greentic-interfaces`](crates/greentic-interfaces) exposes the WebAssembly Interface Types (WIT) packages, generated Rust bindings, and thin mappers that bridge the generated types to the richer structures in [`greentic-types`](https://github.com/greentic-ai/greentic-types). It is intentionally ABI-only and has no Wasmtime dependency.
 - [`crates/greentic-interfaces-host`](crates/greentic-interfaces-host) curates the host-facing bindings: Wasmtime-ready WIT worlds plus the shared mappers.
 - [`crates/greentic-interfaces-guest`](crates/greentic-interfaces-guest) curates the guest-facing bindings for components built against `wasm32-wasip2`, including the distributor API import bindings and `DistributorApiImports` wrapper (feature `distributor-api-imports`) for calling resolve/get/warm from guests.

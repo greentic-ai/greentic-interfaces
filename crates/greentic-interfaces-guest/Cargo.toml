@@ -16,7 +16,7 @@ wit-bindgen = { version = "0.48" }
 
 [features]
 component-node = []
-component-v1 = []
+component-v1 = ["greentic-interfaces"]
 lifecycle = []
 build = []
 events-sink = []
@@ -44,6 +44,8 @@ gui-fragment = []
 deploy-plan = []
 repo-ui-actions = []
 pack-export = []
+pack-export-v1 = ["greentic-interfaces"]
+common-types = []
 runner = []
 types-core = []
 wasix-mcp-24-11-05-guest = []
@@ -52,6 +54,7 @@ wasix-mcp-25-06-18-guest = []
 guest = [
     "component-node",
     "component-v1",
+    "common-types",
     "lifecycle",
     "build",
     "events",
@@ -76,6 +79,7 @@ guest = [
     "deploy-plan",
     "repo-ui-actions",
     "pack-export",
+    "pack-export-v1",
     "runner",
     "types-core",
     "wasix-mcp-24-11-05-guest",
