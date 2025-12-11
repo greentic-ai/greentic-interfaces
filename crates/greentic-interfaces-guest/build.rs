@@ -341,9 +341,14 @@ struct WorldFeature {
 
 const WORLD_FEATURES: &[WorldFeature] = &[
     WorldFeature {
-        package: "greentic:component@0.4.0",
+        package: "greentic:component@0.5.0",
         world: "component",
         feature: "component-node",
+    },
+    WorldFeature {
+        package: "greentic:component@0.4.0",
+        world: "component",
+        feature: "component-node-v0-4",
     },
     WorldFeature {
         package: "greentic:component@1.0.0",

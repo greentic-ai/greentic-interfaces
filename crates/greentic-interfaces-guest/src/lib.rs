@@ -10,9 +10,15 @@ pub mod host_bridge;
 #[cfg(feature = "distributor-api-imports")]
 mod distributor_api_imports;
 
-/// Component exports for `greentic:component/component@0.4.0`.
+/// Component exports for `greentic:component/component@0.5.0`.
 #[cfg(feature = "component-node")]
 pub mod component {
+    pub use crate::bindings::greentic_component_0_5_0_component::exports::greentic::component::*;
+}
+
+/// Legacy component exports for `greentic:component/component@0.4.0`.
+#[cfg(feature = "component-node-v0-4")]
+pub mod component_v0_4 {
     pub use crate::bindings::greentic_component_0_4_0_component::exports::greentic::component::*;
 }
 
@@ -23,10 +29,71 @@ pub mod component_v1 {
     pub use greentic_interfaces::mappers::{ComponentOutcome, ComponentOutcomeStatus};
 }
 
-/// Helper macro to export an implementation of `greentic:component/node@0.4.0`.
+/// Helper macro to export an implementation of `greentic:component/node@0.5.0`.
 #[cfg(feature = "component-node")]
 #[macro_export]
 macro_rules! export_component_node {
+    ($ty:ty) => {
+        const _: () = {
+            use $crate::bindings::greentic_component_0_5_0_component::exports::greentic::component::node;
+
+            #[unsafe(export_name = "greentic:component/node@0.5.0#get-manifest")]
+            unsafe extern "C" fn export_get_manifest() -> *mut u8 {
+                node::_export_get_manifest_cabi::<$ty>()
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/node@0.5.0#get-manifest")]
+            unsafe extern "C" fn post_return_get_manifest(arg0: *mut u8) {
+                node::__post_return_get_manifest::<$ty>(arg0);
+            }
+
+            #[unsafe(export_name = "greentic:component/node@0.5.0#on-start")]
+            unsafe extern "C" fn export_on_start(arg0: *mut u8) -> *mut u8 {
+                node::_export_on_start_cabi::<$ty>(arg0)
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/node@0.5.0#on-start")]
+            unsafe extern "C" fn post_return_on_start(arg0: *mut u8) {
+                node::__post_return_on_start::<$ty>(arg0);
+            }
+
+            #[unsafe(export_name = "greentic:component/node@0.5.0#on-stop")]
+            unsafe extern "C" fn export_on_stop(arg0: *mut u8) -> *mut u8 {
+                node::_export_on_stop_cabi::<$ty>(arg0)
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/node@0.5.0#on-stop")]
+            unsafe extern "C" fn post_return_on_stop(arg0: *mut u8) {
+                node::__post_return_on_stop::<$ty>(arg0);
+            }
+
+            #[unsafe(export_name = "greentic:component/node@0.5.0#invoke")]
+            unsafe extern "C" fn export_invoke(arg0: *mut u8) -> *mut u8 {
+                node::_export_invoke_cabi::<$ty>(arg0)
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/node@0.5.0#invoke")]
+            unsafe extern "C" fn post_return_invoke(arg0: *mut u8) {
+                node::__post_return_invoke::<$ty>(arg0);
+            }
+
+            #[unsafe(export_name = "greentic:component/node@0.5.0#invoke-stream")]
+            unsafe extern "C" fn export_invoke_stream(arg0: *mut u8) -> *mut u8 {
+                node::_export_invoke_stream_cabi::<$ty>(arg0)
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/node@0.5.0#invoke-stream")]
+            unsafe extern "C" fn post_return_invoke_stream(arg0: *mut u8) {
+                node::__post_return_invoke_stream::<$ty>(arg0);
+            }
+        };
+    };
+}
+
+/// Helper macro to export an implementation of `greentic:component/node@0.4.0`.
+#[cfg(feature = "component-node-v0-4")]
+#[macro_export]
+macro_rules! export_component_node_v0_4 {
     ($ty:ty) => {
         const _: () = {
             use $crate::bindings::greentic_component_0_4_0_component::exports::greentic::component::node;
@@ -77,7 +144,7 @@ macro_rules! export_component_node {
             }
 
             #[unsafe(export_name = "cabi_post_greentic:component/node@0.4.0#invoke-stream")]
-            unsafe extern "C" fn post_return_invoke_stream(arg0: *mut u8) {
+            unsafe extern "C" fn post_return_invoke(arg0: *mut u8) {
                 node::__post_return_invoke_stream::<$ty>(arg0);
             }
         };

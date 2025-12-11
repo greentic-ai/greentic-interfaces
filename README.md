@@ -6,9 +6,36 @@ This repository contains the shared ABI contracts and Wasmtime runtime helpers u
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
 
-> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. Legacy worlds (`component@0.4.0`, `pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat and are considered frozen.
+> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. The generic component ABI is now provided by `component@0.5.0` (config-aware `config` record + optional JSON Schema export); `component@0.4.0` and the legacy pack worlds (`pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat.
 
 - Host/guest reexports: `greentic-interfaces-host` and `greentic-interfaces-guest` now surface the v1 worlds plus mapper helpers: component outcomes (`ComponentOutcome`, `ComponentOutcomeStatus`) and pack/flow descriptors (`PackDescriptor`, `FlowDescriptor`) for the new pack-export-v1 ABI.
+
+### Component config shape
+
+- `greentic:component@0.5.0` defines a canonical `@config` record inside the `node` interface. Doc comments become JSON Schema descriptions, `option<T>` marks optional properties, `@default(...)` carries defaults, and `@flow:hidden` maps to an `x_flow_hidden` extension.
+- Components can optionally export the `component-configurable` world (`get-config-schema() -> string`) to supply a JSON Schema directly; tooling still infers schemas from the `config` record by default.
+- Example WIT shape used by `component@0.5.0`:
+
+```wit
+/// Configuration for this component.
+/// Tooling will map this record to JSON Schema.
+/// @config
+record config {
+  /// Human-friendly title presented in UIs.
+  title: string,
+  /// Optional description used in documentation or previews.
+  description: option<string>,
+  /// Layout hint for hosts rendering collections.
+  /// @default("stacked")
+  layout: display-mode,
+  /// Maximum items to emit before truncating results.
+  /// @default(10)
+  max-items: u32,
+  /// Connection identifier propagated by flows but hidden from user config.
+  /// @flow:hidden
+  connection-id: option<string>,
+}
+```
 
 ### Feature flags for the new v1 worlds
 
@@ -100,6 +127,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `worker-api` | `greentic:worker/worker@1.0.0` (`worker`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/worker@1.0.0/package.wit) | Generic worker request/response envelope; see `docs/worker.md` for details. |
 | `gui-fragment` | `greentic:gui/gui-fragment@1.0.0` (`gui-fragment`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/gui@1.0.0/package.wit) | Server-rendered HTML fragments for Greentic-GUI; hosts call `render-fragment(fragment-id, ctx)` and inject the returned HTML. |
 | `oauth-broker-v1` | `greentic:oauth-broker@1.0.0` (`broker`, `broker-client`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oauth-broker@1.0.0/package.wit) | Generic OAuth broker: hosts implement the broker world; guest components import via the new `broker-client` world to build consent URLs, exchange codes, and fetch tokens. |
+| `component-v0-5` | `greentic:component/component@0.5.0` (`component`, `component-configurable`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@0.5.0/package.wit) | Config-aware component ABI with a canonical `@config` record; optional `get-config-schema()` export for JSON Schema overrides; `component@0.4.0` remains available for legacy consumers. |
 | `describe-v1` | `greentic:component@1.0.0` (`describe-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@1.0.0/package.wit) | Describe-only schema export for packs without the full component ABI. |
 | `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `secrets-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy host import bundle (still available for older packs). |
 | `component-lifecycle-v1` | `greentic:lifecycle@1.0.0` (`lifecycle-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/lifecycle@1.0.0/package.wit) | Optional lifecycle hooks (`init`, `health`, `shutdown`). |

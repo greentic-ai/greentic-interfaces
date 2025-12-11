@@ -51,6 +51,136 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "component-v0-5")]
+declare_world!(
+    mod component_v0_5,
+    path = "wit/greentic/component@0.5.0",
+    world = "greentic:component/component@0.5.0",
+    legacy = {
+        use anyhow::Result as AnyResult;
+        use wasmtime::component::{Component as WasmtimeComponent, Linker};
+        use wasmtime::StoreContextMut;
+
+        pub use bindings::greentic::component::control::Host as ControlHost;
+
+        /// Registers the Greentic control interface with the provided linker.
+        pub fn add_control_to_linker<T>(
+            linker: &mut Linker<T>,
+            get_host: impl Fn(&mut T) -> &mut (dyn ControlHost + Send + Sync + 'static)
+                + Send
+                + Sync
+                + Copy
+                + 'static,
+        ) -> wasmtime::Result<()>
+        where
+            T: Send + 'static,
+        {
+            let mut inst = linker.instance("greentic:component/control@0.5.0")?;
+
+            inst.func_wrap(
+                "should-cancel",
+                move |mut caller: StoreContextMut<'_, T>, (): ()| {
+                    let host = get_host(caller.data_mut());
+                    let result = host.should_cancel();
+                    Ok((result,))
+                },
+            )?;
+
+            inst.func_wrap(
+                "yield-now",
+                move |mut caller: StoreContextMut<'_, T>, (): ()| {
+                    let host = get_host(caller.data_mut());
+                    host.yield_now();
+                    Ok(())
+                },
+            )?;
+
+            Ok(())
+        }
+
+        /// Back-compat shim for instantiating the component.
+        pub struct Component;
+
+        impl Component {
+            /// Loads the component from raw bytes, mirroring the old helper.
+            pub fn instantiate(
+                engine: &wasmtime::Engine,
+                component_wasm: &[u8],
+            ) -> AnyResult<WasmtimeComponent> {
+                Ok(WasmtimeComponent::from_binary(engine, component_wasm)?)
+            }
+        }
+
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:component@0.5.0";
+    }
+);
+
+#[cfg(feature = "component-v0-5")]
+declare_world!(
+    mod component_configurable_v0_5,
+    path = "wit/greentic/component@0.5.0",
+    world = "greentic:component/component-configurable@0.5.0",
+    legacy = {
+        use anyhow::Result as AnyResult;
+        use wasmtime::component::{Component as WasmtimeComponent, Linker};
+        use wasmtime::StoreContextMut;
+
+        pub use bindings::greentic::component::control::Host as ControlHost;
+
+        /// Registers the Greentic control interface with the provided linker.
+        pub fn add_control_to_linker<T>(
+            linker: &mut Linker<T>,
+            get_host: impl Fn(&mut T) -> &mut (dyn ControlHost + Send + Sync + 'static)
+                + Send
+                + Sync
+                + Copy
+                + 'static,
+        ) -> wasmtime::Result<()>
+        where
+            T: Send + 'static,
+        {
+            let mut inst = linker.instance("greentic:component/control@0.5.0")?;
+
+            inst.func_wrap(
+                "should-cancel",
+                move |mut caller: StoreContextMut<'_, T>, (): ()| {
+                    let host = get_host(caller.data_mut());
+                    let result = host.should_cancel();
+                    Ok((result,))
+                },
+            )?;
+
+            inst.func_wrap(
+                "yield-now",
+                move |mut caller: StoreContextMut<'_, T>, (): ()| {
+                    let host = get_host(caller.data_mut());
+                    host.yield_now();
+                    Ok(())
+                },
+            )?;
+
+            Ok(())
+        }
+
+        /// Back-compat shim for instantiating the component.
+        pub struct Component;
+
+        impl Component {
+            /// Loads the component from raw bytes, mirroring the old helper.
+            pub fn instantiate(
+                engine: &wasmtime::Engine,
+                component_wasm: &[u8],
+            ) -> AnyResult<WasmtimeComponent> {
+                Ok(WasmtimeComponent::from_binary(engine, component_wasm)?)
+            }
+        }
+
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:component@0.5.0";
+    }
+);
+
 #[cfg(feature = "common-types-v0-1")]
 declare_world!(
     mod common_types_v0_1,

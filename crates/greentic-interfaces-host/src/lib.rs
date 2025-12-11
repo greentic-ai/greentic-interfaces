@@ -9,6 +9,14 @@ pub use greentic_interfaces::{bindings, mappers, validate};
 
 /// Component control and exports.
 pub mod component {
+    /// Component ABI with config surface `greentic:component/component@0.5.0`.
+    pub mod v0_5 {
+        pub use greentic_interfaces::component_v0_5::*;
+    }
+    /// Component ABI with optional config schema export `greentic:component/component-configurable@0.5.0`.
+    pub mod v0_5_configurable {
+        pub use greentic_interfaces::component_configurable_v0_5::*;
+    }
     /// Compatibility exports for `greentic:component/component@0.4.0`.
     pub mod v0_4 {
         pub use greentic_interfaces::component_v0_4::*;
