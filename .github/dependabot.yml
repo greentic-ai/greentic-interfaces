@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Keep Cargo dependencies up to date across the workspace (root manifest present).
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
