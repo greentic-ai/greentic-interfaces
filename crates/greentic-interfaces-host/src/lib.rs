@@ -37,24 +37,9 @@ pub mod component {
     }
 }
 
-/// Legacy host import bundles.
-pub mod host_import {
-    /// Host imports `0.2.0` bundle.
-    pub mod v0_2 {
-        pub use greentic_interfaces::host_import_v0_2::*;
-    }
-    /// Host imports `0.4.0` bundle.
-    pub mod v0_4 {
-        pub use greentic_interfaces::host_import_v0_4::*;
-    }
-    /// Host imports `0.6.0` bundle.
-    pub mod v0_6 {
-        pub use greentic_interfaces::host_import_v0_6::*;
-    }
-    /// Runner host bundle `greentic:host@1.0.0`.
-    pub mod runner_host_v1 {
-        pub use greentic_interfaces::runner_host_v1::*;
-    }
+/// Runner host bundle `greentic:host@1.0.0`.
+pub mod runner_host_v1 {
+    pub use greentic_interfaces::runner_host_v1::*;
 }
 
 /// Pack exporters.
@@ -101,10 +86,6 @@ pub mod secrets {
     /// `greentic:secrets/store@1.0.0` host imports.
     pub mod store_v1 {
         pub use greentic_interfaces::secrets_store_v1::*;
-    }
-    /// Legacy `greentic:secrets/host@0.1.0`.
-    pub mod secrets_v0_1 {
-        pub use greentic_interfaces::secrets_v0_1::*;
     }
 }
 

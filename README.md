@@ -129,7 +129,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `oauth-broker-v1` | `greentic:oauth-broker@1.0.0` (`broker`, `broker-client`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oauth-broker@1.0.0/package.wit) | Generic OAuth broker: hosts implement the broker world; guest components import via the new `broker-client` world to build consent URLs, exchange codes, and fetch tokens. |
 | `component-v0-5` | `greentic:component/component@0.5.0` (`component`, `component-configurable`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@0.5.0/package.wit) | Config-aware component ABI with a canonical `@config` record; optional `get-config-schema()` export for JSON Schema overrides; `component@0.4.0` remains available for legacy consumers. |
 | `describe-v1` | `greentic:component@1.0.0` (`describe-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@1.0.0/package.wit) | Describe-only schema export for packs without the full component ABI. |
-| `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `secrets-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy host import bundle (still available for older packs). |
+| `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy runner host bundle (now secrets-free; kept only for HTTP/KV). |
 | `component-lifecycle-v1` | `greentic:lifecycle@1.0.0` (`lifecycle-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/lifecycle@1.0.0/package.wit) | Optional lifecycle hooks (`init`, `health`, `shutdown`). |
 | `events-v1` | `greentic:events@1.0.0` (`events-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Legacy telemetry envelope (retained for back-compat alongside the new broker/source/sink worlds). |
 | `source-v1` | `greentic:source/source-sync@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/source@1.0.0/package.wit) | Tenant-scoped source provider interface (list repos/branches, commit metadata, webhooks). |
@@ -234,8 +234,8 @@ The workspace targets **Rust 1.88** or newer (required by the 2024 edition). CI 
 Two smoke-level examples live under `examples/`:
 
 - `component-describe`: a `no_std` component that implements `describe-v1::describe-json`.
-- `runner-host-smoke`: a host-side binary that links the new runner-host imports, instantiates the `component-describe` Wasm artifact, and executes `describe-json`.
-  The runner repository also ships a secrets-oriented guest fixture (`component-secrets`) that exercises the `secrets-v1` imports end-to-end.
+- `runner-host-smoke`: a host-side binary that links the runner-host imports, instantiates the `component-describe` Wasm artifact, and executes `describe-json`.
+  The runner repository also ships a secrets-oriented guest fixture (`component-secrets`) that exercises the `secrets-store` imports end-to-end.
 
 ### Running the examples locally
 

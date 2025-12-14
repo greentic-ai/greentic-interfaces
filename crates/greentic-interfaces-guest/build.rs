@@ -456,11 +456,6 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "secrets",
     },
     WorldFeature {
-        package: "greentic:secrets@0.1.0",
-        world: "host",
-        feature: "secrets",
-    },
-    WorldFeature {
         package: "greentic:state@1.0.0",
         world: "store",
         feature: "state-store",
@@ -533,21 +528,6 @@ const WORLD_FEATURES: &[WorldFeature] = &[
     WorldFeature {
         package: "greentic:host@1.0.0",
         world: "runner-host",
-        feature: "runner",
-    },
-    WorldFeature {
-        package: "greentic:host-import@0.2.0",
-        world: "host-imports",
-        feature: "runner",
-    },
-    WorldFeature {
-        package: "greentic:host-import@0.4.0",
-        world: "host-imports",
-        feature: "runner",
-    },
-    WorldFeature {
-        package: "greentic:host-import@0.6.0",
-        world: "host-imports",
         feature: "runner",
     },
     WorldFeature {

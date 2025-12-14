@@ -22,12 +22,8 @@ default = [
     "component-v0-4",
     "pack-export-v0-4",
     "types-core-v0-4",
-    "host-import-v0-6",
-    "host-import-v0-4",
-    "host-import-v0-2",
     "pack-export-v0-2",
     "types-core-v0-2",
-    "secrets-v0-1",
     "wasix-mcp-v0-0-5",
     "wasix-mcp-24-11-05",
     "wasix-mcp-25-03-26",
@@ -65,13 +61,9 @@ describe-v1 = []
 pack-export-v1 = []
 pack-export-v0-4 = []
 types-core-v0-4 = []
-host-import-v0-6 = []
-host-import-v0-4 = []
-host-import-v0-2 = []
 runner-host-v1 = []
 pack-export-v0-2 = []
 types-core-v0-2 = []
-secrets-v0-1 = []
 wasix-mcp-v0-0-5 = []
 wasix-mcp-24-11-05 = []
 wasix-mcp-25-03-26 = []
@@ -82,7 +74,6 @@ events-v1 = []
 events-broker-v1 = []
 events-source-v1 = []
 events-sink-v1 = []
-host-import-compat = ["host-import-v0-6", "host-import-v0-4", "host-import-v0-2"]
 secrets-store-v1 = []
 state-store-v1 = []
 messaging-session-v1 = []
@@ -112,13 +103,9 @@ wit-all = [
     "pack-export-v1",
     "pack-export-v0-4",
     "types-core-v0-4",
-    "host-import-v0-6",
-    "host-import-v0-4",
-    "host-import-v0-2",
     "runner-host-v1",
     "pack-export-v0-2",
     "types-core-v0-2",
-    "secrets-v0-1",
     "component-lifecycle-v1",
     "events-v1",
     "events-broker-v1",

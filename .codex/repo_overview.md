@@ -7,7 +7,7 @@
 ## 2. Main Components and Functionality
 - **Path:** `crates/greentic-interfaces`  
   **Role:** ABI crate containing WIT sources and generated bindings.  
-  **Key functionality:** Build script stages all WIT packages under `wit/greentic/*@*`; `bindings` exposes `wit-bindgen` output under `bindings::greentic::*`; `mappers` convert WIT types to/from `greentic-types` (TenantCtx, Outcome, AllowList, SpanContext, PackRef, etc.); `validate` checks provider metadata invariants; `wit_all` re-exports feature-gated bindings for convenience. Integration tests validate WIT staging, MCP packages, provider schema snapshot, and mapper round-trips. Adds the GUI fragment world `greentic:gui/gui-fragment@1.0.0` (server-rendered HTML fragments) and the distributor API world `greentic:distributor-api@1.0.0` (resolve/get/warm) while keeping `greentic:distribution@1.0.0` marked experimental.  
+  **Key functionality:** Build script stages all WIT packages under `wit/greentic/*@*`; `bindings` exposes `wit-bindgen` output under `bindings::greentic::*`; `mappers` convert WIT types to/from `greentic-types` (TenantCtx, Outcome, AllowList, SpanContext, PackRef, etc.); `validate` checks provider metadata invariants; `wit_all` re-exports feature-gated bindings for convenience. Integration tests validate WIT staging, MCP packages, provider schema snapshot, and mapper round-trips. Adds the GUI fragment world `greentic:gui/gui-fragment@1.0.0` (server-rendered HTML fragments) and the distributor API world `greentic:distributor-api@1.0.0` (resolve/get/warm) while keeping `greentic:distribution@1.0.0` marked experimental. Legacy host-import bundles and `greentic:secrets@0.1.0` are removed; `greentic:host@1.0.0` now exposes only HTTP/KV and the sole secrets surface is `secrets-store@1.0.0` (bytes CRUD).  
   **Key dependencies / integration points:** Depends on `greentic-types` for rich models; consumers set `GREENTIC_INTERFACES_BINDINGS` env from build.rs output.
 - **Path:** `crates/greentic-interfaces-host`  
   **Role:** Host-facing re-export of curated bindings/mappers.  
@@ -50,7 +50,8 @@
 - None found; no `TODO`/`FIXME` markers or stubbed `unimplemented!`/`todo!` code present across the workspace.
 
 ## 4. Broken, Failing, or Conflicting Areas
-- Current status: all tests pass with `ci/local_check.sh` (fmt, clippy, WIT validation, build, test) as of this change. No failing tests or known conflicts observed. Distributor-api Wasmtime smoke test skips unless `scripts/build-distributor-api-dummy.sh` has been run to generate the component asset.
+- `cargo test --workspace` passes (latest run at default target dir).
+- `ci/local_check.sh` currently incomplete: fmt/clippy/WIT validation/build succeeded, but the script timed out/ran out of disk (No space left on device) while running the final `cargo test` stage with the default `target/`. Previous attempt with `CARGO_TARGET_DIR=/tmp/greentic-interfaces-target` succeeded through build but failed the oauth broker client round-trip test because the harness lookup expects `target/wasm32-wasip2/...` under the workspace root. Free up disk space and rerun `ci/local_check.sh` without target overrides (or copy the built harness wasm into `target/wasm32-wasip2/debug`) to get a clean pass. Distributor-api Wasmtime smoke test skips unless `scripts/build-distributor-api-dummy.sh` has been run to generate the component asset.
 
 ## 5. Notes for Future Work
 - When adding or changing WIT packages, update conversion helpers (`src/mappers.rs`), provider schema snapshots, and re-run the staging/validation tests to keep host/guest crates in sync.

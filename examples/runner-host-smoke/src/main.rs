@@ -61,10 +61,6 @@ impl runner_host_v1::RunnerHost for HostMocks {
         Ok(Ok(Vec::new()))
     }
 
-    fn secret_get(&mut self, name: String) -> wasmtime::Result<Result<String, String>> {
-        Ok(Ok(format!("secret:{name}")))
-    }
-
     fn kv_get(&mut self, ns: String, key: String) -> wasmtime::Result<Option<String>> {
         Ok(Some(format!("{ns}:{key}")))
     }

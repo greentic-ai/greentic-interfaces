@@ -12,11 +12,6 @@ interface http-v1 {
   ) -> result<list<u8>, string>;
 }
 
-/// Secret resolution bridge so runners can plug different providers.
-interface secrets-v1 {
-  get: func(name: string) -> result<string, string>;
-}
-
 /// Host-provided key-value store scoped by namespace.
 interface kv-v1 {
   get: func(ns: string, key: string) -> option<string>;
@@ -25,6 +20,5 @@ interface kv-v1 {
 
 world runner-host {
   import http-v1;
-  import secrets-v1;
   import kv-v1;
 }
