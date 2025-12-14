@@ -306,6 +306,8 @@ With that mapping in place the CLI will transparently pull from GHCR using the n
 
 The `secrets-store-v1` feature gates the `greentic:secrets/store@1.0.0` package. Components that need to work with secrets should:
 
+All secret requirement modeling is handled in `greentic-types`; `greentic-interfaces` only defines the WIT surface.
+
 1. Enable `secrets-store-v1` (or `wit-all`) on the dependency.
 2. Import the interface in their WIT (`use greentic:secrets/store@1.0.0`) or via `wit-bindgen`.
 3. Call the synchronous host functions surfaced by the runner:

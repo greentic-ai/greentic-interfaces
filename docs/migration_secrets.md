@@ -5,3 +5,4 @@
 - The runner host bundle (`greentic:host@1.0.0`) remains for HTTP/KV only; it no longer exposes secrets.
 - Guest-test/wasmtime mirror copies for the removed packages have been deleted to avoid drift.
 - Consumers should switch to `secrets-store@1.0.0` and drop any dependencies on the removed interfaces.
+- All secret requirement modeling is handled in `greentic-types`; `greentic-interfaces` only defines the WIT surface.
