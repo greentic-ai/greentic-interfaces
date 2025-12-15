@@ -149,7 +149,7 @@ thiserror = "2"
 
 [build-dependencies]
 wit-bindgen-core = "0.47"
-wit-bindgen-rust = "0.47"
+wit-bindgen-rust = "0.49"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 wasmtime = { workspace = true }
