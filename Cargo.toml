@@ -12,9 +12,6 @@ members = [
     "examples/guest-node-minimal",
     "examples/runner-host-smoke",
 ]
-exclude = [
-    "examples/component-describe",
-]
 resolver = "2"
 
 [workspace.package]
