@@ -685,7 +685,7 @@ dependencies = [
  "wasmtime-wasi",
  "wit-bindgen 0.47.0",
  "wit-bindgen-core 0.47.0",
- "wit-bindgen-rust 0.47.0",
+ "wit-bindgen-rust 0.49.0",
  "wit-parser 0.240.0",
 ]
 
@@ -704,7 +704,7 @@ dependencies = [
  "greentic-types",
  "wit-bindgen 0.48.1",
  "wit-bindgen-core 0.48.1",
- "wit-bindgen-rust 0.48.1",
+ "wit-bindgen-rust 0.49.0",
 ]
 
 [[package]]

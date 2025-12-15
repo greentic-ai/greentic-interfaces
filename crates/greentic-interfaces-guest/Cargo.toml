@@ -92,4 +92,4 @@ default = ["guest"]
 
 [build-dependencies]
 wit-bindgen-core = "0.48"
-wit-bindgen-rust = "0.48"
+wit-bindgen-rust = "0.49"
