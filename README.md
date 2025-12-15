@@ -46,7 +46,7 @@ record config {
 
 - [`crates/greentic-interfaces`](crates/greentic-interfaces) exposes the WebAssembly Interface Types (WIT) packages, generated Rust bindings, and thin mappers that bridge the generated types to the richer structures in [`greentic-types`](https://github.com/greentic-ai/greentic-types). It is intentionally ABI-only and has no Wasmtime dependency.
 - [`crates/greentic-interfaces-host`](crates/greentic-interfaces-host) curates the host-facing bindings: Wasmtime-ready WIT worlds plus the shared mappers.
-- [`crates/greentic-interfaces-guest`](crates/greentic-interfaces-guest) curates the guest-facing bindings for components built against `wasm32-wasip2`, including the distributor API import bindings and `DistributorApiImports` wrapper (feature `distributor-api-imports`) for calling resolve/get/warm from guests.
+- [`crates/greentic-interfaces-guest`](crates/greentic-interfaces-guest) curates the guest-facing bindings for components built against `wasm32-wasip2`, including the distributor API import bindings and `DistributorApiImports` wrapper (feature `distributor-api-imports`) for calling resolve/get/get-v2/warm and reading secret requirements from guests.
 - [`crates/greentic-interfaces-wasmtime`](crates/greentic-interfaces-wasmtime) hosts the Wasmtime integration layer. It wires the Greentic host imports into a Wasmtime linker, instantiates components, and forwards calls through the ABI bindings.
 
 > Node configuration schemas always live alongside their components. This repository only ships shared WIT contracts plus the corresponding bindings/mappers.
@@ -139,7 +139,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `attestation-v1` | `greentic:attestation/attester@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/attestation@1.0.0/package.wit) | Tenant-scoped attestation generation (predicate/statement refs). |
 | `policy-v1` | `greentic:policy/policy-evaluator@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/policy@1.0.0/package.wit) | Tenant-scoped policy evaluation (allow/deny with reasons). |
 | `metadata-v1` | `greentic:metadata/metadata-store@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/metadata@1.0.0/package.wit) | Tenant-scoped metadata upsert/query for components/versions. |
-| `distributor-api` | `greentic:distributor-api/distributor-api@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distributor@1.0.0/package.wit) | Active distributor API for runner/deployer flows: resolve-component, pack status, and warm-pack; guests can also enable `distributor-api-imports` for import bindings plus a `DistributorApiImports` helper. |
+| `distributor-api` | `greentic:distributor-api/distributor-api@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distributor@1.0.0/package.wit) | Active distributor API for runner/deployer flows: resolve-component (includes secret requirements), legacy `get-pack-status` string, structured `get-pack-status-v2` (status + secret requirements), and warm-pack; guests can also enable `distributor-api-imports` for import bindings plus a `DistributorApiImports` helper. |
 | `distribution-v1` | `greentic:distribution/distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distribution@1.0.0/package.wit) | Experimental desired state submission/retrieval (tenant + IDs + JSON blobs), not used by current flows. |
 | `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
@@ -304,7 +304,9 @@ With that mapping in place the CLI will transparently pull from GHCR using the n
 
 ## Using `secrets-store-v1` from guests
 
-The `secrets-store-v1` feature gates the `greentic:secrets-store/store@1.0.0` package. Components that need to work with secrets should:
+The `secrets-store-v1` feature gates the `greentic:secrets-store/store@1.0.0` package. Secret requirement metadata now lives in `greentic:secrets-types@1.0.0` (key/scope/format/schema/examples); distributor responses surface `secret-requirements` using that shared type, and no secret values are returned.
+
+Components that need to work with secrets should:
 
 All secret requirement modeling is handled in `greentic-types`; `greentic-interfaces` only defines the WIT surface.
 

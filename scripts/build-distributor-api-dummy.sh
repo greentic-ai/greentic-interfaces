@@ -19,6 +19,13 @@ mkdir -p "$OUT_DIR"
 if [[ -d "$WIT_SRC" ]]; then
   mkdir -p "$WIT_DST"
   rsync -a --delete "$WIT_SRC"/ "$WIT_DST"/
+  # Stage dependent packages for wit-bindgen (it expects deps/<pkg> copies).
+  DIST_DIR="$WIT_DST/greentic/distributor@1.0.0"
+  if [[ -d "$DIST_DIR" ]]; then
+    mkdir -p "$DIST_DIR/deps/greentic-secrets-types@1.0.0"
+    cp "$WIT_DST/greentic/secrets-types@1.0.0/package.wit" \
+      "$DIST_DIR/deps/greentic-secrets-types@1.0.0/package.wit"
+  fi
 else
   echo "[distributor-api-dummy] missing WIT sources at $WIT_SRC" >&2
   exit 1

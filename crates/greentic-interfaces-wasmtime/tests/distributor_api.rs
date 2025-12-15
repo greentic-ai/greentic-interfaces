@@ -81,12 +81,17 @@ fn distributor_api_component_round_trip() -> Result<()> {
     assert_eq!(resp.cache_info.size_bytes, 0);
     assert_eq!(resp.cache_info.last_used_utc, "1970-01-01T00:00:00Z");
     assert_eq!(resp.cache_info.last_refreshed_utc, "1970-01-01T00:00:00Z");
+    assert!(resp.secret_requirements.is_empty());
 
     let tenant = "tenant-a".to_string();
     let env = "env-a".to_string();
     let pack = "pack-a".to_string();
     let status = api.call_get_pack_status(&mut store, &tenant, &env, &pack)?;
     assert_eq!(status, "\"ok\"");
+    let status_v2 = api.call_get_pack_status_v2(&mut store, &tenant, &env, &pack)?;
+    assert_eq!(status_v2.status, "ok");
+    assert!(status_v2.secret_requirements.is_empty());
+    assert_eq!(status_v2.extra, "{}");
 
     api.call_warm_pack(&mut store, &tenant, &env, &pack)?;
 

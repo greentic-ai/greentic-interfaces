@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Add `greentic:secrets-types@1.0.0` and surface `secret-requirements` in distributor resolve responses plus a typed `get-pack-status-v2` (legacy string `get-pack-status` remains for compatibility).
 - Add `greentic:secrets-store@1.0.0` read-only secret lookup world (get -> option<bytes> with structured errors) and generate host/guest bindings.
 - Added Wasmtime host-linker helpers for `greentic:secrets-store@1.0.0`.
 - Added full v1 host-linker helper façade (`host_helpers::v1::*`) with `add_*_to_linker` and `add_all_v1_to_linker` covering all host-import worlds.

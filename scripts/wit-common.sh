@@ -44,13 +44,25 @@ dest_dir_for_ref() {
 
 parse_deps() {
   local file="$1"
-  local regex='(use|import)[[:space:]]+([[:alnum:]:-]+)/[[:alnum:]_.-]+@([0-9A-Za-z._-]*[0-9A-Za-z_-])'
   local deps=()
-  while IFS= read -r line; do
-    if [[ $line =~ $regex ]]; then
-      deps+=("${BASH_REMATCH[2]}@${BASH_REMATCH[3]}")
+  while IFS= read -r token; do
+    [[ -n "${token}" ]] || continue
+    token="${token%%;*}"
+    token="${token%%\{*}"
+    token="${token%%.{*}"
+    token="${token%%.}"
+
+    [[ "${token}" == *@* ]] || continue
+
+    local pkg_with_world="${token%%@*}"
+    local version="${token#*@}"
+    version="${version%%[^0-9A-Za-z._-]*}"
+    local pkg="${pkg_with_world%%/*}"
+
+    if [[ -n "${pkg}" && -n "${version}" ]]; then
+      deps+=("${pkg}@${version}")
     fi
-  done < "${file}"
+  done < <(grep -E '^[[:space:]]*(use|import)[[:space:]]+' "${file}" | awk '{print $2}')
   if [[ ${#deps[@]} -gt 0 ]]; then
     printf '%s\n' "${deps[@]}" | sort -u
   fi

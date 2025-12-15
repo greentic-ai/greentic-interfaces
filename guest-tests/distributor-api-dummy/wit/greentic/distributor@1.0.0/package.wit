@@ -3,6 +3,8 @@
 package greentic:distributor-api@1.0.0;
 
 interface distributor {
+  use greentic:secrets-types/types@1.0.0.{secret-requirement};
+
   /// Tenant identifier (opaque string/handle).
   type tenant-id = string;
 
@@ -67,6 +69,8 @@ interface distributor {
     artifact-location: artifact-location,
     signature-summary: signature-summary,
     cache-info: cache-info,
+    /// Secret requirements the component/pack needs to run.
+    secret-requirements: list<secret-requirement>,
   }
 
   /// Resolve a component and return its cache status plus artifact location.
@@ -81,6 +85,21 @@ interface distributor {
     pack-id: pack-id
   ) -> string;
 
+  /// Structured pack status payload with secret requirements.
+  record pack-status-response {
+    status: string,
+    secret-requirements: list<secret-requirement>,
+    /// Future-proofing metadata as JSON.
+    extra: string,
+  }
+
+  /// Fetch pack status with typed metadata.
+  get-pack-status-v2: func(
+    tenant-id: tenant-id,
+    environment-id: distributor-environment-id,
+    pack-id: pack-id
+  ) -> pack-status-response;
+
   /// Optional pre-warm of a pack in the distributor cache.
   warm-pack: func(
     tenant-id: tenant-id,
@@ -91,4 +110,9 @@ interface distributor {
 
 world distributor-api {
   export distributor;
+}
+
+/// Import-facing view so guests can call into a distributor host.
+world distributor-api-imports {
+  import distributor;
 }

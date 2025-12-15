@@ -2,6 +2,10 @@ use crate::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::gr
     as exports;
 use crate::bindings::greentic_distributor_api_1_0_0_distributor_api_imports::greentic::distributor_api::distributor
     as imports;
+use crate::bindings::greentic_distributor_api_1_0_0_distributor_api::greentic::secrets_types::types
+    as export_secrets;
+use crate::bindings::greentic_distributor_api_1_0_0_distributor_api_imports::greentic::secrets_types::types
+    as import_secrets;
 
 /// Thin client for calling `greentic:distributor-api@1.0.0` imports.
 #[derive(Clone, Copy, Debug, Default)]
@@ -44,6 +48,7 @@ impl DistributorApiImports {
                 last_used_utc: response.cache_info.last_used_utc,
                 last_refreshed_utc: response.cache_info.last_refreshed_utc,
             },
+            secret_requirements: to_export_secret_requirements(response.secret_requirements),
         }
     }
 
@@ -55,6 +60,21 @@ impl DistributorApiImports {
         pack_id: &exports::PackId,
     ) -> String {
         imports::get_pack_status(tenant_id, env_id, pack_id)
+    }
+
+    /// Fetches pack status and secret requirements via the distributor host import.
+    pub fn get_pack_status_v2(
+        &self,
+        tenant_id: &exports::TenantId,
+        env_id: &exports::DistributorEnvironmentId,
+        pack_id: &exports::PackId,
+    ) -> exports::PackStatusResponse {
+        let response = imports::get_pack_status_v2(tenant_id, env_id, pack_id);
+        exports::PackStatusResponse {
+            status: response.status,
+            secret_requirements: to_export_secret_requirements(response.secret_requirements),
+            extra: response.extra,
+        }
     }
 
     /// Warms a pack via the distributor host import.
@@ -73,5 +93,34 @@ fn to_export_status(status: imports::ComponentStatus) -> exports::ComponentStatu
         imports::ComponentStatus::Pending => exports::ComponentStatus::Pending,
         imports::ComponentStatus::Ready => exports::ComponentStatus::Ready,
         imports::ComponentStatus::Failed => exports::ComponentStatus::Failed,
+    }
+}
+
+fn to_export_secret_requirements(
+    requirements: Vec<import_secrets::SecretRequirement>,
+) -> Vec<exports::SecretRequirement> {
+    requirements
+        .into_iter()
+        .map(|req| exports::SecretRequirement {
+            key: req.key,
+            required: req.required,
+            description: req.description,
+            scope: req.scope.map(|scope| export_secrets::SecretScope {
+                env: scope.env,
+                tenant: scope.tenant,
+                team: scope.team,
+            }),
+            format: req.format.map(to_export_secret_format),
+            schema: req.schema,
+            examples: req.examples,
+        })
+        .collect()
+}
+
+fn to_export_secret_format(format: import_secrets::SecretFormat) -> export_secrets::SecretFormat {
+    match format {
+        import_secrets::SecretFormat::Bytes => export_secrets::SecretFormat::Bytes,
+        import_secrets::SecretFormat::Text => export_secrets::SecretFormat::Text,
+        import_secrets::SecretFormat::Json => export_secrets::SecretFormat::Json,
     }
 }

@@ -20,8 +20,12 @@ fn distributor_imports_are_callable() {
     let pack = req.pack_id.clone();
 
     if cfg!(target_arch = "wasm32") {
-        let _ = client.resolve_component(&req);
+        let resp = client.resolve_component(&req);
+        let _ = resp.secret_requirements;
+
         let _ = client.get_pack_status(&tenant, &env, &pack);
+        let pack_resp = client.get_pack_status_v2(&tenant, &env, &pack);
+        let _ = pack_resp.secret_requirements;
         client.warm_pack(&tenant, &env, &pack);
     } else {
         let _ = &req;
@@ -33,8 +37,16 @@ fn distributor_imports_are_callable() {
             DistributorApiImports::resolve_component;
         let _get_status: fn(&DistributorApiImports, &String, &String, &String) -> String =
             DistributorApiImports::get_pack_status;
+        let _get_status_v2: fn(
+            &DistributorApiImports,
+            &String,
+            &String,
+            &String,
+        )
+            -> greentic_interfaces_guest::distributor_api::PackStatusResponse =
+            DistributorApiImports::get_pack_status_v2;
         let _warm: fn(&DistributorApiImports, &String, &String, &String) =
             DistributorApiImports::warm_pack;
-        let _ = (_resolve, _get_status, _warm);
+        let _ = (_resolve, _get_status, _get_status_v2, _warm);
     }
 }
