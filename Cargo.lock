@@ -686,7 +686,7 @@ dependencies = [
  "wit-bindgen 0.47.0",
  "wit-bindgen-core 0.47.0",
  "wit-bindgen-rust 0.49.0",
- "wit-parser 0.240.0",
+ "wit-parser 0.243.0",
 ]
 
 [[package]]

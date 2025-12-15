@@ -158,5 +158,5 @@ wasmtime = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 insta = { version = "1", features = ["json"] }
-wit-parser = "0.240"
+wit-parser = "0.243"
 wasmtime-wasi = { workspace = true }
