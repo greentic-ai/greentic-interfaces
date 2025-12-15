@@ -1,3 +1,4 @@
 /target
 .env
 wkg.lock
+.DS_Store

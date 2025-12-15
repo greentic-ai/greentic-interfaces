@@ -1,7 +1,8 @@
 version: 2
 updates:
-  # Keep Cargo dependencies up to date across the workspace (root manifest present).
-  - package-ecosystem: cargo
+  - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: weekly
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: "auto"

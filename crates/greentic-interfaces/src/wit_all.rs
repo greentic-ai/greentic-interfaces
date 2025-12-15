@@ -467,10 +467,10 @@ declare_world!(
 declare_world!(
     mod secrets_store_v1,
     path = "wit/greentic/secrets-store@1.0.0",
-    world = "greentic:secrets/store@1.0.0",
+    world = "greentic:secrets-store/store@1.0.0",
     legacy = {
         /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:secrets@1.0.0";
+        pub const PACKAGE_ID: &str = "greentic:secrets-store@1.0.0";
     }
 );
 

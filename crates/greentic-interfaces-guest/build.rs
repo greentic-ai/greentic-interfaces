@@ -451,7 +451,7 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "gui-fragment",
     },
     WorldFeature {
-        package: "greentic:secrets@1.0.0",
+        package: "greentic:secrets-store@1.0.0",
         world: "store",
         feature: "secrets",
     },

@@ -157,10 +157,10 @@ pub mod lifecycle {
     pub use crate::bindings::greentic_lifecycle_1_0_0_component_lifecycle::exports::greentic::lifecycle::*;
 }
 
-/// Secret store imports for `greentic:secrets/store@1.0.0`.
+/// Secret store imports for `greentic:secrets-store/store@1.0.0`.
 #[cfg(feature = "secrets")]
 pub mod secrets_store {
-    pub use crate::bindings::greentic_secrets_1_0_0_store::greentic::secrets::secret_store::*;
+    pub use crate::bindings::greentic_secrets_store_1_0_0_store::greentic::secrets_store::secrets_store::*;
 }
 
 /// State store imports for `greentic:state/store@1.0.0`.

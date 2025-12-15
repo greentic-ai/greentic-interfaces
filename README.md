@@ -59,7 +59,7 @@ use greentic_interfaces_host::host_import::v0_6::add_to_linker;
 
 // Guest side: call host capabilities from inside a component.
 use greentic_interfaces_guest::component::node::Guest;
-use greentic_interfaces_guest::secrets_store::secret_store;
+use greentic_interfaces_guest::secrets_store::secrets_store;
 ```
 
 ## Which crate should I use?
@@ -73,7 +73,7 @@ use greentic_interfaces_guest::secrets_store::secret_store;
 
 ```rust
 use greentic_interfaces_host::http::http_client;
-use greentic_interfaces_host::secrets::store_v1::secret_store;
+use greentic_interfaces_host::secrets::store_v1::secrets_store;
 use greentic_interfaces_host::telemetry::log;
 ```
 
@@ -81,7 +81,7 @@ use greentic_interfaces_host::telemetry::log;
 
 ```rust
 use greentic_interfaces_guest::component::node::Guest;
-use greentic_interfaces_guest::secrets_store::secret_store;
+use greentic_interfaces_guest::secrets_store::secrets_store;
 use greentic_interfaces_guest::http_client::http_client;
 use greentic_interfaces_guest::telemetry_logger::logger_api;
 
@@ -115,7 +115,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 
 | Feature | World(s) enabled | Published package | Notes |
 | --- | --- | --- | --- |
-| `secrets-store-v1` | `greentic:secrets/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-store@1.0.0/package.wit) | Generic secret read/write/delete imports aligned with `HostCapabilities.secrets`. |
+| `secrets-store-v1` | `greentic:secrets-store/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-store@1.0.0/package.wit) | Read-only secret lookup (`get`) returning bytes with structured errors. |
 | `state-store-v1` | `greentic:state/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/state-store@1.0.0/package.wit) | Tenant-scoped blob store aligned with `HostCapabilities.state`. |
 | `messaging-session-v1` | `greentic:messaging/session@1.0.0` (`session`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/messaging-session@1.0.0/package.wit) | Generic outbound messaging surface for session flows. |
 | `events-broker-v1` | `greentic:events/broker@1.0.0` (`broker`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Pull-based publish/subscribe broker surface (subscribe + next-event + ack). |
@@ -304,26 +304,22 @@ With that mapping in place the CLI will transparently pull from GHCR using the n
 
 ## Using `secrets-store-v1` from guests
 
-The `secrets-store-v1` feature gates the `greentic:secrets/store@1.0.0` package. Components that need to work with secrets should:
+The `secrets-store-v1` feature gates the `greentic:secrets-store/store@1.0.0` package. Components that need to work with secrets should:
 
 All secret requirement modeling is handled in `greentic-types`; `greentic-interfaces` only defines the WIT surface.
 
 1. Enable `secrets-store-v1` (or `wit-all`) on the dependency.
-2. Import the interface in their WIT (`use greentic:secrets/store@1.0.0`) or via `wit-bindgen`.
-3. Call the synchronous host functions surfaced by the runner:
+2. Import the interface in their WIT (`use greentic:secrets-store/store@1.0.0`) or via `wit-bindgen`.
+3. Call the synchronous host function surfaced by the runner:
 
 ```wit
-interface secret-store {
-  record host-error { code: string, message: string }
-  enum op-ack { ok }
+interface secrets-store {
+  /// Secret lookup failures.
+  enum secrets-error { not-found, denied, invalid-key, internal }
 
-  read: func(name: string) -> result<list<u8>, host-error>;
-  write: func(name: string, bytes: list<u8>) -> result<op-ack, host-error>;
-  delete: func(name: string) -> result<op-ack, host-error>;
+  /// Fetch a secret by key; returns `none` when the key is missing.
+  get: func(key: string) -> result<option<list<u8>>, secrets-error>;
 }
 ```
 
-- `read` returns the raw bytes stored at `name` or a structured `host-error` describing the failure.
-- `write`/`delete` return `op-ack::ok` on success and otherwise raise `host-error` (for example, the default `EnvSecretsManager` denies writes/deletes and reports a `permission` error string).
-
-The ABI maps directly onto the [`greentic-secrets-api`](https://github.com/greentic-ai/greentic-secrets) trait. Hosts created with `greentic-runner` currently use the `EnvSecretsManager`, so setting `TEST_KEY=value` in the environment and calling `store.read("TEST_KEY")` from a guest yields `value`. For a working reference component, see the `component-secrets` fixture in the runner repository, which reads `TEST_KEY` via `secrets-store` and echoes it back to the host.
+- `get` returns `Some(bytes)` when the secret exists, `None` when absent, and a structured `secrets-error` when the host rejects or cannot service the lookup.

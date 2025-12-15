@@ -83,7 +83,7 @@ pub mod types {
 
 /// v1 host capability contracts.
 pub mod secrets {
-    /// `greentic:secrets/store@1.0.0` host imports.
+    /// `greentic:secrets-store/store@1.0.0` host imports.
     pub mod store_v1 {
         pub use greentic_interfaces::secrets_store_v1::*;
     }

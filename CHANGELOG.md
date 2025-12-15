@@ -1,10 +1,11 @@
 # Changelog
 
 ## Unreleased
+- Add `greentic:secrets-store@1.0.0` read-only secret lookup world (get -> option<bytes> with structured errors) and generate host/guest bindings.
 - Add `greentic:distributor-api@1.0.0` WIT world (resolve/get/warm) with host/guest/wasmtime bindings behind the `distributor-api` feature; keep `distribution@1.0.0` published but note it as experimental/future-facing.
 - Add `greentic:worker@1.0.0` generic worker ABI (WorkerRequest/Response + exec world), wire host/guest/wasmtime bindings behind `worker-api`, and document the package.
 - Introduce the config-aware `greentic:component@0.5.0` ABI with a canonical `@config` record, optional `component-configurable` world exporting `get-config-schema()`, regenerated host/guest/wasmtime bindings, and new smoke tests/docs; keep `component@0.4.0` available for legacy consumers.
-- Remove legacy secrets surfaces: drop `greentic:secrets@0.1.0` and `greentic:host-import@0.2.0/0.4.0/0.6.0`, strip `secrets-v1` from `greentic:host@1.0.0`, and keep only `greentic:secrets/store@1.0.0` (runner-host remains HTTP/KV only).
+- Remove legacy secrets surfaces: drop `greentic:secrets@0.1.0` and `greentic:host-import@0.2.0/0.4.0/0.6.0`, strip `secrets-v1` from `greentic:host@1.0.0`, and keep only `greentic:secrets-store/store@1.0.0` (runner-host remains HTTP/KV only).
 
 ## v0.4.37
 - Add `greentic:distribution@1.0.0` WIT world for generic desired-state submission/fetch (tenant + IDs + JSON blobs) and wire it through host/wasmtime bindings.
