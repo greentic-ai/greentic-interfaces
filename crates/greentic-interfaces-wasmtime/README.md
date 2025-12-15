@@ -25,4 +25,28 @@ let mut linker = LinkerBuilder::new(&engine).finish();
 // greentic_interfaces_wasmtime::add_secrets_store_to_linker(&mut linker, |state| &mut state.secrets)?;
 ```
 
-The crate currently focuses on ergonomic wiring and leaves host trait implementations to downstream crates.
+### Host helpers
+
+Use the stable `host_helpers::v1::*` façade to wire host-import worlds without reaching into generated module paths:
+
+```rust
+use greentic_interfaces_wasmtime::host_helpers::v1::{self, HostFns};
+use wasmtime::component::Linker;
+
+let mut linker: Linker<MyHostState> = Linker::new(&engine);
+v1::add_all_v1_to_linker(
+    &mut linker,
+    HostFns {
+        http_client: Some(|state| &mut state.http),
+        oauth_broker: Some(|state| &mut state.oauth),
+        runner_host_http: Some(|state| &mut state.runner_http),
+        runner_host_kv: Some(|state| &mut state.runner_kv),
+        messaging_session: Some(|state| &mut state.messaging),
+        telemetry_logger: Some(|state| &mut state.telemetry),
+        state_store: Some(|state| &mut state.state),
+        secrets_store: Some(|state| &mut state.secrets),
+    },
+)?;
+```
+
+Implement the `Host` trait from each `v1` module (e.g. `v1::http_client::HttpClientHost`) on your host state and keep the generated module paths internal.
