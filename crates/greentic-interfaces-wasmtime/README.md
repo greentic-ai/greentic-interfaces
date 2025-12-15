@@ -22,7 +22,7 @@ use greentic_interfaces_wasmtime::{build_engine, EngineOptions, LinkerBuilder};
 let engine = build_engine(EngineOptions::default())?;
 let mut linker = LinkerBuilder::new(&engine).finish();
 // Register host services as needed:
-// greentic_interfaces_wasmtime::add_secrets_to_linker(&mut linker)?;
+// greentic_interfaces_wasmtime::add_secrets_store_to_linker(&mut linker, |state| &mut state.secrets)?;
 ```
 
 The crate currently focuses on ergonomic wiring and leaves host trait implementations to downstream crates.

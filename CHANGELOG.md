@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Add `greentic:secrets-store@1.0.0` read-only secret lookup world (get -> option<bytes> with structured errors) and generate host/guest bindings.
+- Added Wasmtime host-linker helpers for `greentic:secrets-store@1.0.0`.
 - Add `greentic:distributor-api@1.0.0` WIT world (resolve/get/warm) with host/guest/wasmtime bindings behind the `distributor-api` feature; keep `distribution@1.0.0` published but note it as experimental/future-facing.
 - Add `greentic:worker@1.0.0` generic worker ABI (WorkerRequest/Response + exec world), wire host/guest/wasmtime bindings behind `worker-api`, and document the package.
 - Introduce the config-aware `greentic:component@0.5.0` ABI with a canonical `@config` record, optional `component-configurable` world exporting `get-config-schema()`, regenerated host/guest/wasmtime bindings, and new smoke tests/docs; keep `component@0.4.0` available for legacy consumers.
