@@ -10,4 +10,4 @@ greentic-interfaces = { path = "../../crates/greentic-interfaces", version = "0.
 greentic-interfaces-wasmtime = { path = "../../crates/greentic-interfaces-wasmtime", version = "0.4", default-features = false }
 serde_json = "1"
 wasmtime = { version = "39", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
-wasmtime-wasi = "39"
+wasmtime-wasi = "40"
