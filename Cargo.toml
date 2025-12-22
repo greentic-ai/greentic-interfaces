@@ -30,6 +30,6 @@ greentic-types = { version = "0.4"}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-wasmtime = { version = "39", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
+wasmtime = { version = "40", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 wasmtime-wasi = "39"
 wit-bindgen = { version = "0.49", default-features = false, features = ["macros", "realloc"] }
