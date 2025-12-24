@@ -5,6 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use wit_bindgen_core::Files;
+use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
@@ -245,9 +246,8 @@ fn generate_rust_bindings(
             }
             let module_name = module_name(&package.name, world_name);
             let mut files = Files::default();
-            opts.clone()
-                .build()
-                .generate(&resolve, *world_id, &mut files)?;
+            let mut generator = opts.clone().build();
+            generator.generate(&resolve, *world_id, &mut files)?;
 
             let mut combined = Vec::new();
             for (_, contents) in files.iter() {
