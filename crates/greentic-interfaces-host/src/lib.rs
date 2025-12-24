@@ -125,7 +125,13 @@ pub mod events_bridge {
 
 /// v1 host capability contracts.
 pub mod http_client {
+    /// `greentic:http/client@1.0.0` bindings.
     pub use greentic_interfaces::http_client_v1::*;
+
+    /// `greentic:http/client@1.1.0` bindings with request options + tenant context.
+    pub mod v1_1 {
+        pub use greentic_interfaces::http_client_v1_1::*;
+    }
 }
 
 /// v1 host capability contracts.

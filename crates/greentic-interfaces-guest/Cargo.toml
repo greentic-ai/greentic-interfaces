@@ -12,7 +12,7 @@ homepage = "https://github.com/greentic-ai/greentic-interfaces"
 [dependencies]
 greentic-types = { workspace = true }
 greentic-interfaces = { workspace = true, optional = true, default-features = false, features = ["bindings-rust"] }
-wit-bindgen = { version = "0.48" }
+wit-bindgen = { workspace = true }
 
 [features]
 component-node = []
@@ -28,6 +28,7 @@ secrets = []
 state-store = []
 messaging = []
 http-client = []
+http-client-v1-1 = []
 telemetry = []
 oauth-broker = []
 worker = []
@@ -64,6 +65,7 @@ guest = [
     "state-store",
     "messaging",
     "http-client",
+    "http-client-v1-1",
     "telemetry",
     "oauth-broker",
     "worker",
@@ -91,5 +93,5 @@ host-bridge = ["greentic-interfaces"]
 default = ["guest"]
 
 [build-dependencies]
-wit-bindgen-core = "0.48"
-wit-bindgen-rust = "0.49"
+wit-bindgen-core = { workspace = true }
+wit-bindgen-rust = { workspace = true }

@@ -426,6 +426,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "http-client",
     },
     WorldFeature {
+        package: "greentic:http@1.1.0",
+        world: "client",
+        feature: "http-client-v1-1",
+    },
+    WorldFeature {
         package: "greentic:telemetry@1.0.0",
         world: "logger",
         feature: "telemetry",

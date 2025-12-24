@@ -21,6 +21,21 @@ impl http_client::HttpClientHost for DummyHttpClient {
     }
 }
 
+impl http_client::HttpClientHostV1_1 for DummyHttpClient {
+    fn send(
+        &mut self,
+        _req: http_client::RequestV1_1,
+        _opts: Option<http_client::RequestOptionsV1_1>,
+        _ctx: Option<http_client::TenantCtxV1_1>,
+    ) -> std::result::Result<http_client::ResponseV1_1, http_client::HttpClientErrorV1_1> {
+        Ok(http_client::ResponseV1_1 {
+            status: 200,
+            headers: Vec::new(),
+            body: None,
+        })
+    }
+}
+
 struct DummyOAuthBroker;
 impl oauth_broker::OAuthBrokerHost for DummyOAuthBroker {
     fn get_consent_url(
@@ -197,9 +212,16 @@ fn host_helpers_compile() -> Result<()> {
         &mut state.secrets
     })?;
 
+    // Ensure compat helper wires both @1.1.0 and legacy @1.0.0 worlds without duplicate registration.
+    let mut compat_linker: Linker<HostState> = Linker::new(&engine);
+    http_client::add_http_client_compat_to_linker(&mut compat_linker, |state: &mut HostState| {
+        &mut state.http
+    })?;
+
     // Also ensure add_all works on a fresh linker without duplicating entries.
     let mut linker_all: Linker<HostState> = Linker::new(&engine);
     let fns = HostFns {
+        http_client_v1_1: Some(|state: &mut HostState| &mut state.http),
         http_client: Some(|state: &mut HostState| &mut state.http),
         oauth_broker: Some(|state: &mut HostState| &mut state.oauth),
         runner_host_http: Some(|state: &mut HostState| &mut state.runner_http),

@@ -37,7 +37,8 @@ let mut linker: Linker<MyHostState> = Linker::new(&engine);
 v1::add_all_v1_to_linker(
     &mut linker,
     HostFns {
-        http_client: Some(|state| &mut state.http),
+        http_client_v1_1: Some(|state| &mut state.http),
+        http_client: None, // legacy v1.0.0 only; ignored when v1_1 is set
         oauth_broker: Some(|state| &mut state.oauth),
         runner_host_http: Some(|state| &mut state.runner_http),
         runner_host_kv: Some(|state| &mut state.runner_kv),
@@ -49,4 +50,4 @@ v1::add_all_v1_to_linker(
 )?;
 ```
 
-Implement the `Host` trait from each `v1` module (e.g. `v1::http_client::HttpClientHost`) on your host state and keep the generated module paths internal.
+Implement the `Host` trait from each `v1` module (e.g. `v1::http_client::HttpClientHostV1_1` for HTTP or `HttpClientHost` for the legacy `@1.0.0`) on your host state and keep the generated module paths internal.

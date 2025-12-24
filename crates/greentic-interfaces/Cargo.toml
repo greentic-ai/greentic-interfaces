@@ -46,6 +46,7 @@ default = [
     "distribution-v1",
     "oci-v1",
     "http-client-v1",
+    "http-client-v1-1",
     "telemetry-logger-v1",
     "repo-ui-actions-v1",
     "worker-api",
@@ -89,6 +90,7 @@ distributor-api = []
 distribution-v1 = []
 oci-v1 = []
 http-client-v1 = []
+http-client-v1-1 = []
 telemetry-logger-v1 = []
 repo-ui-actions-v1 = []
 worker-api = []
@@ -130,6 +132,7 @@ wit-all = [
     "distribution-v1",
     "oci-v1",
     "http-client-v1",
+    "http-client-v1-1",
     "telemetry-logger-v1",
     "repo-ui-actions-v1",
     "worker-api",
@@ -139,17 +142,17 @@ schema = ["dep:schemars", "greentic-types/schemars"]
 
 [dependencies]
 greentic-types = { workspace = true }
-semver = "1"
-time = "0.3"
+semver = { workspace = true }
+time = { workspace = true }
 serde = { workspace = true, optional = true }
-schemars = { version = "1", features = ["derive"], optional = true }
-wit-bindgen = { version = "0.47", optional = true }
-anyhow = "1"
-thiserror = "2"
+schemars = { workspace = true, optional = true }
+wit-bindgen = { workspace = true, optional = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
 
 [build-dependencies]
-wit-bindgen-core = "0.47"
-wit-bindgen-rust = "0.49"
+wit-bindgen-core = { workspace = true }
+wit-bindgen-rust = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 wasmtime = { workspace = true }
@@ -157,6 +160,6 @@ wasmtime = { workspace = true }
 [dev-dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-insta = { version = "1", features = ["json"] }
-wit-parser = "0.240"
+insta = { workspace = true }
+wit-parser = { workspace = true }
 wasmtime-wasi = { workspace = true }

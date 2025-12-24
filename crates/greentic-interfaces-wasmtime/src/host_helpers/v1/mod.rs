@@ -16,7 +16,10 @@ pub mod telemetry_logger;
 /// Getters for all v1 host-import worlds.
 ///
 /// Provide a closure for each world you want to wire; pass `None` to skip.
+#[derive(Default)]
 pub struct HostFns<T> {
+    /// Prefer providing this to expose both `http-client@1.1.0` and the legacy `@1.0.0` import.
+    pub http_client_v1_1: Option<fn(&mut T) -> &mut dyn http_client::HttpClientHostV1_1>,
     pub http_client: Option<fn(&mut T) -> &mut dyn http_client::HttpClientHost>,
     pub oauth_broker: Option<fn(&mut T) -> &mut dyn oauth_broker::OAuthBrokerHost>,
     pub runner_host_http: Option<fn(&mut T) -> &mut dyn runner_host_http::RunnerHostHttp>,
@@ -32,7 +35,9 @@ pub fn add_all_v1_to_linker<T>(
     linker: &mut wasmtime::component::Linker<T>,
     fns: HostFns<T>,
 ) -> anyhow::Result<()> {
-    if let Some(get) = fns.http_client {
+    if let Some(get) = fns.http_client_v1_1 {
+        http_client::add_http_client_compat_to_linker(linker, get)?;
+    } else if let Some(get) = fns.http_client {
         http_client::add_http_client_to_linker(linker, get)?;
     }
     if let Some(get) = fns.oauth_broker {

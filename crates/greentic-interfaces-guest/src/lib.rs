@@ -206,6 +206,12 @@ pub mod http_client {
     pub use crate::bindings::greentic_http_1_0_0_client::greentic::http::http_client::*;
 }
 
+/// HTTP client imports for `greentic:http/client@1.1.0`.
+#[cfg(feature = "http-client-v1-1")]
+pub mod http_client_v1_1 {
+    pub use crate::bindings::greentic_http_1_1_0_client::greentic::http::http_client::*;
+}
+
 /// Telemetry logger imports for `greentic:telemetry/logger@1.0.0`.
 #[cfg(feature = "telemetry")]
 pub mod telemetry_logger {

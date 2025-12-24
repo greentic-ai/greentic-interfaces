@@ -12,19 +12,19 @@ default = []
 control-helpers = []
 
 [dependencies]
-anyhow = "1"
+anyhow = { workspace = true }
 greentic-interfaces = { workspace = true }
 
 [dependencies.wasmtime]
 workspace = true
 
 [build-dependencies]
-camino = "1"
-proc-macro2 = "1"
-quote = "1"
-syn = { version = "2", features = ["full"] }
-walkdir = "2"
+camino = { workspace = true }
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }
+walkdir = { workspace = true }
 
 [dev-dependencies]
-wat = "1"
+wat = { workspace = true }
 wasmtime-wasi = { workspace = true }

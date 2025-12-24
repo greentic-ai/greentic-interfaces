@@ -524,6 +524,16 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "http-client-v1-1")]
+declare_world!(
+    mod http_client_v1_1,
+    path = "wit/greentic/http-client@1.1.0",
+    world = "greentic:http/client@1.1.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:http@1.1.0";
+    }
+);
+
 #[cfg(feature = "telemetry-logger-v1")]
 declare_world!(
     mod telemetry_logger_v1,
