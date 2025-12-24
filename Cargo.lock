@@ -702,7 +702,7 @@ dependencies = [
  "wasmtime",
  "wasmtime-wasi",
  "wit-bindgen 0.49.0",
- "wit-bindgen-core 0.49.0",
+ "wit-bindgen-core 0.50.0",
  "wit-bindgen-rust 0.49.0",
  "wit-parser 0.243.0",
 ]
@@ -721,7 +721,7 @@ dependencies = [
  "greentic-interfaces",
  "greentic-types",
  "wit-bindgen 0.49.0",
- "wit-bindgen-core 0.49.0",
+ "wit-bindgen-core 0.50.0",
  "wit-bindgen-rust 0.49.0",
 ]
 
@@ -2584,6 +2584,17 @@ name = "wit-bindgen-core"
 version = "0.49.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "886e8e938e4e9fe54143c080cbb99d7db5d19242b62ef225dbb28e17b3223bd8"
+dependencies = [
+ "anyhow",
+ "heck",
+ "wit-parser 0.243.0",
+]
+
+[[package]]
+name = "wit-bindgen-core"
+version = "0.50.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ee98d5747ec63897e51101c8cafad569cc639346332c0378772ef4baeea8ed2"
 dependencies = [
  "anyhow",
  "heck",
