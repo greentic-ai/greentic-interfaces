@@ -47,6 +47,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             package_paths.push(path);
         }
     }
+    {
+        let rel = "provider-common/world.wit";
+        let path = wit_root.join(rel);
+        if path.exists() && !package_paths.contains(&path) {
+            package_paths.push(path);
+        }
+    }
 
     let mut staged = HashSet::new();
     for package_path in package_paths {
@@ -459,6 +466,31 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         package: "greentic:secrets-store@1.0.0",
         world: "store",
         feature: "secrets",
+    },
+    WorldFeature {
+        package: "provider:common@0.0.2",
+        world: "common",
+        feature: "provider-common",
+    },
+    WorldFeature {
+        package: "greentic:secrets-provider@0.1.0",
+        world: "provider",
+        feature: "secrets-provider",
+    },
+    WorldFeature {
+        package: "greentic:secrets-generators@0.1.0",
+        world: "generators",
+        feature: "secrets-generators",
+    },
+    WorldFeature {
+        package: "greentic:secrets-audit-exporter@0.1.0",
+        world: "audit-exporter",
+        feature: "secrets-audit-exporter",
+    },
+    WorldFeature {
+        package: "greentic:secrets-policy-validator@0.1.0",
+        world: "policy-validator",
+        feature: "secrets-policy-validator",
     },
     WorldFeature {
         package: "greentic:state@1.0.0",

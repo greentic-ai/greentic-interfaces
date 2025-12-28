@@ -116,6 +116,10 @@ For local development you can override the crates.io dependency on `greentic-typ
 | Feature | World(s) enabled | Published package | Notes |
 | --- | --- | --- | --- |
 | `secrets-store-v1` | `greentic:secrets-store/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-store@1.0.0/package.wit) | Read-only secret lookup (`get`) returning bytes with structured errors. |
+| `secrets-provider-v0-1` | `greentic:secrets-provider/provider@0.1.0` (`provider`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-provider@0.1.0/package.wit) | Typed provider surface (connect/permissions/capabilities/get/put/promote/list) with classified errors and binary-safe values. |
+| `secrets-generators-v0-1` | `greentic:secrets-generators/generators@0.1.0` (`generators`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-generators@0.1.0/package.wit) | Secret generation from policy JSON with binary outputs and tags/TTL hints. |
+| `secrets-audit-exporter-v0-1` | `greentic:secrets-audit-exporter/audit-exporter@0.1.0` (`audit-exporter`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-audit-exporter@0.1.0/package.wit) | Ships audit events (no secret payloads) to external sinks. |
+| `secrets-policy-validator-v0-1` | `greentic:secrets-policy-validator/policy-validator@0.1.0` (`policy-validator`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-policy-validator@0.1.0/package.wit) | Validates JSON-encoded requests against provider policy JSON and returns allow/deny + obligations. |
 | `state-store-v1` | `greentic:state/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/state-store@1.0.0/package.wit) | Tenant-scoped blob store aligned with `HostCapabilities.state`. |
 | `messaging-session-v1` | `greentic:messaging/session@1.0.0` (`session`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/messaging-session@1.0.0/package.wit) | Generic outbound messaging surface for session flows. |
 | `events-broker-v1` | `greentic:events/broker@1.0.0` (`broker`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Pull-based publish/subscribe broker surface (subscribe + next-event + ack). |
@@ -144,6 +148,8 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `distribution-v1` | `greentic:distribution/distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distribution@1.0.0/package.wit) | Experimental desired state submission/retrieval (tenant + IDs + JSON blobs), not used by current flows. |
 | `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
+
+Additional shared package: `provider:common@0.0.2` (under `wit/provider-common/world.wit`) carries messaging provider metadata, capability flags, limits, render tiers, warnings, and encoded payload helpers for provider components. Enable the `provider-common` feature to generate bindings; the package remains additive and shared across messaging providers.
 
 ### Host crate feature gates
 
@@ -302,6 +308,8 @@ greentic = "greentic.ai"
 ```
 
 With that mapping in place the CLI will transparently pull from GHCR using the namespace prefix advertised by the registry metadata (`greentic-ai/wit/`).
+
+Provider-facing secrets surfaces (`secrets-provider@0.1.0`, `secrets-generators@0.1.0`, `secrets-audit-exporter@0.1.0`, `secrets-policy-validator@0.1.0`) are documented in `docs/secrets-provider.md`; fetch them with `wkg get greentic:secrets-provider@0.1.0 --format wit --output wit/deps/` and import the shared `types` interface.
 
 ## Using `secrets-store-v1` from guests
 

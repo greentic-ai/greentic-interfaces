@@ -474,6 +474,57 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "secrets-provider-v0-1")]
+declare_world!(
+    mod secrets_provider_v0_1,
+    path = "wit/greentic/secrets-provider@0.1.0",
+    world = "greentic:secrets-provider/provider@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:secrets-provider@0.1.0";
+    }
+);
+
+#[cfg(feature = "secrets-generators-v0-1")]
+declare_world!(
+    mod secrets_generators_v0_1,
+    path = "wit/greentic/secrets-generators@0.1.0",
+    world = "greentic:secrets-generators/generators@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:secrets-generators@0.1.0";
+    }
+);
+
+#[cfg(feature = "secrets-audit-exporter-v0-1")]
+declare_world!(
+    mod secrets_audit_exporter_v0_1,
+    path = "wit/greentic/secrets-audit-exporter@0.1.0",
+    world = "greentic:secrets-audit-exporter/audit-exporter@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:secrets-audit-exporter@0.1.0";
+    }
+);
+
+#[cfg(feature = "secrets-policy-validator-v0-1")]
+declare_world!(
+    mod secrets_policy_validator_v0_1,
+    path = "wit/greentic/secrets-policy-validator@0.1.0",
+    world = "greentic:secrets-policy-validator/policy-validator@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:secrets-policy-validator@0.1.0";
+    }
+);
+
+#[cfg(feature = "provider-common")]
+declare_world!(
+    mod provider_common,
+    path = "wit/provider-common/world.wit",
+    world = "provider:common/common@0.0.2"
+);
+
 #[cfg(feature = "state-store-v1")]
 declare_world!(
     mod state_store_v1,

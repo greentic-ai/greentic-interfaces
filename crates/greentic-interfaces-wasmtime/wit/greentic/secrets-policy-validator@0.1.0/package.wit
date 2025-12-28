@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: MIT
+
+package greentic:secrets-policy-validator@0.1.0;
+
+use greentic:secrets-provider/types@0.1.0;
+
+/// Policy enforcement for secrets requests (breakglass/write/rotate).
+interface policy-validator-api {
+  use greentic:secrets-provider/types@0.1.0.{correlation, error, kv};
+
+  /// Authorization decision with optional obligations.
+  enum decision-kind { allow, deny }
+
+  record decision {
+    kind: decision-kind,
+    reasons: list<string>,
+    obligations: list<kv>,
+  }
+
+  /// Evaluates a request expressed as JSON against a provider policy JSON document.
+  authorize: func(policy-json: string, request-json: string, ctx: correlation) -> result<decision, error>;
+}
+
+world policy-validator {
+  export policy-validator-api;
+}

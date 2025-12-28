@@ -21,6 +21,9 @@ sanitize_ref() {
 list_wit_sources() {
   find "${WIT_ROOT}" -maxdepth 1 -type f -name "*.wit"
   find "${WIT_ROOT}" -mindepth 1 -type f -name "package.wit" ! -path "*/deps/*"
+  if [[ -d "${WIT_ROOT}/provider-common" ]]; then
+    find "${WIT_ROOT}/provider-common" -maxdepth 1 -type f -name "*.wit"
+  fi
 }
 
 package_ref_from_file() {

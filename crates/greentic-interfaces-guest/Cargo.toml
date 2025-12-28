@@ -25,6 +25,10 @@ events-source = []
 events = ["events-sink", "events-source"]
 events-bridge = []
 secrets = []
+secrets-provider = []
+secrets-generators = []
+secrets-audit-exporter = []
+secrets-policy-validator = []
 state-store = []
 messaging = []
 http-client = []
@@ -40,6 +44,7 @@ policy = []
 metadata = []
 oci = []
 distribution = []
+provider-common = []
 distributor-api = []
 distributor-api-imports = ["distributor-api"]
 gui-fragment = []
@@ -62,6 +67,10 @@ guest = [
     "events",
     "events-bridge",
     "secrets",
+    "secrets-provider",
+    "secrets-generators",
+    "secrets-audit-exporter",
+    "secrets-policy-validator",
     "state-store",
     "messaging",
     "http-client",
@@ -79,6 +88,7 @@ guest = [
     "distributor-api",
     "distributor-api-imports",
     "distribution",
+    "provider-common",
     "deploy-plan",
     "repo-ui-actions",
     "pack-export",

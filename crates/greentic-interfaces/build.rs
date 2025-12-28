@@ -23,6 +23,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let wit_root = Path::new("wit");
     let mut package_paths = Vec::new();
     discover_packages(wit_root, &mut package_paths)?;
+    {
+        let rel = "provider-common/world.wit";
+        let path = wit_root.join(rel);
+        if path.exists() && !package_paths.contains(&path) {
+            package_paths.push(path);
+        }
+    }
 
     let mut staged = HashSet::new();
     for package_path in package_paths {

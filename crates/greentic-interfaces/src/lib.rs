@@ -7,6 +7,9 @@
 pub mod bindings;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod wit_all;
+#[cfg(feature = "bindings-rust")]
+#[cfg(feature = "provider-common")]
+pub use bindings::provider_common_0_0_2_common;
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused_imports)]
 pub use wit_all::*;

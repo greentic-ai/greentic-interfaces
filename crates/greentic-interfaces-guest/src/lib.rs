@@ -163,6 +163,38 @@ pub mod secrets_store {
     pub use crate::bindings::greentic_secrets_store_1_0_0_store::greentic::secrets_store::secrets_store::*;
 }
 
+/// Secret provider exports for `greentic:secrets-provider/provider@0.1.0`.
+#[cfg(feature = "secrets-provider")]
+pub mod secrets_provider {
+    pub use crate::bindings::greentic_secrets_provider_0_1_0_provider::exports::greentic::secrets_provider::provider_api::*;
+    pub use crate::bindings::greentic_secrets_provider_0_1_0_provider::greentic::secrets_provider::types;
+}
+
+/// Secret generator exports for `greentic:secrets-generators/generators@0.1.0`.
+#[cfg(feature = "secrets-generators")]
+pub mod secrets_generators {
+    pub use crate::bindings::greentic_secrets_generators_0_1_0_generators::exports::greentic::secrets_generators::generators_api::*;
+}
+
+/// Audit exporter exports for `greentic:secrets-audit-exporter/audit-exporter@0.1.0`.
+#[cfg(feature = "secrets-audit-exporter")]
+pub mod secrets_audit_exporter {
+    pub use crate::bindings::greentic_secrets_audit_exporter_0_1_0_audit_exporter::exports::greentic::secrets_audit_exporter::audit_exporter_api::*;
+}
+
+/// Policy validator exports for `greentic:secrets-policy-validator/policy-validator@0.1.0`.
+#[cfg(feature = "secrets-policy-validator")]
+pub mod secrets_policy_validator {
+    pub use crate::bindings::greentic_secrets_policy_validator_0_1_0_policy_validator::exports::greentic::secrets_policy_validator::policy_validator_api::*;
+}
+
+/// Shared messaging provider metadata/render helpers `provider:common/common@0.0.2`.
+#[cfg(feature = "provider-common")]
+pub mod provider_common {
+    pub use crate::bindings::provider_common_0_0_2_common::exports::provider::common::capabilities::*;
+    pub use crate::bindings::provider_common_0_0_2_common::exports::provider::common::render::*;
+}
+
 /// State store imports for `greentic:state/store@1.0.0`.
 #[cfg(feature = "state-store")]
 pub mod state_store {

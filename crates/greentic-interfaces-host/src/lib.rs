@@ -87,6 +87,32 @@ pub mod secrets {
     pub mod store_v1 {
         pub use greentic_interfaces::secrets_store_v1::*;
     }
+
+    /// `greentic:secrets-provider/provider@0.1.0` component exports.
+    pub mod provider_v0_1 {
+        pub use greentic_interfaces::secrets_provider_v0_1::*;
+    }
+
+    /// `greentic:secrets-generators/generators@0.1.0` component exports.
+    pub mod generators_v0_1 {
+        pub use greentic_interfaces::secrets_generators_v0_1::*;
+    }
+
+    /// `greentic:secrets-audit-exporter/audit-exporter@0.1.0` component exports.
+    pub mod audit_exporter_v0_1 {
+        pub use greentic_interfaces::secrets_audit_exporter_v0_1::*;
+    }
+
+    /// `greentic:secrets-policy-validator/policy-validator@0.1.0` component exports.
+    pub mod policy_validator_v0_1 {
+        pub use greentic_interfaces::secrets_policy_validator_v0_1::*;
+    }
+}
+
+/// Shared messaging provider metadata/render helpers.
+pub mod provider_common {
+    pub use greentic_interfaces::bindings::provider_common_0_0_2_common::exports::provider::common::capabilities::*;
+    pub use greentic_interfaces::bindings::provider_common_0_0_2_common::exports::provider::common::render::*;
 }
 
 /// v1 host capability contracts.
