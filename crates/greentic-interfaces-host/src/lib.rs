@@ -484,6 +484,7 @@ pub mod distributor_api {
 }
 
 /// Stable alias for messaging session imports.
+#[cfg(feature = "legacy-messaging-provider-protocol")]
 pub mod messaging {
     pub use super::messaging_session::*;
 }
