@@ -29,14 +29,26 @@ secrets-provider = []
 secrets-generators = []
 secrets-audit-exporter = []
 secrets-policy-validator = []
+legacy-secrets-provider-protocol = [
+    "secrets-provider",
+    "secrets-generators",
+    "secrets-audit-exporter",
+    "secrets-policy-validator",
+]
 state-store = []
 messaging = []
+legacy-messaging-provider-protocol = ["messaging"]
 http-client = []
 http-client-v1-1 = []
 telemetry = []
 oauth-broker = []
 worker = []
 repo = []
+legacy-events-provider-protocol = [
+    "events",
+    "events-bridge",
+]
+provider-core-v1 = []
 scan = []
 signing = []
 attestation = []
@@ -64,21 +76,15 @@ guest = [
     "common-types",
     "lifecycle",
     "build",
-    "events",
-    "events-bridge",
     "secrets",
-    "secrets-provider",
-    "secrets-generators",
-    "secrets-audit-exporter",
-    "secrets-policy-validator",
     "state-store",
-    "messaging",
     "http-client",
     "http-client-v1-1",
     "telemetry",
     "oauth-broker",
     "worker",
     "repo",
+    "provider-core-v1",
     "scan",
     "signing",
     "attestation",

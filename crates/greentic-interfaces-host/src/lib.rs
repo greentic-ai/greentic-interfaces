@@ -89,24 +89,34 @@ pub mod secrets {
     }
 
     /// `greentic:secrets-provider/provider@0.1.0` component exports.
+    #[cfg(feature = "legacy-secrets-provider-protocol")]
     pub mod provider_v0_1 {
         pub use greentic_interfaces::secrets_provider_v0_1::*;
     }
 
     /// `greentic:secrets-generators/generators@0.1.0` component exports.
+    #[cfg(feature = "legacy-secrets-provider-protocol")]
     pub mod generators_v0_1 {
         pub use greentic_interfaces::secrets_generators_v0_1::*;
     }
 
     /// `greentic:secrets-audit-exporter/audit-exporter@0.1.0` component exports.
+    #[cfg(feature = "legacy-secrets-provider-protocol")]
     pub mod audit_exporter_v0_1 {
         pub use greentic_interfaces::secrets_audit_exporter_v0_1::*;
     }
 
     /// `greentic:secrets-policy-validator/policy-validator@0.1.0` component exports.
+    #[cfg(feature = "legacy-secrets-provider-protocol")]
     pub mod policy_validator_v0_1 {
         pub use greentic_interfaces::secrets_policy_validator_v0_1::*;
     }
+}
+
+/// Provider core schema world `greentic:provider-schema-core@1.0.0`.
+#[cfg(feature = "provider-core-v1")]
+pub mod provider_core_v1 {
+    pub use greentic_interfaces::provider_schema_core_v1::*;
 }
 
 /// Shared messaging provider metadata/render helpers.
@@ -121,26 +131,31 @@ pub mod state {
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "legacy-messaging-provider-protocol")]
 pub mod messaging_session {
     pub use greentic_interfaces::messaging_session_v1::*;
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "legacy-events-provider-protocol")]
 pub mod events_broker {
     pub use greentic_interfaces::events_broker_v1::*;
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "legacy-events-provider-protocol")]
 pub mod events_source {
     pub use greentic_interfaces::events_source_v1::*;
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "legacy-events-provider-protocol")]
 pub mod events_sink {
     pub use greentic_interfaces::events_sink_v1::*;
 }
 
 /// v1 host capability contracts.
+#[cfg(feature = "legacy-events-provider-protocol")]
 pub mod events_bridge {
     pub use greentic_interfaces::events_bridge_event_to_message_v1::EventToMessageBridge;
     pub use greentic_interfaces::events_bridge_message_to_event_v1::MessageToEventBridge;

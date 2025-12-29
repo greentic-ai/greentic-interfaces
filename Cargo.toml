@@ -11,6 +11,7 @@ members = [
     "examples/crates-io-consumer",
     "examples/guest-node-minimal",
     "examples/runner-host-smoke",
+    "examples/provider-core-dummy",
 ]
 resolver = "2"
 
@@ -18,7 +19,7 @@ resolver = "2"
 license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
-version = "0.4.67"
+version = "0.4.69"
 repository = "https://github.com/greentic-ai/greentic-interfaces"
 
 [workspace.dependencies]

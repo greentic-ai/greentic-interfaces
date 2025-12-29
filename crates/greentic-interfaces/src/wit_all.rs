@@ -485,6 +485,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "provider-core-v1")]
+declare_world!(
+    mod provider_schema_core_v1,
+    path = "wit/greentic/provider/schema-core@1.0.0",
+    world = "greentic:provider-schema-core/schema-core@1.0.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:provider-schema-core@1.0.0";
+    }
+);
+
 #[cfg(feature = "secrets-generators-v0-1")]
 declare_world!(
     mod secrets_generators_v0_1,

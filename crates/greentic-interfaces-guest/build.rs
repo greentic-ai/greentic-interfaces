@@ -473,6 +473,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "provider-common",
     },
     WorldFeature {
+        package: "greentic:provider-schema-core@1.0.0",
+        world: "schema-core",
+        feature: "provider-core-v1",
+    },
+    WorldFeature {
         package: "greentic:secrets-provider@0.1.0",
         world: "provider",
         feature: "secrets-provider",

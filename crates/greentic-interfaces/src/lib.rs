@@ -4,16 +4,20 @@
 
 //! ABI-oriented bindings for Greentic WIT packages.
 
+#[cfg(not(target_arch = "wasm32"))]
 pub mod bindings;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod wit_all;
-#[cfg(feature = "bindings-rust")]
-#[cfg(feature = "provider-common")]
+#[cfg(all(
+    feature = "bindings-rust",
+    feature = "provider-common",
+    not(target_arch = "wasm32")
+))]
 pub use bindings::provider_common_0_0_2_common;
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused_imports)]
 pub use wit_all::*;
-#[cfg(feature = "bindings-rust")]
+#[cfg(all(feature = "bindings-rust", not(target_arch = "wasm32")))]
 pub mod mappers;
-#[cfg(feature = "bindings-rust")]
+#[cfg(all(feature = "bindings-rust", not(target_arch = "wasm32")))]
 pub mod validate;

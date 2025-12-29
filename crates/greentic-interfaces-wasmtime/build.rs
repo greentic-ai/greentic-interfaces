@@ -4,9 +4,31 @@ use quote::{format_ident, quote};
 use std::{env, fs};
 use walkdir::WalkDir;
 
+fn world_names_from_str(content: &str) -> Vec<String> {
+    content
+        .lines()
+        .filter_map(|line| {
+            let trimmed = line.trim_start();
+            if let Some(rest) = trimmed.strip_prefix("world ") {
+                let name = rest
+                    .split_whitespace()
+                    .next()
+                    .unwrap_or("world")
+                    .trim_end_matches('{')
+                    .to_string();
+                return Some(name);
+            }
+            None
+        })
+        .collect()
+}
+
 fn module_name_from_dir_and_world(dir: &str, world: &str) -> String {
     let mut parts = dir.split('@');
-    let raw_name = parts.next().unwrap_or(dir).replace('-', "_");
+    let raw_name = parts
+        .next()
+        .unwrap_or(dir)
+        .replace(['-', '/', ':', '.'], "_");
     let version = parts.next().unwrap_or("0.0.0");
     let mut ver_parts = version.trim_start_matches('v').split('.');
     let major = ver_parts.next().unwrap_or("0");
@@ -26,24 +48,30 @@ fn main() {
 
     let mut modules: Vec<TokenStream> = Vec::new();
 
-    for entry in WalkDir::new(&wit_root).min_depth(1).max_depth(1) {
+    for entry in WalkDir::new(&wit_root) {
         let entry = match entry {
             Ok(e) => e,
             Err(_) => continue,
         };
-        if !entry.file_type().is_dir() {
+        if !entry.file_type().is_file() || entry.file_name() != "package.wit" {
             continue;
         }
-        let dirname = entry.file_name().to_string_lossy().to_string();
-        if !dirname.contains('@') {
+        let package_path =
+            Utf8PathBuf::from_path_buf(entry.path().to_path_buf()).expect("non-utf8 path");
+        if package_path.components().any(|c| c.as_str() == "deps") {
             continue;
         }
 
-        let package_path =
-            Utf8PathBuf::from_path_buf(entry.path().join("package.wit")).expect("non-utf8 path");
-        if !package_path.exists() {
-            continue;
-        }
+        let package_dir = package_path
+            .parent()
+            .expect("package.wit must have a parent directory");
+        let rel_dir = package_dir
+            .strip_prefix(&wit_root)
+            .expect("package path should live under wit/greentic");
+        let dirname = package_dir
+            .file_name()
+            .map(|n| n.to_string())
+            .unwrap_or_default();
 
         let content =
             fs::read_to_string(&package_path).unwrap_or_else(|_| panic!("Reading {package_path}"));
@@ -62,25 +90,17 @@ fn main() {
             .rsplit_once('@')
             .unwrap_or((package_ref, "0.0.0"));
 
-        let mut world_names: Vec<String> = content
-            .lines()
-            .filter_map(|line| {
-                let trimmed = line.trim_start();
-                if let Some(rest) = trimmed.strip_prefix("world ") {
-                    let name = rest
-                        .split_whitespace()
-                        .next()
-                        .unwrap_or("world")
-                        .trim_end_matches('{')
-                        .to_string();
-                    return Some(name);
-                }
-                None
-            })
-            .collect();
+        let world_wit = package_dir.join("world.wit");
+        let mut world_names = world_names_from_str(&content);
+        if world_wit.exists()
+            && world_names.is_empty()
+            && let Ok(extra) = fs::read_to_string(&world_wit)
+        {
+            world_names = world_names_from_str(&extra);
+        }
 
         if world_names.is_empty() {
-            panic!("world declaration missing in {package_path}");
+            continue;
         }
 
         world_names.sort();
@@ -89,7 +109,7 @@ fn main() {
             let module_name = module_name_from_dir_and_world(&dirname, &world_name);
             let mod_ident = format_ident!("{}", module_name);
             let world_spec = format!("{package_id}/{world_name}@{version}");
-            let package_rel_path = format!("wit/greentic/{dirname}");
+            let package_rel_path = format!("wit/greentic/{rel_dir}");
 
             let has_control_helpers = dirname.starts_with("component@")
                 && content.contains("interface control")

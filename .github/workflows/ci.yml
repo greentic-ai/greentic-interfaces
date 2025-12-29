@@ -85,6 +85,18 @@ jobs:
           wasm-tools component wit crates/greentic-interfaces/wit | head -n 5
           echo "Wasmtime helper packages:"
           wasm-tools component wit crates/greentic-interfaces-wasmtime/wit | head -n 5
+      - name: Build guest (default features; legacy providers off)
+        env:
+          CARGO_TARGET_DIR: target
+        run: cargo build --manifest-path crates/greentic-interfaces-guest/Cargo.toml --target wasm32-wasip2 --no-default-features
+      - name: Build guest with legacy provider protocols
+        env:
+          CARGO_TARGET_DIR: target
+        run: |
+          cargo build --manifest-path crates/greentic-interfaces-guest/Cargo.toml \
+            --target wasm32-wasip2 \
+            --no-default-features \
+            --features legacy-secrets-provider-protocol,legacy-messaging-provider-protocol,legacy-events-provider-protocol
       - run: cargo build --workspace --all-features
       - run: cargo test --workspace --all-features
       - name: Build describe-v1 component example

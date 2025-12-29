@@ -26,6 +26,7 @@ pub mod component_v0_4 {
 #[cfg(feature = "component-v1")]
 pub mod component_v1 {
     pub use crate::bindings::greentic_component_v1_0_1_0_component_host::exports::greentic::component_v1::*;
+    #[cfg(not(target_arch = "wasm32"))]
     pub use greentic_interfaces::mappers::{ComponentOutcome, ComponentOutcomeStatus};
 }
 
@@ -188,6 +189,12 @@ pub mod secrets_policy_validator {
     pub use crate::bindings::greentic_secrets_policy_validator_0_1_0_policy_validator::exports::greentic::secrets_policy_validator::policy_validator_api::*;
 }
 
+/// Provider core schema exports for `greentic:provider-schema-core@1.0.0`.
+#[cfg(feature = "provider-core-v1")]
+pub mod provider_core {
+    pub use crate::bindings::greentic_provider_schema_core_1_0_0_schema_core::exports::greentic::provider_schema_core::schema_core_api::*;
+}
+
 /// Shared messaging provider metadata/render helpers `provider:common/common@0.0.2`.
 #[cfg(feature = "provider-common")]
 pub mod provider_common {
@@ -291,6 +298,7 @@ pub mod pack_exports {
     #[cfg(feature = "pack-export-v1")]
     pub mod v1 {
         pub use crate::bindings::greentic_pack_export_v1_0_1_0_pack_host::exports::greentic::pack_export_v1::*;
+        #[cfg(not(target_arch = "wasm32"))]
         pub use greentic_interfaces::mappers::{
             FlowDescriptor as GuestFlowDescriptor, PackDescriptor as GuestPackDescriptor,
         };

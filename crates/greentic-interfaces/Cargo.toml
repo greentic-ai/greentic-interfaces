@@ -55,6 +55,7 @@ default = [
     "repo-ui-actions-v1",
     "worker-api",
     "gui-fragment",
+    "provider-core-v1",
     "provider-common",
     "oauth-broker-v1",
 ]
@@ -105,6 +106,7 @@ repo-ui-actions-v1 = []
 worker-api = []
 gui-fragment = []
 provider-common = []
+provider-core-v1 = []
 wit-all = [
     "bindings-rust",
     "common-types-v0-1",
@@ -151,6 +153,7 @@ wit-all = [
     "repo-ui-actions-v1",
     "worker-api",
     "provider-common",
+    "provider-core-v1",
     "oauth-broker-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]
