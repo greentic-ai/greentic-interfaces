@@ -398,36 +398,6 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "distributor-api-imports",
     },
     WorldFeature {
-        package: "greentic:events@1.0.0",
-        world: "events",
-        feature: "events",
-    },
-    WorldFeature {
-        package: "greentic:events@1.0.0",
-        world: "broker",
-        feature: "events",
-    },
-    WorldFeature {
-        package: "greentic:events@1.0.0",
-        world: "source",
-        feature: "events-source",
-    },
-    WorldFeature {
-        package: "greentic:events@1.0.0",
-        world: "sink",
-        feature: "events-sink",
-    },
-    WorldFeature {
-        package: "greentic:events-bridge@1.0.0",
-        world: "event-to-message-bridge",
-        feature: "events-bridge",
-    },
-    WorldFeature {
-        package: "greentic:events-bridge@1.0.0",
-        world: "message-to-event-bridge",
-        feature: "events-bridge",
-    },
-    WorldFeature {
         package: "greentic:http@1.0.0",
         world: "client",
         feature: "http-client",
@@ -478,34 +448,9 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "provider-core-v1",
     },
     WorldFeature {
-        package: "greentic:secrets-provider@0.1.0",
-        world: "provider",
-        feature: "secrets-provider",
-    },
-    WorldFeature {
-        package: "greentic:secrets-generators@0.1.0",
-        world: "generators",
-        feature: "secrets-generators",
-    },
-    WorldFeature {
-        package: "greentic:secrets-audit-exporter@0.1.0",
-        world: "audit-exporter",
-        feature: "secrets-audit-exporter",
-    },
-    WorldFeature {
-        package: "greentic:secrets-policy-validator@0.1.0",
-        world: "policy-validator",
-        feature: "secrets-policy-validator",
-    },
-    WorldFeature {
         package: "greentic:state@1.0.0",
         world: "store",
         feature: "state-store",
-    },
-    WorldFeature {
-        package: "greentic:messaging@1.0.0",
-        world: "session",
-        feature: "messaging",
     },
     WorldFeature {
         package: "greentic:metadata@1.0.0",

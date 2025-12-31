@@ -20,34 +20,14 @@ component-node-v0-4 = []
 component-v1 = ["greentic-interfaces"]
 lifecycle = []
 build = []
-events-sink = []
-events-source = []
-events = ["events-sink", "events-source"]
-events-bridge = []
 secrets = []
-secrets-provider = []
-secrets-generators = []
-secrets-audit-exporter = []
-secrets-policy-validator = []
-legacy-secrets-provider-protocol = [
-    "secrets-provider",
-    "secrets-generators",
-    "secrets-audit-exporter",
-    "secrets-policy-validator",
-]
 state-store = []
-messaging = []
-legacy-messaging-provider-protocol = ["messaging"]
 http-client = []
 http-client-v1-1 = []
 telemetry = []
 oauth-broker = []
 worker = []
 repo = []
-legacy-events-provider-protocol = [
-    "events",
-    "events-bridge",
-]
 provider-core-v1 = []
 scan = []
 signing = []

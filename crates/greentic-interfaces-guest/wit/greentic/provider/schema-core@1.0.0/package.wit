@@ -2,7 +2,7 @@
 
 package greentic:provider-schema-core@1.0.0;
 
-/// Minimal provider schema surface for messaging/secrets/events providers.
+/// Minimal provider schema surface for provider-core contracts.
 interface schema-core-api {
   /// Describes the provider manifest as JSON bytes.
   /// The JSON should at minimum include: `provider_type`, `capabilities`, and `ops`.

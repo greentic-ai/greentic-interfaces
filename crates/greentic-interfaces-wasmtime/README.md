@@ -42,7 +42,6 @@ v1::add_all_v1_to_linker(
         oauth_broker: Some(|state| &mut state.oauth),
         runner_host_http: Some(|state| &mut state.runner_http),
         runner_host_kv: Some(|state| &mut state.runner_kv),
-        messaging_session: Some(|state| &mut state.messaging),
         telemetry_logger: Some(|state| &mut state.telemetry),
         state_store: Some(|state| &mut state.state),
         secrets_store: Some(|state| &mut state.secrets),

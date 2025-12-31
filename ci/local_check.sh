@@ -207,6 +207,9 @@ do_wit_diff() {
     local current_version
     current_version="$(sed -n 's/^version = "\(.*\)"/\1/p' crates/greentic-interfaces/Cargo.toml | head -n1)"
     if [[ -z "${current_version}" ]]; then
+        current_version="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n1)"
+    fi
+    if [[ -z "${current_version}" ]]; then
         echo "Unable to determine current version; skipping WIT diff"
         return 0
     fi

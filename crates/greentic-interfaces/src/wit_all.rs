@@ -419,50 +419,6 @@ declare_world!(
     }
 );
 
-#[cfg(feature = "events-v1")]
-declare_world!(
-    mod events_v1,
-    path = "wit/greentic/events@1.0.0",
-    world = "greentic:events/events@1.0.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-broker-v1")]
-declare_world!(
-    mod events_broker_v1,
-    path = "wit/greentic/events@1.0.0",
-    world = "greentic:events/broker@1.0.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-source-v1")]
-declare_world!(
-    mod events_source_v1,
-    path = "wit/greentic/events@1.0.0",
-    world = "greentic:events/source@1.0.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-sink-v1")]
-declare_world!(
-    mod events_sink_v1,
-    path = "wit/greentic/events@1.0.0",
-    world = "greentic:events/sink@1.0.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:events@1.0.0";
-    }
-);
-
 #[cfg(feature = "secrets-store-v1")]
 declare_world!(
     mod secrets_store_v1,
@@ -474,17 +430,6 @@ declare_world!(
     }
 );
 
-#[cfg(feature = "secrets-provider-v0-1")]
-declare_world!(
-    mod secrets_provider_v0_1,
-    path = "wit/greentic/secrets-provider@0.1.0",
-    world = "greentic:secrets-provider/provider@0.1.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:secrets-provider@0.1.0";
-    }
-);
-
 #[cfg(feature = "provider-core-v1")]
 declare_world!(
     mod provider_schema_core_v1,
@@ -493,39 +438,6 @@ declare_world!(
     legacy = {
         /// Canonical package identifier.
         pub const PACKAGE_ID: &str = "greentic:provider-schema-core@1.0.0";
-    }
-);
-
-#[cfg(feature = "secrets-generators-v0-1")]
-declare_world!(
-    mod secrets_generators_v0_1,
-    path = "wit/greentic/secrets-generators@0.1.0",
-    world = "greentic:secrets-generators/generators@0.1.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:secrets-generators@0.1.0";
-    }
-);
-
-#[cfg(feature = "secrets-audit-exporter-v0-1")]
-declare_world!(
-    mod secrets_audit_exporter_v0_1,
-    path = "wit/greentic/secrets-audit-exporter@0.1.0",
-    world = "greentic:secrets-audit-exporter/audit-exporter@0.1.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:secrets-audit-exporter@0.1.0";
-    }
-);
-
-#[cfg(feature = "secrets-policy-validator-v0-1")]
-declare_world!(
-    mod secrets_policy_validator_v0_1,
-    path = "wit/greentic/secrets-policy-validator@0.1.0",
-    world = "greentic:secrets-policy-validator/policy-validator@0.1.0",
-    legacy = {
-        /// Canonical package identifier.
-        pub const PACKAGE_ID: &str = "greentic:secrets-policy-validator@0.1.0";
     }
 );
 
@@ -543,36 +455,6 @@ declare_world!(
     world = "greentic:state/store@1.0.0",
     legacy = {
         pub const PACKAGE_ID: &str = "greentic:state@1.0.0";
-    }
-);
-
-#[cfg(feature = "messaging-session-v1")]
-declare_world!(
-    mod messaging_session_v1,
-    path = "wit/greentic/messaging-session@1.0.0",
-    world = "greentic:messaging/session@1.0.0",
-    legacy = {
-        pub const PACKAGE_ID: &str = "greentic:messaging@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-bridge-v1")]
-declare_world!(
-    mod events_bridge_message_to_event_v1,
-    path = "wit/greentic/events-bridge@1.0.0",
-    world = "greentic:events-bridge/message-to-event-bridge@1.0.0",
-    legacy = {
-        pub const PACKAGE_ID: &str = "greentic:events-bridge@1.0.0";
-    }
-);
-
-#[cfg(feature = "events-bridge-v1")]
-declare_world!(
-    mod events_bridge_event_to_message_v1,
-    path = "wit/greentic/events-bridge@1.0.0",
-    world = "greentic:events-bridge/event-to-message-bridge@1.0.0",
-    legacy = {
-        pub const PACKAGE_ID: &str = "greentic:events-bridge@1.0.0";
     }
 );
 

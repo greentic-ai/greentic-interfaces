@@ -164,30 +164,7 @@ pub mod secrets_store {
     pub use crate::bindings::greentic_secrets_store_1_0_0_store::greentic::secrets_store::secrets_store::*;
 }
 
-/// Secret provider exports for `greentic:secrets-provider/provider@0.1.0`.
-#[cfg(feature = "secrets-provider")]
-pub mod secrets_provider {
-    pub use crate::bindings::greentic_secrets_provider_0_1_0_provider::exports::greentic::secrets_provider::provider_api::*;
-    pub use crate::bindings::greentic_secrets_provider_0_1_0_provider::greentic::secrets_provider::types;
-}
-
-/// Secret generator exports for `greentic:secrets-generators/generators@0.1.0`.
-#[cfg(feature = "secrets-generators")]
-pub mod secrets_generators {
-    pub use crate::bindings::greentic_secrets_generators_0_1_0_generators::exports::greentic::secrets_generators::generators_api::*;
-}
-
-/// Audit exporter exports for `greentic:secrets-audit-exporter/audit-exporter@0.1.0`.
-#[cfg(feature = "secrets-audit-exporter")]
-pub mod secrets_audit_exporter {
-    pub use crate::bindings::greentic_secrets_audit_exporter_0_1_0_audit_exporter::exports::greentic::secrets_audit_exporter::audit_exporter_api::*;
-}
-
-/// Policy validator exports for `greentic:secrets-policy-validator/policy-validator@0.1.0`.
-#[cfg(feature = "secrets-policy-validator")]
-pub mod secrets_policy_validator {
-    pub use crate::bindings::greentic_secrets_policy_validator_0_1_0_policy_validator::exports::greentic::secrets_policy_validator::policy_validator_api::*;
-}
+// Legacy secrets provider protocol removed; use provider-core instead.
 
 /// Provider core schema exports for `greentic:provider-schema-core@1.0.0`.
 #[cfg(feature = "provider-core-v1")]
@@ -206,37 +183,6 @@ pub mod provider_common {
 #[cfg(feature = "state-store")]
 pub mod state_store {
     pub use crate::bindings::greentic_state_1_0_0_store::greentic::state::state_store::*;
-}
-
-/// Messaging session imports for `greentic:messaging/session@1.0.0`.
-#[cfg(feature = "messaging")]
-pub mod messaging_session {
-    pub use crate::bindings::greentic_messaging_1_0_0_session::greentic::messaging::session_api::*;
-}
-
-/// Event broker exports for `greentic:events/broker@1.0.0`.
-#[cfg(feature = "events")]
-pub mod events_broker {
-    pub use crate::bindings::greentic_events_1_0_0_broker::exports::greentic::events::broker_api::*;
-}
-
-/// Event source exports for `greentic:events/source@1.0.0`.
-#[cfg(feature = "events-source")]
-pub mod events_source {
-    pub use crate::bindings::greentic_events_1_0_0_source::exports::greentic::events::source_api::*;
-}
-
-/// Event sink exports for `greentic:events/sink@1.0.0`.
-#[cfg(feature = "events-sink")]
-pub mod events_sink {
-    pub use crate::bindings::greentic_events_1_0_0_sink::exports::greentic::events::sink_api::*;
-}
-
-/// Event/message bridge exports for `greentic:events-bridge@1.0.0`.
-#[cfg(feature = "events-bridge")]
-pub mod events_bridge {
-    pub use crate::bindings::greentic_events_bridge_1_0_0_event_to_message_bridge::exports::greentic::events_bridge::bridge_api as event_to_message_bridge;
-    pub use crate::bindings::greentic_events_bridge_1_0_0_message_to_event_bridge::exports::greentic::events_bridge::bridge_api as message_to_event_bridge;
 }
 
 /// HTTP client imports for `greentic:http/client@1.0.0`.
@@ -412,12 +358,6 @@ pub mod mcp {
 #[cfg(feature = "repo-ui-actions")]
 pub mod repo_ui_actions {
     pub use crate::bindings::greentic_repo_ui_actions_1_0_0_repo_ui_worker::exports::greentic::repo_ui_actions::ui_action_api::*;
-}
-
-/// Stable alias for messaging/session imports.
-#[cfg(feature = "messaging")]
-pub mod messaging {
-    pub use super::messaging_session::*;
 }
 
 /// Stable alias for OAuth broker imports.

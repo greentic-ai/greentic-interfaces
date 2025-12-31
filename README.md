@@ -51,6 +51,8 @@ record config {
 
 > Node configuration schemas always live alongside their components. This repository only ships shared WIT contracts plus the corresponding bindings/mappers.
 
+Provider protocols are now unified under `greentic:provider-schema-core@1.0.0`. Legacy messaging/events/secrets provider WIT worlds have been removed; migrate provider components to provider-core JSON schemas instead of typed provider-specific worlds.
+
 These crates are published from this workspace. Downstream components that only need the ABI can depend solely on `greentic-interfaces`. Runtimes that execute packs should add `greentic-interfaces-wasmtime` and choose whether to stay on the stable Wasmtime feature path or opt into the nightly configuration. Hosts that just want re-exported bindings can depend on `greentic-interfaces-host`, while guest components can pull `greentic-interfaces-guest` for `wasm32-wasip2` builds.
 
 ```rust
@@ -103,8 +105,8 @@ let _resp = api.resolve_component(&ResolveComponentRequest {
 
 ## Migration guide: move to host/guest crates
 
-1. Replace direct `greentic-interfaces` imports in hosts with `greentic-interfaces-host` and switch to the curated modules (`secrets`, `state`, `messaging`, `http`, `telemetry`, `oauth`).
-2. Replace direct bindgen usage in wasm components with `greentic-interfaces-guest`; import from the module for the capability you need (`secrets_store`, `state_store`, `messaging`, `oauth`).
+1. Replace direct `greentic-interfaces` imports in hosts with `greentic-interfaces-host` and switch to the curated modules (`secrets`, `state`, `http`, `telemetry`, `oauth`).
+2. Replace direct bindgen usage in wasm components with `greentic-interfaces-guest`; import from the module for the capability you need (`secrets_store`, `state_store`, `http_client`, `oauth`).
 3. Update your target/toolchain: guests should build with `--target wasm32-wasip2`; hosts stay native.
 4. For Wasmtime wiring, depend on `greentic-interfaces-wasmtime` alongside the host crate if you need linker helpers.
 5. Drop local WIT regeneration: the host/guest crates ship the generated bindings; WIT remains the source of truth here.
@@ -116,16 +118,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 | Feature | World(s) enabled | Published package | Notes |
 | --- | --- | --- | --- |
 | `secrets-store-v1` | `greentic:secrets-store/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-store@1.0.0/package.wit) | Read-only secret lookup (`get`) returning bytes with structured errors. |
-| `secrets-provider-v0-1` | `greentic:secrets-provider/provider@0.1.0` (`provider`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-provider@0.1.0/package.wit) | Typed provider surface (connect/permissions/capabilities/get/put/promote/list) with classified errors and binary-safe values. |
-| `secrets-generators-v0-1` | `greentic:secrets-generators/generators@0.1.0` (`generators`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-generators@0.1.0/package.wit) | Secret generation from policy JSON with binary outputs and tags/TTL hints. |
-| `secrets-audit-exporter-v0-1` | `greentic:secrets-audit-exporter/audit-exporter@0.1.0` (`audit-exporter`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-audit-exporter@0.1.0/package.wit) | Ships audit events (no secret payloads) to external sinks. |
-| `secrets-policy-validator-v0-1` | `greentic:secrets-policy-validator/policy-validator@0.1.0` (`policy-validator`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/secrets-policy-validator@0.1.0/package.wit) | Validates JSON-encoded requests against provider policy JSON and returns allow/deny + obligations. |
 | `state-store-v1` | `greentic:state/store@1.0.0` (`store`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/state-store@1.0.0/package.wit) | Tenant-scoped blob store aligned with `HostCapabilities.state`. |
-| `messaging-session-v1` | `greentic:messaging/session@1.0.0` (`session`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/messaging-session@1.0.0/package.wit) | Generic outbound messaging surface for session flows. |
-| `events-broker-v1` | `greentic:events/broker@1.0.0` (`broker`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Pull-based publish/subscribe broker surface (subscribe + next-event + ack). |
-| `events-source-v1` | `greentic:events/source@1.0.0` (`source`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Pull-based provider source surface (start-source + next-event). |
-| `events-sink-v1` | `greentic:events/sink@1.0.0` (`sink`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Deliver events to external transports with structured delivery results. |
-| `events-bridge-v1` | `greentic:events-bridge@1.0.0` (`message-to-event-bridge`, `event-to-message-bridge`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events-bridge@1.0.0/package.wit) | Convert channel messages ↔ events without provider-specific fields. |
 | `http-client-v1` | `greentic:http/client@1.0.0` (`client`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/http-client@1.0.0/package.wit) | Preview 2 HTTP client matching `HostCapabilities.http`. |
 | `http-client-v1-1` | `greentic:http/client@1.1.0` (`client`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/http-client@1.1.0/package.wit) | Adds optional `request-options` + tenant context; hosts should also expose `@1.0.0` for legacy bundles. |
 | `telemetry-logger-v1` | `greentic:telemetry/logger@1.0.0` (`logger`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/telemetry-logger@1.0.0/package.wit) | Tenant-aware telemetry logger aligned with `HostCapabilities.telemetry`. |
@@ -136,7 +129,6 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `describe-v1` | `greentic:component@1.0.0` (`describe-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/component@1.0.0/package.wit) | Describe-only schema export for packs without the full component ABI. |
 | `runner-host-v1` | `greentic:host@1.0.0` (`http-v1`, `kv-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/host@1.0.0/package.wit) | Legacy runner host bundle (now secrets-free; kept only for HTTP/KV). |
 | `component-lifecycle-v1` | `greentic:lifecycle@1.0.0` (`lifecycle-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/lifecycle@1.0.0/package.wit) | Optional lifecycle hooks (`init`, `health`, `shutdown`). |
-| `events-v1` | `greentic:events@1.0.0` (`events-v1`) | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/events@1.0.0/package.wit) | Legacy telemetry envelope (retained for back-compat alongside the new broker/source/sink worlds). |
 | `source-v1` | `greentic:source/source-sync@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/source@1.0.0/package.wit) | Tenant-scoped source provider interface (list repos/branches, commit metadata, webhooks). |
 | `build-v1` | `greentic:build/builder@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/build@1.0.0/package.wit) | Tenant-scoped build execution (build plan/status/log refs). |
 | `scan-v1` | `greentic:scan/scanner@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/scan@1.0.0/package.wit) | Tenant-scoped scan execution (scan kind/result/SBOM refs). |
@@ -309,7 +301,7 @@ greentic = "greentic.ai"
 
 With that mapping in place the CLI will transparently pull from GHCR using the namespace prefix advertised by the registry metadata (`greentic-ai/wit/`).
 
-Provider-facing secrets surfaces (`secrets-provider@0.1.0`, `secrets-generators@0.1.0`, `secrets-audit-exporter@0.1.0`, `secrets-policy-validator@0.1.0`) are documented in `docs/secrets-provider.md`; fetch them with `wkg get greentic:secrets-provider@0.1.0 --format wit --output wit/deps/` and import the shared `types` interface.
+Legacy secrets provider surfaces are documented for migration notes in `docs/secrets-provider.md`; provider-core JSON schemas have replaced the typed provider WIT worlds.
 
 ## Using `secrets-store-v1` from guests
 

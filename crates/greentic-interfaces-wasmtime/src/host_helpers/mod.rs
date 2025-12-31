@@ -4,7 +4,6 @@ pub mod v1;
 pub use v1::{
     HostFns, add_all_v1_to_linker as add_all_to_linker,
     http_client::add_http_client_to_linker,
-    messaging_session::add_messaging_session_to_linker,
     oauth_broker::add_oauth_broker_to_linker,
     runner_host_http::add_runner_host_http_to_linker,
     runner_host_kv::add_runner_host_kv_to_linker,

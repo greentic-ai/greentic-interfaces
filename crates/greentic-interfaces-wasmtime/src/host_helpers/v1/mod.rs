@@ -5,7 +5,6 @@
 //! depending on the generated module paths.
 
 pub mod http_client;
-pub mod messaging_session;
 pub mod oauth_broker;
 pub mod runner_host_http;
 pub mod runner_host_kv;
@@ -24,7 +23,6 @@ pub struct HostFns<T> {
     pub oauth_broker: Option<fn(&mut T) -> &mut dyn oauth_broker::OAuthBrokerHost>,
     pub runner_host_http: Option<fn(&mut T) -> &mut dyn runner_host_http::RunnerHostHttp>,
     pub runner_host_kv: Option<fn(&mut T) -> &mut dyn runner_host_kv::RunnerHostKv>,
-    pub messaging_session: Option<fn(&mut T) -> &mut dyn messaging_session::MessagingSessionHost>,
     pub telemetry_logger: Option<fn(&mut T) -> &mut dyn telemetry_logger::TelemetryLoggerHost>,
     pub state_store: Option<fn(&mut T) -> &mut dyn state_store::StateStoreHost>,
     pub secrets_store: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHost>,
@@ -48,9 +46,6 @@ pub fn add_all_v1_to_linker<T>(
     }
     if let Some(get) = fns.runner_host_kv {
         runner_host_kv::add_runner_host_kv_to_linker(linker, get)?;
-    }
-    if let Some(get) = fns.messaging_session {
-        messaging_session::add_messaging_session_to_linker(linker, get)?;
     }
     if let Some(get) = fns.telemetry_logger {
         telemetry_logger::add_telemetry_logger_to_linker(linker, get)?;

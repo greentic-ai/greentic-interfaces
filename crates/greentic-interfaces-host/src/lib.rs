@@ -67,10 +67,6 @@ pub mod types {
     pub mod common_v0_1 {
         pub use greentic_interfaces::common_types_v0_1::*;
     }
-    /// Shared event envelope types.
-    pub mod events_v1 {
-        pub use greentic_interfaces::events_v1::*;
-    }
     /// Core type defs for the 0.2 line.
     pub mod types_core_v0_2 {
         pub use greentic_interfaces::types_core_v0_2::*;
@@ -86,30 +82,6 @@ pub mod secrets {
     /// `greentic:secrets-store/store@1.0.0` host imports.
     pub mod store_v1 {
         pub use greentic_interfaces::secrets_store_v1::*;
-    }
-
-    /// `greentic:secrets-provider/provider@0.1.0` component exports.
-    #[cfg(feature = "legacy-secrets-provider-protocol")]
-    pub mod provider_v0_1 {
-        pub use greentic_interfaces::secrets_provider_v0_1::*;
-    }
-
-    /// `greentic:secrets-generators/generators@0.1.0` component exports.
-    #[cfg(feature = "legacy-secrets-provider-protocol")]
-    pub mod generators_v0_1 {
-        pub use greentic_interfaces::secrets_generators_v0_1::*;
-    }
-
-    /// `greentic:secrets-audit-exporter/audit-exporter@0.1.0` component exports.
-    #[cfg(feature = "legacy-secrets-provider-protocol")]
-    pub mod audit_exporter_v0_1 {
-        pub use greentic_interfaces::secrets_audit_exporter_v0_1::*;
-    }
-
-    /// `greentic:secrets-policy-validator/policy-validator@0.1.0` component exports.
-    #[cfg(feature = "legacy-secrets-provider-protocol")]
-    pub mod policy_validator_v0_1 {
-        pub use greentic_interfaces::secrets_policy_validator_v0_1::*;
     }
 }
 
@@ -128,40 +100,6 @@ pub mod provider_common {
 /// v1 host capability contracts.
 pub mod state {
     pub use greentic_interfaces::state_store_v1::*;
-}
-
-/// v1 host capability contracts.
-#[cfg(feature = "legacy-messaging-provider-protocol")]
-pub mod messaging_session {
-    pub use greentic_interfaces::messaging_session_v1::*;
-}
-
-/// v1 host capability contracts.
-#[cfg(feature = "legacy-events-provider-protocol")]
-pub mod events_broker {
-    pub use greentic_interfaces::events_broker_v1::*;
-}
-
-/// v1 host capability contracts.
-#[cfg(feature = "legacy-events-provider-protocol")]
-pub mod events_source {
-    pub use greentic_interfaces::events_source_v1::*;
-}
-
-/// v1 host capability contracts.
-#[cfg(feature = "legacy-events-provider-protocol")]
-pub mod events_sink {
-    pub use greentic_interfaces::events_sink_v1::*;
-}
-
-/// v1 host capability contracts.
-#[cfg(feature = "legacy-events-provider-protocol")]
-pub mod events_bridge {
-    pub use greentic_interfaces::events_bridge_event_to_message_v1::EventToMessageBridge;
-    pub use greentic_interfaces::events_bridge_message_to_event_v1::MessageToEventBridge;
-
-    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_event_to_message_bridge::exports::greentic::events_bridge::bridge_api as event_to_message_bridge;
-    pub use greentic_interfaces::bindings::greentic_events_bridge_1_0_0_message_to_event_bridge::exports::greentic::events_bridge::bridge_api as message_to_event_bridge;
 }
 
 /// v1 host capability contracts.
@@ -481,12 +419,6 @@ pub mod distributor_api {
     pub mod v1 {
         pub use greentic_interfaces::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::greentic::distributor_api::distributor::*;
     }
-}
-
-/// Stable alias for messaging session imports.
-#[cfg(feature = "legacy-messaging-provider-protocol")]
-pub mod messaging {
-    pub use super::messaging_session::*;
 }
 
 /// Stable alias for HTTP client imports.

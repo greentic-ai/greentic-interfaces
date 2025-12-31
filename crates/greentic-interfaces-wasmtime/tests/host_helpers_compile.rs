@@ -1,7 +1,7 @@
 use anyhow::Result;
 use greentic_interfaces_wasmtime::host_helpers::v1::{
-    HostFns, http_client, messaging_session, oauth_broker, runner_host_http, runner_host_kv,
-    secrets_store, state_store, telemetry_logger,
+    HostFns, http_client, oauth_broker, runner_host_http, runner_host_kv, secrets_store,
+    state_store, telemetry_logger,
 };
 use wasmtime::component::Linker;
 use wasmtime::{Config, Engine};
@@ -104,18 +104,6 @@ impl runner_host_kv::RunnerHostKv for DummyRunnerKv {
     }
 }
 
-struct DummyMessaging;
-impl messaging_session::MessagingSessionHost for DummyMessaging {
-    fn send(
-        &mut self,
-        _message: messaging_session::OutboundMessage,
-        _ctx: messaging_session::TenantCtx,
-    ) -> std::result::Result<messaging_session::OpAck, messaging_session::MessagingSessionError>
-    {
-        Ok(messaging_session::OpAck::Ok)
-    }
-}
-
 struct DummyTelemetry;
 impl telemetry_logger::TelemetryLoggerHost for DummyTelemetry {
     fn log(
@@ -178,7 +166,6 @@ struct HostState {
     oauth: DummyOAuthBroker,
     runner_http: DummyRunnerHttp,
     runner_kv: DummyRunnerKv,
-    messaging: DummyMessaging,
     telemetry: DummyTelemetry,
     state: DummyStateStore,
     secrets: DummySecrets,
@@ -200,9 +187,6 @@ fn host_helpers_compile() -> Result<()> {
     })?;
     runner_host_kv::add_runner_host_kv_to_linker(&mut linker, |state: &mut HostState| {
         &mut state.runner_kv
-    })?;
-    messaging_session::add_messaging_session_to_linker(&mut linker, |state: &mut HostState| {
-        &mut state.messaging
     })?;
     telemetry_logger::add_telemetry_logger_to_linker(&mut linker, |state: &mut HostState| {
         &mut state.telemetry
@@ -226,7 +210,6 @@ fn host_helpers_compile() -> Result<()> {
         oauth_broker: Some(|state: &mut HostState| &mut state.oauth),
         runner_host_http: Some(|state: &mut HostState| &mut state.runner_http),
         runner_host_kv: Some(|state: &mut HostState| &mut state.runner_kv),
-        messaging_session: Some(|state: &mut HostState| &mut state.messaging),
         telemetry_logger: Some(|state: &mut HostState| &mut state.telemetry),
         state_store: Some(|state: &mut HostState| &mut state.state),
         secrets_store: Some(|state: &mut HostState| &mut state.secrets),

@@ -20,10 +20,9 @@ The `wit/` directory contains additive packages:
 | `greentic:interfaces-types@0.1.0` | Canonical data structures (`TenantCtx`, `SessionCursor`, `Outcome`, `AllowList`, `NetworkPolicy`, `PackRef`, `SpanContext`, etc.). |
 | `greentic:interfaces-provider@0.1.0` | Provider self-description (`ProviderMeta`). |
 | `greentic:interfaces-pack@0.1.0` | Component world exporting `meta()` and `invoke()` for pack execution. |
+| `greentic:provider-schema-core@1.0.0` | Provider-core schema world for describing provider capabilities/config via JSON Schema. |
 | `greentic:secrets-store/store@1.0.0` | Read-only secret lookups (`get`) with structured errors. |
 | `greentic:state/store@1.0.0` | Generic blob store keyed by `StateKey`. |
-| `greentic:messaging/session@1.0.0` | Session-scoped messaging replies routed via opaque payloads. |
-| `greentic:events/emitter@1.0.0` | Fire-and-forget event emission. |
 | `greentic:http/client@1.0.0` | HTTP client with structured request/response types. |
 | `greentic:telemetry/logger@1.0.0` | Telemetry emitter keyed by `SpanContext`. |
 | `greentic:repo-ui-actions@1.0.0` | UI action handler world for tenant-skinned consoles (`handle-action`). |
