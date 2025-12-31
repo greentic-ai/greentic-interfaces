@@ -3,8 +3,10 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT_DIR="${1:-${ROOT}/target/wit-pages}"
-PKGS=("component@1.0.0" "host@1.0.0" "lifecycle@1.0.0" "events@1.0.0")
-FEATURES=("describe-v1" "runner-host-v1" "component-lifecycle-v1" "events-v1")
+# WIT packages exported on the main site. Keep this list aligned with the
+# supported v1 worlds in greentic-interfaces.
+PKGS=("component@1.0.0" "host@1.0.0" "lifecycle@1.0.0" "provider/schema-core@1.0.0")
+FEATURES=("describe-v1" "runner-host-v1" "component-lifecycle-v1" "provider-core-v1")
 
 rm -rf "${OUT_DIR}"
 mkdir -p "${OUT_DIR}"
