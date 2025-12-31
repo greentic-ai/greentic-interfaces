@@ -11,13 +11,15 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_DIR: target
+      CARGO_PROFILE_DEV_DEBUG: 0
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: 1.89.0
           components: rustfmt,clippy
-      - uses: Swatinem/rust-cache@v2
       - name: Lint & Test
         run: |
           cargo fmt --all -- --check
@@ -38,7 +40,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: 1.89.0
-      - uses: Swatinem/rust-cache@v2
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Detect changed crate versions and create tags
@@ -99,12 +100,14 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    env:
+      CARGO_TARGET_DIR: target
+      CARGO_PROFILE_DEV_DEBUG: 0
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: 1.89.0
-      - uses: Swatinem/rust-cache@v2
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Publish crates to crates.io

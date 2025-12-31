@@ -12,7 +12,7 @@ BUNDLE_VERSION="1.0.0"
 BUNDLE_NAME="greentic-interfaces-wit-${BUNDLE_VERSION}"
 TMP_DIR="${OUT_DIR}/${BUNDLE_NAME}"
 
-PKGS=("component@1.0.0" "host@1.0.0" "lifecycle@1.0.0" "events@1.0.0")
+PKGS=("component@1.0.0" "host@1.0.0" "lifecycle@1.0.0")
 
 rm -rf "${TMP_DIR}"
 mkdir -p "${TMP_DIR}"

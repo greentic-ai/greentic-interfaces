@@ -9,15 +9,16 @@ PKGS=(
   "component@1.0.0"
   "host@1.0.0"
   "lifecycle@1.0.0"
-  "events@1.0.0"
 )
 
-declare -A FEATURE_FLAGS=(
-  ["component@1.0.0"]="describe-v1"
-  ["host@1.0.0"]="runner-host-v1"
-  ["lifecycle@1.0.0"]="component-lifecycle-v1"
-  ["events@1.0.0"]="events-v1"
-)
+feature_flag_for() {
+  case "$1" in
+    "component@1.0.0") echo "describe-v1" ;;
+    "host@1.0.0") echo "runner-host-v1" ;;
+    "lifecycle@1.0.0") echo "component-lifecycle-v1" ;;
+    *) echo "" ;;
+  esac
+}
 
 bundle_hash="$(sha256sum "${BUNDLE_PATH}" | awk '{print $1}')"
 
@@ -40,7 +41,11 @@ for pkg in "${PKGS[@]}"; do
     exit 1
   fi
   hash="$(sha256sum "${file}" | awk '{print $1}')"
-  flag="${FEATURE_FLAGS["${pkg}"]}"
+  flag="$(feature_flag_for "${pkg}")"
+  if [[ -z "${flag}" ]]; then
+    echo "Missing feature flag mapping for ${pkg}" >&2
+    exit 1
+  fi
   printf -- "- %s (feature \`%s\`): \`%s\`\n" "${pkg}" "${flag}" "${hash}" >>"${OUT_PATH}"
 
 done
