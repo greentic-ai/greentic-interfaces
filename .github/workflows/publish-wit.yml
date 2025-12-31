@@ -63,7 +63,7 @@ jobs:
           set -euo pipefail
           raw_dir="target/wit-packages/raw"
           mkdir -p "${raw_dir}"
-          for pkg in component@1.0.0 host@1.0.0 lifecycle@1.0.0 events@1.0.0; do
+          for pkg in component@1.0.0 host@1.0.0 lifecycle@1.0.0; do
             src="crates/greentic-interfaces/wit/greentic/${pkg}/package.wit"
             safe="${pkg//@/-}"
             cp "${src}" "${raw_dir}/${safe}-package.wit"
