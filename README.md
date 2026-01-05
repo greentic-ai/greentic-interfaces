@@ -103,6 +103,43 @@ let _resp = api.resolve_component(&ResolveComponentRequest {
 });
 ```
 
+#### Minimal guest component (2 funcs + macro)
+
+Use the `component_entrypoint!` macro so the crate generates the WASM export glue (marker section, unsafe `#[export_name]` funcs) for you. Only the payload description and invoke handler are required; streaming defaults to `[Progress(0), Data(result), Done]` and lifecycle hooks default to `Ok`.
+
+```rust
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+
+use greentic_interfaces_guest::component::node::{InvokeResult, NodeError};
+use greentic_interfaces_guest::component_entrypoint;
+
+fn describe_payload() -> String {
+    r#"{"name":"demo","version":"1.0.0"}"#.to_string()
+}
+
+fn handle_message(op: String, input: String) -> InvokeResult {
+    match op.as_str() {
+        "fail" => InvokeResult::Err(NodeError {
+            code: "demo".into(),
+            message: format!("bad input: {input}"),
+            retryable: false,
+            backoff_ms: None,
+            details: None,
+        }),
+        _ => InvokeResult::Ok(format!("ok:{input}")),
+    }
+}
+
+component_entrypoint!({
+    manifest: describe_payload,
+    invoke: handle_message,
+    // Optional:
+    // invoke_stream: true, // default; set false to disable
+    // on_start: my_start_fn,
+    // on_stop: my_stop_fn,
+});
+```
+
 ## Migration guide: move to host/guest crates
 
 1. Replace direct `greentic-interfaces` imports in hosts with `greentic-interfaces-host` and switch to the curated modules (`secrets`, `state`, `http`, `telemetry`, `oauth`).

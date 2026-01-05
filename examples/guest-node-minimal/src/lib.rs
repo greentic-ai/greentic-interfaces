@@ -1,34 +1,30 @@
 #![deny(unsafe_code)]
+#![cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
 
 #[cfg(target_arch = "wasm32")]
 mod guest {
-    use greentic_interfaces_guest::component::node::{
-        ExecCtx, Guest, InvokeResult, LifecycleStatus, StreamEvent,
-    };
+    use greentic_interfaces_guest::component::node::{InvokeResult, NodeError};
+    use greentic_interfaces_guest::component_entrypoint;
 
-    struct Component;
+    fn describe_payload() -> String {
+        r#"{"component":"guest-node-minimal"}"#.to_string()
+    }
 
-    impl Guest for Component {
-        fn get_manifest() -> String {
-            "{}".to_string()
-        }
-
-        fn on_start(_ctx: ExecCtx) -> Result<LifecycleStatus, String> {
-            Ok(LifecycleStatus::Ok)
-        }
-
-        fn on_stop(_ctx: ExecCtx, _reason: String) -> Result<LifecycleStatus, String> {
-            Ok(LifecycleStatus::Ok)
-        }
-
-        fn invoke(_ctx: ExecCtx, _op: String, _input: String) -> InvokeResult {
-            InvokeResult::Ok("{}".to_string())
-        }
-
-        fn invoke_stream(_ctx: ExecCtx, _op: String, _input: String) -> Vec<StreamEvent> {
-            vec![StreamEvent::Done]
+    fn handle_message(op: String, input: String) -> InvokeResult {
+        match op.as_str() {
+            "fail" => InvokeResult::Err(NodeError {
+                code: "demo".to_string(),
+                message: format!("error:{input}"),
+                retryable: false,
+                backoff_ms: None,
+                details: None,
+            }),
+            _ => InvokeResult::Ok(format!("handled:{input}")),
         }
     }
 
-    greentic_interfaces_guest::export_component_node!(Component);
+    component_entrypoint!({
+        manifest: describe_payload,
+        invoke: handle_message,
+    });
 }
