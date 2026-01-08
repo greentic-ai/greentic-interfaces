@@ -39,7 +39,7 @@ wit-bindgen = { version = "0.50", default-features = false, features = ["macros"
 wit-bindgen-core = "0.50"
 wit-bindgen-rust = "0.50"
 schemars = { version = "1", features = ["derive"] }
-wit-parser = "0.243"
+wit-parser = "0.244"
 insta = { version = "1", features = ["json"] }
 camino = "1"
 proc-macro2 = "1"
