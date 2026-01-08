@@ -425,7 +425,7 @@ pub mod distributor_api {
     }
 
     /// Resolved component metadata returned by a ref-based lookup.
-    #[derive(Debug, Clone, PartialEq)]
+    #[derive(Debug, Clone)]
     pub struct ResolvedComponent {
         /// Digest returned by the distributor (opaque string).
         pub digest: String,
