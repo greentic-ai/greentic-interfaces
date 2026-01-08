@@ -16,6 +16,8 @@ pub use component_entrypoint::{NODE_EXPORT_PREFIX, stream_from_invoke_result};
 
 #[cfg(feature = "distributor-api-imports")]
 mod distributor_api_imports;
+#[cfg(feature = "distributor-api-v1-1-imports")]
+mod distributor_api_imports_v1_1;
 
 /// Component exports for `greentic:component/component@0.5.0`.
 #[cfg(feature = "component-node")]
@@ -272,6 +274,26 @@ pub mod distributor_api {
     /// Convenience wrapper around the distributor imports.
     #[cfg(feature = "distributor-api-imports")]
     pub use crate::distributor_api_imports::DistributorApiImports;
+}
+
+/// Distributor API for resolving pack components (ref-based v1.1).
+#[cfg(any(
+    feature = "distributor-api-v1-1",
+    feature = "distributor-api-v1-1-imports"
+))]
+pub mod distributor_api_v1_1 {
+    #[cfg(feature = "distributor-api-v1-1")]
+    pub use crate::bindings::greentic_distributor_api_1_1_0_distributor_api::exports::greentic::distributor_api::distributor::*;
+
+    /// Raw imports generated from `greentic:distributor-api@1.1.0`.
+    #[cfg(feature = "distributor-api-v1-1-imports")]
+    pub mod imports {
+        pub use crate::bindings::greentic_distributor_api_1_1_0_distributor_api_imports::greentic::distributor_api::distributor::*;
+    }
+
+    /// Convenience wrapper around the distributor imports.
+    #[cfg(feature = "distributor-api-v1-1-imports")]
+    pub use crate::distributor_api_imports_v1_1::DistributorApiImportsV1_1;
 }
 
 /// MCP router exports for multiple protocol snapshots.

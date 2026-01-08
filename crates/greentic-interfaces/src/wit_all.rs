@@ -578,6 +578,16 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "distributor-api-v1-1")]
+declare_world!(
+    mod distributor_api_v1_1,
+    path = "wit/greentic/distributor@1.1.0",
+    world = "greentic:distributor-api/distributor-api@1.1.0",
+    legacy = {
+        pub const PACKAGE_ID: &str = "greentic:distributor-api@1.1.0";
+    }
+);
+
 #[cfg(feature = "oci-v1")]
 declare_world!(
     mod oci_v1,

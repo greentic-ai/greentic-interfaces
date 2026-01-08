@@ -398,6 +398,16 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "distributor-api-imports",
     },
     WorldFeature {
+        package: "greentic:distributor-api@1.1.0",
+        world: "distributor-api",
+        feature: "distributor-api-v1-1",
+    },
+    WorldFeature {
+        package: "greentic:distributor-api@1.1.0",
+        world: "distributor-api-imports",
+        feature: "distributor-api-v1-1-imports",
+    },
+    WorldFeature {
         package: "greentic:http@1.0.0",
         world: "client",
         feature: "http-client",

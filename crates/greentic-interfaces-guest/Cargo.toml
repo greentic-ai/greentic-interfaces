@@ -39,6 +39,8 @@ distribution = []
 provider-common = []
 distributor-api = []
 distributor-api-imports = ["distributor-api"]
+distributor-api-v1-1 = []
+distributor-api-v1-1-imports = ["distributor-api-v1-1"]
 gui-fragment = []
 deploy-plan = []
 repo-ui-actions = []
@@ -73,6 +75,8 @@ guest = [
     "oci",
     "distributor-api",
     "distributor-api-imports",
+    "distributor-api-v1-1",
+    "distributor-api-v1-1-imports",
     "distribution",
     "provider-common",
     "deploy-plan",

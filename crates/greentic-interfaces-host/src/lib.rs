@@ -419,6 +419,37 @@ pub mod distributor_api {
     pub mod v1 {
         pub use greentic_interfaces::bindings::greentic_distributor_api_1_0_0_distributor_api::exports::greentic::distributor_api::distributor::*;
     }
+    /// `greentic:distributor-api/distributor-api@1.1.0`.
+    pub mod v1_1 {
+        pub use greentic_interfaces::bindings::greentic_distributor_api_1_1_0_distributor_api::exports::greentic::distributor_api::distributor::*;
+    }
+
+    /// Resolved component metadata returned by a ref-based lookup.
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct ResolvedComponent {
+        /// Digest returned by the distributor (opaque string).
+        pub digest: String,
+        /// Metadata returned by `resolve-ref`.
+        pub metadata: v1_1::ResolveRefMetadata,
+    }
+
+    /// Resolved component artifact content.
+    #[derive(Debug, Clone, PartialEq)]
+    pub enum ResolvedArtifact {
+        /// Raw component bytes.
+        Bytes(Vec<u8>),
+        /// Filesystem path to the component.
+        Path(String),
+    }
+
+    /// Host-side resolver for ref-based component lookup.
+    pub trait ComponentResolver {
+        /// Resolve a component reference string to a digest plus metadata.
+        fn resolve_ref(&self, component_ref: &str) -> ResolvedComponent;
+
+        /// Fetch a resolved component artifact by digest.
+        fn fetch_digest(&self, digest: &str) -> ResolvedArtifact;
+    }
 }
 
 /// Stable alias for HTTP client imports.
