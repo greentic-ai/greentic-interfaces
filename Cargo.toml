@@ -37,7 +37,7 @@ wasmtime = { version = "40", default-features = false, features = ["component-mo
 wasmtime-wasi = "40"
 wit-bindgen = { version = "0.50", default-features = false, features = ["macros", "realloc"] }
 wit-bindgen-core = "0.50"
-wit-bindgen-rust = "0.50"
+wit-bindgen-rust = "0.51"
 schemars = { version = "1", features = ["derive"] }
 wit-parser = "0.244"
 insta = { version = "1", features = ["json"] }
