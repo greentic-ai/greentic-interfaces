@@ -36,7 +36,7 @@ thiserror = "2"
 wasmtime = { version = "40", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 wasmtime-wasi = "40"
 wit-bindgen = { version = "0.50", default-features = false, features = ["macros", "realloc"] }
-wit-bindgen-core = "0.50"
+wit-bindgen-core = "0.51"
 wit-bindgen-rust = "0.50"
 schemars = { version = "1", features = ["derive"] }
 wit-parser = "0.244"
