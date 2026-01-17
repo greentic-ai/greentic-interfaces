@@ -24,7 +24,7 @@ fn distributor_imports_v1_1_are_callable() {
         let resp = client.resolve_component(&req);
         let _ = resp.secret_requirements;
 
-        let _ = client.resolve_ref("oci://example.com/greentic/component@v1");
+        let _ = client.resolve_ref("oci://example.com/greentic/component:v1");
         let _ = client.get_by_digest(digest);
 
         let _ = client.get_pack_status(&tenant, &env, &pack);

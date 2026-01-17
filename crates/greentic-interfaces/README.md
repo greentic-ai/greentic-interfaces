@@ -29,7 +29,7 @@ The `wit/` directory contains additive packages:
 | `greentic:worker@1.0.0` | Generic worker envelope (WorkerRequest/WorkerResponse/messages) for assistants/workers; see [`docs/worker.md`](../docs/worker.md). |
 | `greentic:oauth-broker@1.0.0` | Generic OAuth broker: build consent URLs, exchange codes, fetch tokens; provider semantics stay in host-side greentic-oauth/config. Hosts implement the exported `broker` world; wasm guests import via `broker-client`. |
 | `greentic:distributor-api@1.0.0` | Runner/Deployer distributor API: resolve-component, pack status, warm-pack; canonical surface for runtime artifact lookup. |
-| `greentic:distributor-api@1.1.0` | Adds ref-based resolution (`resolve-ref`) + digest fetching (`get-by-digest`) for OCI/repo/store component references. |
+| `greentic:distributor-api@1.1.0` | Adds ref-based resolution (`resolve-ref`) + digest fetching (`get-by-digest`) for OCI component references (tag or digest). |
 | `greentic:distribution@1.0.0` | Experimental desired-state submission/fetch ABI (future-facing control plane surface, unused by current runner flows). |
 
 ### MCP router WIT

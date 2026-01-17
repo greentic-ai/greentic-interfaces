@@ -182,7 +182,7 @@ For local development you can override the crates.io dependency on `greentic-typ
 | `policy-v1` | `greentic:policy/policy-evaluator@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/policy@1.0.0/package.wit) | Tenant-scoped policy evaluation (allow/deny with reasons). |
 | `metadata-v1` | `greentic:metadata/metadata-store@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/metadata@1.0.0/package.wit) | Tenant-scoped metadata upsert/query for components/versions. |
 | `distributor-api` | `greentic:distributor-api/distributor-api@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distributor@1.0.0/package.wit) | Active distributor API for runner/deployer flows: resolve-component (includes secret requirements), legacy `get-pack-status` string, structured `get-pack-status-v2` (status + secret requirements), and warm-pack; guests can also enable `distributor-api-imports` for import bindings plus a `DistributorApiImports` helper. |
-| `distributor-api-v1-1` | `greentic:distributor-api/distributor-api@1.1.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distributor@1.1.0/package.wit) | Adds ref-based resolution (`resolve-ref`) and digest fetching (`get-by-digest`) for OCI/repo/store component references; keep `@1.0.0` for pack-id + component-id flows. |
+| `distributor-api-v1-1` | `greentic:distributor-api/distributor-api@1.1.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distributor@1.1.0/package.wit) | Adds ref-based resolution (`resolve-ref`) and digest fetching (`get-by-digest`) for OCI component references (tag or digest); keep `@1.0.0` for pack-id + component-id flows. |
 | `distribution-v1` | `greentic:distribution/distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/distribution@1.0.0/package.wit) | Experimental desired state submission/retrieval (tenant + IDs + JSON blobs), not used by current flows. |
 | `oci-v1` | `greentic:oci/oci-distribution@1.0.0` | [`package.wit`](https://greentic-ai.github.io/greentic-interfaces/oci@1.0.0/package.wit) | Tenant-scoped OCI distribution helpers (push/get pull reference). |
 | `wit-all` | Aggregates every feature above plus the legacy defaults (`component-v0-4`, `types-core-*`, etc.) | – | Handy opt-in when you just want “everything on”. |
@@ -193,7 +193,7 @@ Additional shared package: `provider:common@0.0.2` (under `wit/provider-common/w
 
 Packs and runners that need to resolve remote components should use the ref-based distributor surface in `greentic:distributor-api@1.1.0`:
 
-- pass a ComponentRef string (e.g. `oci://registry/repo@sha256:...`, `repo://owner/name@v1`, `store://tenant/path@digest`) into `resolve-ref`.
+- pass a ComponentRef string (`oci://registry/repo:tag` or `oci://registry/repo@sha256:<digest>`) into `resolve-ref`.
 - read the returned digest + metadata and persist the digest alongside the pack manifest.
 - fetch the actual artifact with `get-by-digest` (returns bytes or a filesystem path).
 

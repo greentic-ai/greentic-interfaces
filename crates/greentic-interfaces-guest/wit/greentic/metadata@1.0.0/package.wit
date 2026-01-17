@@ -11,8 +11,9 @@ interface metadata-api {
     message: string,
   }
 
-  /// Component reference.
+  /// Component reference (`oci://repo/name:tag` or `oci://repo/name@sha256:<digest>`).
   record component-ref {
+    /// OCI component reference string.
     id: string,
     extra: option<string>,
   }
