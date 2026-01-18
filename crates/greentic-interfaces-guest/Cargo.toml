@@ -46,6 +46,7 @@ deploy-plan = []
 repo-ui-actions = []
 pack-export = []
 pack-export-v1 = ["greentic-interfaces"]
+pack-validate = []
 common-types = []
 runner = []
 types-core = []
@@ -83,6 +84,7 @@ guest = [
     "repo-ui-actions",
     "pack-export",
     "pack-export-v1",
+    "pack-validate",
     "runner",
     "types-core",
     "wasix-mcp-24-11-05-guest",

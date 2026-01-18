@@ -175,6 +175,12 @@ pub mod gui_fragment {
     pub use crate::bindings::greentic_gui_1_0_0_gui_fragment::exports::greentic::gui::fragment_api::*;
 }
 
+/// Pack validator world `greentic:pack-validate/pack-validator@0.1.0`.
+#[cfg(feature = "pack-validate")]
+pub mod pack_validate {
+    pub use crate::bindings::greentic_pack_validate_0_1_0_pack_validator::exports::greentic::pack_validate::validator::*;
+}
+
 /// Pack metadata/flow discovery worlds.
 #[cfg(any(feature = "pack-export", feature = "pack-export-v1"))]
 pub mod pack_exports {

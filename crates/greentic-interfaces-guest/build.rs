@@ -483,6 +483,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "pack-export-v1",
     },
     WorldFeature {
+        package: "greentic:pack-validate@0.1.0",
+        world: "pack-validator",
+        feature: "pack-validate",
+    },
+    WorldFeature {
         package: "greentic:interfaces-pack@0.1.0",
         world: "component",
         feature: "pack-export",

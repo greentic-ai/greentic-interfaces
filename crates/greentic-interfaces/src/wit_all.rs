@@ -279,6 +279,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "pack-validate-v0-1")]
+declare_world!(
+    mod pack_validate_v0_1,
+    path = "wit/greentic/pack-validate@0.1.0",
+    world = "greentic:pack-validate/pack-validator@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:pack-validate@0.1.0";
+    }
+);
+
 #[cfg(feature = "types-core-v0-4")]
 declare_world!(
     mod types_core_v0_4,
