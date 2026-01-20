@@ -181,6 +181,12 @@ pub mod pack_validate {
     pub use crate::bindings::greentic_pack_validate_0_1_0_pack_validator::exports::greentic::pack_validate::validator::*;
 }
 
+/// Provisioning world `greentic:provision/provision-runner@0.1.0`.
+#[cfg(feature = "provision")]
+pub mod provision {
+    pub use crate::bindings::greentic_provision_0_1_0_provision_runner::exports::greentic::provision::provisioner::*;
+}
+
 /// Pack metadata/flow discovery worlds.
 #[cfg(any(feature = "pack-export", feature = "pack-export-v1"))]
 pub mod pack_exports {

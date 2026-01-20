@@ -290,6 +290,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "provision-v0-1")]
+declare_world!(
+    mod provision_v0_1,
+    path = "wit/greentic/provision@0.1.0",
+    world = "greentic:provision/provision-runner@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:provision@0.1.0";
+    }
+);
+
 #[cfg(feature = "types-core-v0-4")]
 declare_world!(
     mod types_core_v0_4,

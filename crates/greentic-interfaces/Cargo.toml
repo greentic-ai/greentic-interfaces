@@ -20,6 +20,7 @@ default = [
     "component-v0-5",
     "pack-export-v1",
     "pack-validate-v0-1",
+    "provision-v0-1",
     "component-v0-4",
     "pack-export-v0-4",
     "types-core-v0-4",
@@ -60,6 +61,7 @@ component-v0-4 = []
 describe-v1 = []
 pack-export-v1 = []
 pack-validate-v0-1 = []
+provision-v0-1 = []
 pack-export-v0-4 = []
 types-core-v0-4 = []
 runner-host-v1 = []
@@ -101,6 +103,7 @@ wit-all = [
     "describe-v1",
     "pack-export-v1",
     "pack-validate-v0-1",
+    "provision-v0-1",
     "pack-export-v0-4",
     "types-core-v0-4",
     "runner-host-v1",
