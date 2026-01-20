@@ -34,7 +34,7 @@ semver = "1"
 time = "0.3"
 thiserror = "2"
 wasmtime = { version = "40", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
-wasmtime-wasi = "40"
+wasmtime-wasi = "41"
 wit-bindgen = { version = "0.51", default-features = false, features = ["macros", "realloc"] }
 wit-bindgen-core = "0.51"
 wit-bindgen-rust = "0.51"
