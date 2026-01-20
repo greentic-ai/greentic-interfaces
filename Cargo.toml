@@ -33,7 +33,7 @@ serde_json = "1"
 semver = "1"
 time = "0.3"
 thiserror = "2"
-wasmtime = { version = "40", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
+wasmtime = { version = "41", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 wasmtime-wasi = "40"
 wit-bindgen = { version = "0.51", default-features = false, features = ["macros", "realloc"] }
 wit-bindgen-core = "0.51"
