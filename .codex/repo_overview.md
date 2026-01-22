@@ -1,59 +1,60 @@
 # Repository Overview
 
 ## 1. High-Level Purpose
-- Provides the authoritative Greentic WebAssembly Interface Types (WIT) contracts plus generated Rust bindings for both hosts and guests. Covers core types, host import bundles, pack/component exports, telemetry, HTTP, OAuth, events, supply-chain providers, MCP router snapshots, and related utilities.
-- Supplies Wasmtime integration helpers and minimal example components/hosts so downstream runtimes and packs can wire the contracts without regenerating WIT locally.
+- Hosts the authoritative Greentic WIT contracts plus generated Rust bindings for both host and guest runtimes, with Wasmtime glue for executing components.
+- Centralizes protocol snapshots (MCP), provider-core schema contracts, provisioning/validation worlds, and fixtures/examples for downstream integration.
 
 ## 2. Main Components and Functionality
 - **Path:** `crates/greentic-interfaces`  
-  **Role:** ABI crate containing WIT sources and generated bindings.  
-  **Key functionality:** Build script stages all WIT packages under `wit/greentic/*@*`; `bindings` exposes `wit-bindgen` output under `bindings::greentic::*`; `mappers` convert WIT types to/from `greentic-types` (TenantCtx, Outcome, AllowList, SpanContext, PackRef, etc.); `validate` checks provider metadata invariants; `wit_all` re-exports feature-gated bindings for convenience. Integration tests validate WIT staging, MCP packages, provider schema snapshot, and mapper round-trips. Adds the GUI fragment world `greentic:gui/gui-fragment@1.0.0` (server-rendered HTML fragments) and the distributor API world `greentic:distributor-api@1.0.0` (resolve/get/warm) while keeping `greentic:distribution@1.0.0` marked experimental. Legacy host-import bundles and `greentic:secrets@0.1.0` are removed; `greentic:host@1.0.0` now exposes only HTTP/KV and the sole secrets surface is `secrets-store@1.0.0` (bytes CRUD).  
-  **Key dependencies / integration points:** Depends on `greentic-types` for rich models; consumers set `GREENTIC_INTERFACES_BINDINGS` env from build.rs output.
+  **Role:** ABI crate containing WIT sources, generated bindings, and mappers.  
+  **Key functionality:** `build.rs` stages every WIT package under `wit/` into a deterministic `$OUT_DIR` bundle and exposes `wit-bindgen` output; `src/mappers.rs` converts between WIT shapes and `greentic-types`. Feature flags cover common-types, types-core (0.2/0.4), component (0.4/0.5/1.0 + component-v1), pack-export (0.2/0.4 + pack-export-v1), pack-validate, provision, deploy-plan, runner-host (`greentic:host@1.0.0`), provider schema-core + provider-common, secrets/store + secrets-types, state/store, http-client (1.0/1.1), telemetry-logger, oauth-broker, worker, repo-ui-actions, gui-fragment, distributor-api (1.0/1.1), distribution, oci, source/build/scan/signing/attestation/policy/metadata, plus MCP snapshots (`wasix:mcp@24.11.05`, `@25.03.26`, `@25.06.18`).  
+  **Key dependencies / integration points:** Depends on `greentic-types`; uses `wit-bindgen` 0.51; non-wasm builds link Wasmtime for tests.
 - **Path:** `crates/greentic-interfaces-host`  
-  **Role:** Host-facing re-export of curated bindings/mappers.  
-  **Key functionality:** Namespaced modules for component exports (0.4/v1, lifecycle), legacy and runner host import bundles, pack export worlds, core type packages, and v1 capability contracts (secrets/state/messaging/events/bridge/http/telemetry/oauth/worker/supply-chain/distribution/distributor-api). Adds host feature gates `worker-v1` and `oauth-broker-v1` that expose stable modules `worker::*` and `oauth_broker::*` for the corresponding WIT worlds, plus compile-only tests under `tests/` to ensure the feature surfaces stay available. Host-friendly worker helpers (`HostWorkerRequest/Response` with serde_json payloads) map to/from WIT worker types using `greentic-types::TenantCtx` via mappers. Optional GUI fragment host bindings (`gui_fragment` feature) plus MCP snapshots and repo UI actions re-exported. Denies wasm32 targets.  
-  **Key dependencies / integration points:** Wraps `greentic-interfaces` with the `wit-all` feature enabled.
+  **Role:** Host-facing re-export of bindings and mappers.  
+  **Key functionality:** Curated modules for host imports and exports built on top of `greentic-interfaces` (with `wit-all`); optional features for gui fragments, worker, oauth-broker, MCP snapshots, and provider-core worlds.
 - **Path:** `crates/greentic-interfaces-guest`  
   **Role:** Guest-facing bindings for `wasm32-wasip2` components.  
-  **Key functionality:** Build script stages WIT packages (from local `wit/` or fallback to the ABI crate) and generates bindings for enabled worlds; feature flags map to each world and default `guest` enables the full surface; macro `export_component_node!` exports the 0.4 node world; modules expose imports/exports for lifecycle, secrets/state/messaging/events/bridge/http/telemetry/oauth/worker, supply-chain provider worlds, deploy/distribution/distributor-api/pack-export, runner host bundles, MCP snapshots, repo UI actions, and the GUI fragment world (`gui-fragment` feature). Optional `host-bridge` feature re-exports mappers when building native. Distributor API also exposes import-side bindings plus a `DistributorApiImports` wrapper under the `distributor-api-imports` feature for calling resolve/get/warm from guests.  
-  **Key dependencies / integration points:** Uses `wit-bindgen` 0.48; optionally depends on `greentic-interfaces` when bridging on host.
+  **Key functionality:** Feature flags map to each world (component, pack-export, provision, pack-validate, deploy-plan, provider-core, distributor API, MCP, etc.); default `guest` enables the full surface and includes import helpers for distributor API v1/v1.1; `host-bridge` optionally reuses the ABI crate.
 - **Path:** `crates/greentic-interfaces-wasmtime`  
-  **Role:** Wasmtime glue for all Greentic WIT worlds.  
-  **Key functionality:** Build script discovers every `wit/greentic/*@*/package.wit` world and emits `component::bindgen` modules with a `Component::instantiate` helper (plus optional control helpers); `events_bridge` module aliases typed bridge helpers. Tests verify modules compile and exercise repo-ui-actions and distributor-api component round-trips under Wasmtime+p2 WASI.  
-  **Key dependencies / integration points:** Relies on Wasmtime component model; consumes staged WIT sources in this crate.
+  **Role:** Wasmtime integration layer for Greentic WIT packages.  
+  **Key functionality:** Build script discovers `wit/greentic/*@*/package.wit` and emits `component::bindgen` modules; tests cover repo-ui-actions, distributor API, provider-core smoke, secrets-store linker wiring, and host-helper compile checks.
 - **Path:** `examples/component-describe`  
-  **Role:** Minimal `wasm32-wasip2` component exporting `describe-json` for the describe-only world.  
-  **Key functionality:** Uses `wit_bindgen` against `component@1.0.0`, returns static JSON schema; gated to wasm builds.
+  **Role:** `wasm32-wasip2` component exporting describe-only (`component@1.0.0`).  
+  **Key functionality:** Minimal describe JSON implementation used by smoke tests.
 - **Path:** `examples/guest-node-minimal`  
-  **Role:** Skeleton guest component for `greentic:component/node@0.4.0`.  
-  **Key functionality:** Implements node lifecycle/invoke/invoke-stream with trivial responses and exports via `export_component_node!`.
+  **Role:** Skeleton component for `greentic:component/node@0.4.0`.  
+  **Key functionality:** Implements minimal lifecycle/invoke handlers and exports via guest macro.
 - **Path:** `examples/crates-io-consumer`  
-  **Role:** Host binary smoke test for the published ABI crate.  
-  **Key functionality:** Instantiates an AllowList from the bindings to confirm dependency wiring.
+  **Role:** Host binary smoke test for published ABI crate wiring.  
+  **Key functionality:** Imports bindings to ensure crates.io dependencies resolve.
 - **Path:** `examples/runner-host-smoke`  
-  **Role:** Host-side Wasmtime smoke test.  
-  **Key functionality:** Builds/loads the `component-describe` Wasm artifact (auto-builds if missing), wires runner-host imports plus WASI preview2, and calls `describe-json`, asserting valid JSON.
+  **Role:** Host-side Wasmtime smoke test runner.  
+  **Key functionality:** Builds/loads the describe component and invokes `describe-json` with runner-host imports.
+- **Path:** `examples/provider-core-dummy`  
+  **Role:** Dummy provider-core component for schema-core world.  
+  **Key functionality:** Returns static JSON for describe/validate/healthcheck and echoes invoke input.
 - **Path:** `guest-tests/repo-ui-actions-dummy`  
   **Role:** Fixture component implementing `repo-ui-worker@1.0.0`.  
-  **Key functionality:** Echo-style handler returning payloads; used by the Wasmtime integration test asset in `crates/greentic-interfaces-wasmtime/tests/assets`.
+  **Key functionality:** Echo-style handler used by Wasmtime integration tests.
 - **Path:** `guest-tests/distributor-api-dummy`  
   **Role:** Fixture component for `greentic:distributor-api@1.0.0`.  
-  **Key functionality:** Returns static ready/dummy data for resolve-component, static JSON for pack status, and no-op warm-pack; built via `scripts/build-distributor-api-dummy.sh` to feed the Wasmtime smoke test asset.
+  **Key functionality:** Returns static data for resolve/get/warm; built via `scripts/build-distributor-api-dummy.sh` for Wasmtime test assets.
+- **Path:** `guest-tests/oauth-broker-client-harness`  
+  **Role:** Harness component that exercises `oauth-broker` imports.  
+  **Key functionality:** Calls consent URL/token/exchange helpers to validate import bindings.
 - **Path:** `docs/`  
-  **Role:** Reference docs for WIT domains.  
-  **Key functionality:** Outlines event contracts (`events-wit.md`), supply-chain provider packages (`supply-chain-wit.md`), and worker envelope semantics (`worker.md`).
-- **Path:** `ci/local_check.sh`  
-  **Role:** Local CI entrypoint mirroring formatting/clippy/tests (optional example builds when toggled).  
-  **Key functionality:** Supports verbosity/strict/online toggles; expects `wasm32-wasip2` target installed when example checks are enabled.
+  **Role:** WIT and protocol documentation.  
+  **Key functionality:** Covers events, supply-chain WIT, worker envelopes, pack validation, secrets migration, component state, payload/state, and interfaces inventory.
+- **Path:** `scripts/`  
+  **Role:** WIT packaging, validation, and fixture builders.  
+  **Key functionality:** `validate-wit.sh`, `bundle-wit.sh`, `render-wit-docs.sh`, `package-wit.sh`, plus scripts to build guest fixture components.
 
 ## 3. Work In Progress, TODOs, and Stubs
-- None found; no `TODO`/`FIXME` markers or stubbed `unimplemented!`/`todo!` code present across the workspace.
+- No TODO/FIXME/unimplemented markers found in the workspace.
 
 ## 4. Broken, Failing, or Conflicting Areas
-- `cargo test --workspace` passes (latest run at default target dir).
-- `ci/local_check.sh` currently incomplete: fmt/clippy/WIT validation/build succeeded, but the script timed out/ran out of disk (No space left on device) while running the final `cargo test` stage with the default `target/`. Previous attempt with `CARGO_TARGET_DIR=/tmp/greentic-interfaces-target` succeeded through build but failed the oauth broker client round-trip test because the harness lookup expects `target/wasm32-wasip2/...` under the workspace root. Free up disk space and rerun `ci/local_check.sh` without target overrides (or copy the built harness wasm into `target/wasm32-wasip2/debug`) to get a clean pass. Distributor-api Wasmtime smoke test skips unless `scripts/build-distributor-api-dummy.sh` has been run to generate the component asset.
+- No test runs executed as part of this refresh; current status is unknown. Use `ci/local_check.sh` (defaults to Rust 1.89.0 toolchain and optional `wasm-tools`) for a full local gate, and enable `LOCAL_CHECK_EXAMPLES=1` to build the wasm32-wasip2 fixtures.
 
 ## 5. Notes for Future Work
-- When adding or changing WIT packages, update conversion helpers (`src/mappers.rs`), provider schema snapshots, and re-run the staging/validation tests to keep host/guest crates in sync.
-- If the repo-ui-actions or distributor-api test assets are regenerated, ensure the files under `crates/greentic-interfaces-wasmtime/tests/assets/` stay in sync with their guest fixtures (`scripts/build-repo-ui-actions-dummy.sh`, `scripts/build-distributor-api-dummy.sh`).
-- Use `ci/local_check.sh` or `cargo test --workspace` to validate changes; include the `wasm32-wasip2` target when exercising the example builds.
+- When adding/changing WIT packages, update `crates/greentic-interfaces/src/mappers.rs` and rerun WIT validation (`scripts/validate-wit.sh` or `ci/local_check.sh`) to keep bindings in sync.
+- If guest fixture components are regenerated, refresh the Wasmtime test assets using `scripts/build-repo-ui-actions-dummy.sh` and `scripts/build-distributor-api-dummy.sh`.

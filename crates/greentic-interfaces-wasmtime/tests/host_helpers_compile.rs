@@ -161,6 +161,25 @@ impl secrets_store::SecretsStoreHost for DummySecrets {
     }
 }
 
+impl secrets_store::SecretsStoreHostV1_1 for DummySecrets {
+    fn get(
+        &mut self,
+        _key: wasmtime::component::__internal::String,
+    ) -> std::result::Result<
+        Option<wasmtime::component::__internal::Vec<u8>>,
+        secrets_store::SecretsErrorV1_1,
+    > {
+        Ok(None)
+    }
+
+    fn put(
+        &mut self,
+        _key: wasmtime::component::__internal::String,
+        _value: wasmtime::component::__internal::Vec<u8>,
+    ) {
+    }
+}
+
 struct HostState {
     http: DummyHttpClient,
     oauth: DummyOAuthBroker,
@@ -212,6 +231,7 @@ fn host_helpers_compile() -> Result<()> {
         runner_host_kv: Some(|state: &mut HostState| &mut state.runner_kv),
         telemetry_logger: Some(|state: &mut HostState| &mut state.telemetry),
         state_store: Some(|state: &mut HostState| &mut state.state),
+        secrets_store_v1_1: Some(|state: &mut HostState| &mut state.secrets),
         secrets_store: Some(|state: &mut HostState| &mut state.secrets),
     };
 
