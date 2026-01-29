@@ -23,6 +23,7 @@ interface shared {
     region: option<string>,
     platform: platform,
     runtime: option<string>,
+    i18n-id: option<string>,
   }
 
   /// Tenant identity and invocation metadata.
@@ -32,6 +33,7 @@ interface shared {
     user: option<user-id>,
     deployment: deployment-ctx,
     trace-id: option<string>,
+    i18n-id: option<string>,
   }
 
   /// Describes a flow that can be invoked by the pack.
