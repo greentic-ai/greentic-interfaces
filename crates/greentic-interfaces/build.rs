@@ -40,6 +40,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let bindings_dir = generate_rust_bindings(&staged_root, &out_dir)?;
+    ensure_tenant_ctx_contains_i18n(&bindings_dir)?;
 
     println!("cargo:rustc-env=WIT_STAGING_DIR={}", staged_root.display());
     println!(
@@ -275,6 +276,32 @@ fn reset_directory(path: &Path) -> Result<(), Box<dyn Error>> {
         fs::remove_dir_all(path)?;
     }
     fs::create_dir_all(path)?;
+    Ok(())
+}
+
+fn ensure_tenant_ctx_contains_i18n(bindings_dir: &Path) -> Result<(), Box<dyn Error>> {
+    let mut found = false;
+
+    for entry in fs::read_dir(bindings_dir)? {
+        let entry = entry?;
+        if !entry.file_type()?.is_file() {
+            continue;
+        }
+
+        let contents = fs::read_to_string(entry.path())?;
+        if contents.contains("TenantCtx") && contents.contains("i18n_id") {
+            found = true;
+            break;
+        }
+    }
+
+    if !found {
+        panic!(
+            "Bindings in {} appear stale/out-of-sync (TenantCtx lacks i18n_id); re-run bindings generation.",
+            bindings_dir.display()
+        );
+    }
+
     Ok(())
 }
 
