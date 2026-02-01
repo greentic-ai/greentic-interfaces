@@ -19,6 +19,7 @@ interface types {
     region: option<string>,
     platform: platform,
     runtime: option<string>,
+    i18n-id: option<string>,
   }
 
   /// tenant identity and invocation metadata
@@ -28,6 +29,7 @@ interface types {
     user: option<user-id>,
     deployment: deployment-ctx,
     trace-id: option<string>,
+    i18n-id: option<string>,
     session-id: option<string>,
     flow-id: option<string>,
     node-id: option<string>,

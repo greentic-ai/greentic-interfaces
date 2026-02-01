@@ -271,7 +271,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "wit-bindgen 0.52.0",
 ]
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "distributor-api-dummy"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "wit-bindgen 0.52.0",
 ]
@@ -768,7 +768,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -789,14 +789,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -807,7 +807,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -817,7 +817,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "anyhow",
  "camino",
@@ -833,9 +833,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.44"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd1c02a41184013d1f01b4ca6d2f7dd5aec0c9c29ee6e2b42d2dc4673f1221c3"
+version = "0.4.43"
 dependencies = [
  "anyhow",
  "blake3",
@@ -857,7 +855,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",
@@ -904,9 +902,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.64"
+version = "0.1.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33e57f83510bb73707521ebaffa789ec8caf86f9657cad665b092b581d40e9fb"
+checksum = "e31bc9ad994ba00e440a8aa5c9ef0ec67d5cb5e5cb0cc7f8b744a35b389cc470"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
@@ -1218,7 +1216,7 @@ dependencies = [
 
 [[package]]
 name = "oauth-broker-client-harness"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "wit-bindgen 0.52.0",
 ]
@@ -1316,7 +1314,7 @@ dependencies = [
 
 [[package]]
 name = "provider-core-dummy"
-version = "0.4.84"
+version = "0.4.81"
 dependencies = [
  "wit-bindgen 0.52.0",
 ]

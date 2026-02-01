@@ -179,6 +179,7 @@ pub mod worker {
             user: ctx.user.clone(),
             user_id: ctx.user,
             trace_id: ctx.trace_id,
+            i18n_id: None,
             correlation_id: None,
             session_id: ctx.session_id,
             flow_id: ctx.flow_id,

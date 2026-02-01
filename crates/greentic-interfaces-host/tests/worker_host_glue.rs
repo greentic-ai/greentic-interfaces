@@ -36,6 +36,7 @@ fn host_worker_types_convert() {
         node_id: None,
         provider_id: None,
         trace_id: None,
+        i18n_id: None,
         correlation_id: None,
         deadline: None,
         attempt: 0,

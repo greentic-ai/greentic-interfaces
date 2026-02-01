@@ -39,10 +39,10 @@ These names are guidelines, not enforcement; hosts may extend the list as needed
 
 ## Migration note: CBOR payloads (component@0.6.0)
 
-Future releases (starting with `component@0.6.0`) plan to migrate the predominant payload encoding from stringified JSON to CBOR bytes for both `invoke` requests and responses. When that migration happens, expect:
+`component@0.6.0` introduces the CBOR invoke boundary: `invoke(ctx, op, input)` now receives/returns `list<u8>` payloads, while the rest of the context (session, tenant, etc.) remains structured. Hosts that support both versions should use the descriptor metadata (see `docs/component-descriptor.md`) to discover whether the component exposes 0.5 or 0.6 wiring.
 
-- `node.invoke` will continue to take an `op` string but will pass a byte buffer instead of a UTF-8 JSON string. The host and guest contracts will clearly version the replacement (`json` will likely become `bytes`).
-- Components should isolate serialization logic so switching from JSON to CBOR becomes a matter of swapping the codec, not rewriting business logic.
-- Rich metadata such as `tenant-ctx`/`exec-ctx` will still flow through the WIT record; only the `input`/`output` payload encoding is changing.
+- Hosts should keep `tenant-ctx` and `exec-ctx` in sync with the new `i18n_id` field so every phase of the invocation pipeline can format telemetry or localized output consistently.
+- Schema IDs + inline CBOR examples live in the descriptor ops metadata; tooling that validates `input/output` payloads can use those bytes to verify encoder/decoder compatibility before invoking the component.
+- The new descriptor `setup` contract (also described in `docs/component-descriptor.md`) allows components to ship QA specs and wizard answers, with `ref_pack_path` values relative to the component root.
 
-Document your component's current JSON schema today and track the analogous CBOR schema so migration to `component@0.6.0` is smooth for both hosts and guests.
+Document both your current JSON schema and the new CBOR schema to make the migration from `component@0.5.0` to `component@0.6.0` smooth for hosts and guests.

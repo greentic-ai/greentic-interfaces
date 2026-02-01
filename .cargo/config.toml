@@ -1,0 +1,2 @@
+[patch.crates-io]
+greentic-types = { path = "../greentic-types" }

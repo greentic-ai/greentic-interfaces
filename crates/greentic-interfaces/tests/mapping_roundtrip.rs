@@ -30,6 +30,7 @@ fn sample_tenant_ctx() -> types::TenantCtx {
         node_id: Some("node-1".into()),
         provider_id: Some("provider-1".into()),
         trace_id: Some("trace".into()),
+        i18n_id: Some("en-US".into()),
         correlation_id: Some("corr".into()),
         deadline: Some(types::InvocationDeadline::from_unix_millis(
             1_700_000_000_000,

@@ -21,6 +21,7 @@ interface node {
     team: option<string>,
     user: option<string>,
     trace-id: option<string>,
+    i18n-id: option<string>,
     correlation-id: option<string>,
     deadline-unix-ms: option<u64>,
     attempt: u32,
@@ -30,6 +31,7 @@ interface node {
   /// Provides execution context for a single flow node invocation.
   record exec-ctx {
     tenant: tenant-ctx,
+    i18n-id: option<string>,
     flow-id: string,
     node-id: option<string>,
   }

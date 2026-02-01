@@ -8,6 +8,7 @@
 - **Path:** `crates/greentic-interfaces`  
   **Role:** ABI crate containing WIT sources, generated bindings, and mappers.  
   **Key functionality:** `build.rs` stages every WIT package under `wit/` into a deterministic `$OUT_DIR` bundle and exposes `wit-bindgen` output; `src/mappers.rs` converts between WIT shapes and `greentic-types`. Feature flags cover common-types, types-core (0.2/0.4), component (0.4/0.5/1.0 + component-v1), pack-export (0.2/0.4 + pack-export-v1), pack-validate, provision, deploy-plan, runner-host (`greentic:host@1.0.0`), provider schema-core + provider-common, secrets/store + secrets-types, state/store, http-client (1.0/1.1), telemetry-logger, oauth-broker, worker, repo-ui-actions, gui-fragment, distributor-api (1.0/1.1), distribution, oci, source/build/scan/signing/attestation/policy/metadata, plus MCP snapshots (`wasix:mcp@24.11.05`, `@25.03.26`, `@25.06.18`).  
+  **Key updates:** adds `i18n-id` to canonical contexts, introduces the `greentic:component@0.6.0` CBOR invoke world, and documents the descriptor’s `ops` metadata + optional setup contract (`docs/component-descriptor.md` + fixture).  
   **Key dependencies / integration points:** Depends on `greentic-types`; uses `wit-bindgen` 0.51; non-wasm builds link Wasmtime for tests.
 - **Path:** `crates/greentic-interfaces-host`  
   **Role:** Host-facing re-export of bindings and mappers.  
@@ -58,3 +59,4 @@
 ## 5. Notes for Future Work
 - When adding/changing WIT packages, update `crates/greentic-interfaces/src/mappers.rs` and rerun WIT validation (`scripts/validate-wit.sh` or `ci/local_check.sh`) to keep bindings in sync.
 - If guest fixture components are regenerated, refresh the Wasmtime test assets using `scripts/build-repo-ui-actions-dummy.sh` and `scripts/build-distributor-api-dummy.sh`.
+- Keep `docs/component-descriptor.md`, `tests/fixtures/component-descriptor-example.json`, and the descriptor round-trip test in sync if the descriptor schema evolves across pack/component releases.
