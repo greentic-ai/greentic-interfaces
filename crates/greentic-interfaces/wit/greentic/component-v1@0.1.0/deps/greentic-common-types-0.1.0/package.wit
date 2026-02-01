@@ -18,6 +18,7 @@ interface types {
     tenant-id: string,
     team-id: option<string>,
     user-id: option<string>,
+    i18n-id: option<string>,
     session-id: option<string>,
     flow-id: option<string>,
     node-id: option<string>,

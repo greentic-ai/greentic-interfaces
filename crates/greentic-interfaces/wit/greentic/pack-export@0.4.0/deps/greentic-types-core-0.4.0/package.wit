@@ -28,6 +28,7 @@ interface types {
     user: option<user-id>,
     deployment: deployment-ctx,
     trace-id: option<string>,
+    i18n-id: option<string>,
   }
 
   /// flow registration information

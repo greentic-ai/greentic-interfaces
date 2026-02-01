@@ -280,24 +280,72 @@ fn reset_directory(path: &Path) -> Result<(), Box<dyn Error>> {
 }
 
 fn ensure_tenant_ctx_contains_i18n(bindings_dir: &Path) -> Result<(), Box<dyn Error>> {
-    let mut found = false;
+    let mut missing = Vec::new();
 
     for entry in fs::read_dir(bindings_dir)? {
         let entry = entry?;
         if !entry.file_type()?.is_file() {
             continue;
         }
+        if entry.file_name() == "mod.rs" {
+            continue;
+        }
+        if entry.path().extension().and_then(|ext| ext.to_str()) != Some("rs") {
+            continue;
+        }
 
         let contents = fs::read_to_string(entry.path())?;
-        if contents.contains("TenantCtx") && contents.contains("i18n_id") {
-            found = true;
+        let mut offset = 0;
+        while let Some(pos) = contents[offset..].find("struct TenantCtx") {
+            let start = offset + pos;
+            let brace_offset = match contents[start..].find('{') {
+                Some(brace) => start + brace,
+                None => break,
+            };
+
+            let mut depth = 0;
+            let mut end = None;
+            for (i, ch) in contents[brace_offset..].char_indices() {
+                match ch {
+                    '{' => depth += 1,
+                    '}' => {
+                        depth -= 1;
+                        if depth == 0 {
+                            end = Some(brace_offset + i);
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+
+            if let Some(struct_end) = end {
+                let body = &contents[brace_offset..=struct_end];
+                if !body.contains("i18n_id") {
+                    let module_name = entry
+                        .path()
+                        .file_stem()
+                        .and_then(|stem| stem.to_str())
+                        .unwrap_or_default()
+                        .to_string();
+                    missing.push(format!(
+                        "{} (module: {})",
+                        entry.path().display(),
+                        module_name
+                    ));
+                }
+                offset = struct_end + 1;
+                continue;
+            }
+
             break;
         }
     }
 
-    if !found {
+    if !missing.is_empty() {
         panic!(
-            "Bindings in {} appear stale/out-of-sync (TenantCtx lacks i18n_id); re-run bindings generation.",
+            "Bindings out of date: the following modules define TenantCtx without i18n_id:\n  {}\nBindings dir: {}. Regenerate WIT bindings so TenantCtx includes i18n_id for all variants.",
+            missing.join("\n  "),
             bindings_dir.display()
         );
     }
