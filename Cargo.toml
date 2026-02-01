@@ -19,7 +19,7 @@ resolver = "2"
 license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
-version = "0.4.79"
+version = "0.4.84"
 repository = "https://github.com/greentic-ai/greentic-interfaces"
 
 [workspace.dependencies]
@@ -35,9 +35,9 @@ time = "0.3"
 thiserror = "2"
 wasmtime = { version = "41", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
 wasmtime-wasi = "41"
-wit-bindgen = { version = "0.51", default-features = false, features = ["macros", "realloc"] }
-wit-bindgen-core = "0.51"
-wit-bindgen-rust = "0.51"
+wit-bindgen = { version = "0.52", default-features = false, features = ["macros", "realloc"] }
+wit-bindgen-core = "0.52"
+wit-bindgen-rust = "0.52"
 schemars = { version = "1", features = ["derive"] }
 wit-parser = "0.244"
 insta = { version = "1", features = ["json"] }
