@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::env;
 use std::error::Error;
 use std::fs;
@@ -8,6 +8,9 @@ use wit_bindgen_core::Files;
 use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
+
+const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
+const CANONICAL_INTERFACES_TYPES_FILE: &str = "types.wit";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -21,22 +24,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     reset_directory(&staged_root)?;
 
     let wit_root = Path::new("wit");
-    let mut package_paths = Vec::new();
-    discover_packages(wit_root, &mut package_paths)?;
-    {
-        let rel = "provider-common/world.wit";
-        let path = wit_root.join(rel);
-        if path.exists() && !package_paths.contains(&path) {
-            package_paths.push(path);
-        }
-    }
+    let mut package_candidates = BTreeMap::new();
+    discover_packages(wit_root, &mut package_candidates)?;
+    verify_interfaces_types_duplicates(wit_root, &package_candidates)?;
+    let catalog = PackageCatalog::new(wit_root, package_candidates)?;
 
-    let mut staged = HashSet::new();
-    for package_path in package_paths {
-        let package_ref = read_package_ref(&package_path)?;
-        if staged.insert(package_ref) {
-            stage_package(&package_path, &staged_root, wit_root)?;
-        }
+    for (_, package_path) in catalog.iter() {
+        stage_package(package_path, &staged_root, &catalog)?;
     }
 
     let bindings_dir = generate_rust_bindings(&staged_root, &out_dir)?;
@@ -54,7 +48,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn stage_package(
     src_path: &Path,
     staged_root: &Path,
-    wit_root: &Path,
+    catalog: &PackageCatalog,
 ) -> Result<(), Box<dyn Error>> {
     let package_ref = read_package_ref(src_path)?;
     let dest_dir = staged_root.join(sanitize(&package_ref));
@@ -62,14 +56,14 @@ fn stage_package(
     fs::copy(src_path, dest_dir.join("package.wit"))?;
     println!("cargo:rerun-if-changed={}", src_path.display());
 
-    stage_dependencies(&dest_dir, src_path, wit_root)?;
+    stage_dependencies(&dest_dir, src_path, catalog)?;
     Ok(())
 }
 
 fn stage_dependencies(
     parent_dir: &Path,
     source_path: &Path,
-    wit_root: &Path,
+    catalog: &PackageCatalog,
 ) -> Result<(), Box<dyn Error>> {
     let deps = parse_deps(source_path)?;
     if deps.is_empty() {
@@ -87,36 +81,19 @@ fn stage_dependencies(
     fs::create_dir_all(&deps_dir)?;
 
     for dep in deps {
-        let dep_src = wit_path(&dep, wit_root)?;
+        let dep_src = catalog.resolve(&dep)?;
         let dep_dest = deps_dir.join(sanitize(&dep));
         fs::create_dir_all(&dep_dest)?;
-        fs::copy(&dep_src, dep_dest.join("package.wit"))?;
+        fs::copy(dep_src, dep_dest.join("package.wit"))?;
         if env::var("DEBUG_STAGE_DEPS").is_ok() {
             println!("cargo:warning=staging dependency {dep}");
         }
         println!("cargo:rerun-if-changed={}", dep_src.display());
 
-        stage_dependencies(&dep_dest, &dep_src, wit_root)?;
+        stage_dependencies(&dep_dest, dep_src, catalog)?;
     }
 
     Ok(())
-}
-
-fn wit_path(package_ref: &str, wit_root: &Path) -> Result<PathBuf, Box<dyn Error>> {
-    let (pkg, version) = package_ref
-        .split_once('@')
-        .ok_or_else(|| format!("invalid package reference: {package_ref}"))?;
-    let base_pkg = pkg.split('/').next().unwrap_or(pkg);
-    let target_root = format!("{base_pkg}@{version}");
-    let mut fallback = None;
-    if let Some(found) = find_package_recursive(wit_root, package_ref, &target_root, &mut fallback)?
-    {
-        return Ok(found);
-    }
-    if let Some(path) = fallback {
-        return Ok(path);
-    }
-    Err(format!("missing WIT source for {package_ref}").into())
 }
 
 fn read_package_ref(path: &Path) -> Result<String, Box<dyn Error>> {
@@ -353,56 +330,174 @@ fn ensure_tenant_ctx_contains_i18n(bindings_dir: &Path) -> Result<(), Box<dyn Er
     Ok(())
 }
 
-fn discover_packages(root: &Path, out: &mut Vec<PathBuf>) -> Result<(), Box<dyn Error>> {
+fn discover_packages(
+    root: &Path,
+    out: &mut BTreeMap<String, Vec<PathBuf>>,
+) -> Result<(), Box<dyn Error>> {
     for entry in fs::read_dir(root)? {
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
             let package_file = path.join("package.wit");
             if package_file.exists() {
-                out.push(package_file);
+                let package_ref = read_package_ref(&package_file)?;
+                out.entry(package_ref)
+                    .or_default()
+                    .push(package_file.clone());
             }
             discover_packages(&path, out)?;
         } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
-            out.push(path);
+            let package_ref = read_package_ref(&path)?;
+            out.entry(package_ref).or_default().push(path);
         }
     }
     Ok(())
 }
 
-fn find_package_recursive(
-    dir: &Path,
-    package_ref: &str,
-    target_root: &str,
-    fallback: &mut Option<PathBuf>,
-) -> Result<Option<PathBuf>, Box<dyn Error>> {
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.is_dir() {
-            let package_file = path.join("package.wit");
-            if package_file.exists() {
-                let entry_package = read_package_ref(&package_file)?;
-                if entry_package == package_ref {
-                    return Ok(Some(package_file));
-                }
-                if fallback.is_none() && entry_package == target_root {
-                    *fallback = Some(package_file.clone());
-                }
-            }
-            if let Some(found) = find_package_recursive(&path, package_ref, target_root, fallback)?
-            {
-                return Ok(Some(found));
-            }
-        } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
-            let entry_package = read_package_ref(&path)?;
-            if entry_package == package_ref {
-                return Ok(Some(path));
-            }
-            if fallback.is_none() && entry_package == target_root {
-                *fallback = Some(path.clone());
-            }
+fn canonical_interfaces_types_path(wit_root: &Path) -> PathBuf {
+    wit_root.join(CANONICAL_INTERFACES_TYPES_FILE)
+}
+
+fn verify_interfaces_types_duplicates(
+    wit_root: &Path,
+    candidates: &BTreeMap<String, Vec<PathBuf>>,
+) -> Result<(), Box<dyn Error>> {
+    let canonical_ref = CANONICAL_INTERFACES_TYPES_REF;
+    let canonical_path = canonical_interfaces_types_path(wit_root);
+    if !canonical_path.exists() {
+        return Err(format!(
+            "canonical WIT source {} is missing",
+            canonical_path.display()
+        )
+        .into());
+    }
+
+    let entries = candidates
+        .get(canonical_ref)
+        .ok_or_else(|| format!("package {canonical_ref} was not discovered"))?;
+
+    if !entries.iter().any(|path| path == &canonical_path) {
+        return Err(format!(
+            "canonical WIT source {} for {} was not discovered; only found:\n  {}",
+            canonical_path.display(),
+            canonical_ref,
+            entries
+                .iter()
+                .map(|path| path.display().to_string())
+                .collect::<Vec<_>>()
+                .join("\n  ")
+        )
+        .into());
+    }
+
+    let canonical_bytes = fs::read(&canonical_path)?;
+    let mut mismatches = Vec::new();
+    for path in entries.iter().filter(|path| **path != canonical_path) {
+        let contents = fs::read(path)?;
+        if contents != canonical_bytes {
+            mismatches.push(path);
         }
     }
-    Ok(None)
+
+    if !mismatches.is_empty() {
+        return Err(format!(
+            "duplicates of {} diverge from canonical {}:\n  {}",
+            canonical_ref,
+            canonical_path.display(),
+            mismatches
+                .iter()
+                .map(|path| path.display().to_string())
+                .collect::<Vec<_>>()
+                .join("\n  ")
+        )
+        .into());
+    }
+
+    if entries.len() > 1 {
+        let duplicates = entries
+            .iter()
+            .filter(|path| **path != canonical_path)
+            .map(|path| format!("{}", path.display()))
+            .collect::<Vec<_>>()
+            .join("\n  ");
+        println!(
+            "cargo:warning=Found {} copies of {} (canonical: {}). Duplicates are byte-identical and will resolve to the canonical file. Copies:\n  {}",
+            entries.len(),
+            canonical_ref,
+            canonical_path.display(),
+            duplicates
+        );
+    }
+
+    Ok(())
+}
+
+fn select_preferred_package_path(
+    wit_root: &Path,
+    package_ref: &str,
+    candidates: &[PathBuf],
+) -> Result<PathBuf, Box<dyn Error>> {
+    if candidates.is_empty() {
+        return Err(format!("no WIT sources found for {package_ref}").into());
+    }
+
+    if package_ref == CANONICAL_INTERFACES_TYPES_REF {
+        let canonical_path = canonical_interfaces_types_path(wit_root);
+        if !canonical_path.exists() {
+            return Err(format!(
+                "canonical WIT source {} for {package_ref} is missing",
+                canonical_path.display()
+            )
+            .into());
+        }
+        if !candidates.iter().any(|path| path == &canonical_path) {
+            return Err(format!(
+                "canonical WIT source {} for {package_ref} was not discovered; found {} entries",
+                canonical_path.display(),
+                candidates.len()
+            )
+            .into());
+        }
+        return Ok(canonical_path);
+    }
+
+    let mut sorted = candidates.to_vec();
+    sorted.sort_by(|a, b| {
+        let a_depth = a.components().count();
+        let b_depth = b.components().count();
+        a_depth.cmp(&b_depth).then_with(|| a.cmp(b))
+    });
+
+    sorted
+        .first()
+        .cloned()
+        .ok_or_else(|| format!("unable to select a WIT source for {package_ref}").into())
+}
+
+struct PackageCatalog {
+    selection: BTreeMap<String, PathBuf>,
+}
+
+impl PackageCatalog {
+    fn new(
+        wit_root: &Path,
+        candidates: BTreeMap<String, Vec<PathBuf>>,
+    ) -> Result<Self, Box<dyn Error>> {
+        let mut selection = BTreeMap::new();
+        for (package_ref, paths) in candidates {
+            let chosen = select_preferred_package_path(wit_root, &package_ref, &paths)?;
+            selection.insert(package_ref, chosen);
+        }
+        Ok(Self { selection })
+    }
+
+    fn iter(&self) -> impl Iterator<Item = (&String, &PathBuf)> + '_ {
+        self.selection.iter()
+    }
+
+    fn resolve(&self, package_ref: &str) -> Result<&PathBuf, Box<dyn Error>> {
+        self.selection
+            .get(package_ref)
+            .ok_or_else(|| format!("missing WIT source for {package_ref}").into())
+    }
 }
