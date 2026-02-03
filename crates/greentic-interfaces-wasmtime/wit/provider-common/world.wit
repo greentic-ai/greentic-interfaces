@@ -30,11 +30,70 @@ interface capabilities {
 }
 
 interface render {
-  enum render-tier {
+  type env-id = string;
+  type tenant-id = string;
+  type team-id = string;
+  type user-id = string;
+  record impersonation {
+    actor-id: user-id,
+    reason: option<string>,
+  }
+
+  record tenant-ctx {
+    env: env-id,
+    tenant: tenant-id,
+    tenant-id: tenant-id,
+    team: option<team-id>,
+    team-id: option<team-id>,
+    user: option<user-id>,
+    user-id: option<user-id>,
+    trace-id: option<string>,
+    i18n-id: option<string>,
+    correlation-id: option<string>,
+    attributes: list<tuple<string, string>>,
+    session-id: option<string>,
+    flow-id: option<string>,
+    node-id: option<string>,
+    provider-id: option<string>,
+    deadline-ms: option<s64>,
+    attempt: u32,
+    idempotency-key: option<string>,
+    impersonation: option<impersonation>,
+  }
+
+  enum tier {
     tier-a,
     tier-b,
     tier-c,
     tier-d,
+  }
+
+  type render-tier = tier;
+
+  record adaptive-card-downgrade-hint {
+    target-version: string,
+    strict: bool,
+  }
+
+  variant renderer-mode {
+    passthrough,
+    text-only,
+    adaptive-card-downgrade(adaptive-card-downgrade-hint),
+  }
+
+  record capability-profile {
+    max-adaptive-card-version: option<string>,
+    supports-adaptive-cards: option<bool>,
+    supports-actions: option<bool>,
+    supports-media: option<bool>,
+    supports-input-controls: option<bool>,
+    supports-markdown: option<bool>,
+  }
+
+  record render-diagnostics {
+    tier: option<tier>,
+    warnings: list<string>,
+    errors: list<string>,
   }
 
   record render-warning {
@@ -44,7 +103,10 @@ interface render {
   }
 
   record render-plan {
-    tier: render-tier,
+    tier: option<render-tier>,
+    renderer-mode: option<renderer-mode>,
+    capability-profile: option<capability-profile>,
+    diagnostics: option<render-diagnostics>,
     summary-text: option<string>,
     actions: list<string>,
     attachments: list<string>,
@@ -61,6 +123,51 @@ interface render {
   record encode-result {
     payload: provider-payload,
     warnings: list<render-warning>,
+  }
+
+  record actor {
+    id: string,
+    kind: option<string>,
+  }
+
+  record destination {
+    id: string,
+    kind: option<string>,
+  }
+
+  record attachment {
+    mime-type: string,
+    url: string,
+    name: option<string>,
+    size-bytes: option<u64>,
+  }
+
+  record reply-scope {
+    conversation: string,
+    thread: option<string>,
+    reply-to: option<string>,
+    correlation: option<string>,
+  }
+
+  type message-metadata = list<tuple<string, string>>;
+
+  record channel-message-envelope {
+    id: string,
+    tenant: tenant-ctx,
+    channel: string,
+    session-id: string,
+    reply-scope: option<reply-scope>,
+    actor: option<actor>,
+    to: list<destination>,
+    correlation-id: option<string>,
+    text: option<string>,
+    attachments: list<attachment>,
+    metadata: message-metadata,
+  }
+
+  record render-hints {
+    renderer-mode: option<renderer-mode>,
+    capability-profile: option<capability-profile>,
   }
 }
 
