@@ -3,7 +3,7 @@
 package greentic:worker@1.0.0;
 
 interface worker-api {
-  use greentic:types-core/types@0.4.0.{tenant-ctx};
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
 
   /// Generic worker invocation envelope.
   record worker-request {

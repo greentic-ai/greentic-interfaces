@@ -3,7 +3,8 @@
 package greentic:component-v1@0.1.0;
 
 interface component-api {
-  use greentic:common-types/types@0.1.0.{tenant-ctx, component-outcome};
+  use greentic:common-types/types@0.1.0.{component-outcome};
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
 
   /// Invocation envelope for a component operation.
   record component-invoke-request {

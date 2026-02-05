@@ -1,6 +1,7 @@
 use camino::Utf8PathBuf;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
+use std::collections::BTreeMap;
 use std::{env, fs};
 use walkdir::WalkDir;
 
@@ -44,7 +45,16 @@ fn module_name_from_dir_and_world(dir: &str, world: &str) -> String {
 
 fn main() {
     let out_dir = Utf8PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
+    let manifest_dir =
+        Utf8PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
     let wit_root = Utf8PathBuf::from("wit").join("greentic");
+    let staged_root = manifest_dir.join("target").join("wit-staging-wasmtime");
+    reset_directory(&staged_root);
+
+    let package_catalog = build_package_catalog(&wit_root);
+    for (package_ref, package_file) in &package_catalog {
+        stage_package(package_ref, package_file, &staged_root, &package_catalog);
+    }
 
     let mut modules: Vec<TokenStream> = Vec::new();
 
@@ -65,9 +75,6 @@ fn main() {
         let package_dir = package_path
             .parent()
             .expect("package.wit must have a parent directory");
-        let rel_dir = package_dir
-            .strip_prefix(&wit_root)
-            .expect("package path should live under wit/greentic");
         let dirname = package_dir
             .file_name()
             .map(|n| n.to_string())
@@ -109,7 +116,8 @@ fn main() {
             let module_name = module_name_from_dir_and_world(&dirname, &world_name);
             let mod_ident = format_ident!("{}", module_name);
             let world_spec = format!("{package_id}/{world_name}@{version}");
-            let package_rel_path = format!("wit/greentic/{rel_dir}");
+            let staged_name = sanitize(&format!("{package_id}@{version}"));
+            let package_rel_path = format!("{}/{}", staged_root, staged_name);
 
             let has_control_helpers = dirname.starts_with("component@")
                 && content.contains("interface control")
@@ -171,4 +179,174 @@ fn main() {
     fs::write(&gen_path, src.to_string()).expect("write generated bindings");
 
     println!("cargo:rerun-if-changed=wit");
+}
+
+fn reset_directory(path: &Utf8PathBuf) {
+    if path.exists() {
+        fs::remove_dir_all(path).expect("failed to clear staging dir");
+    }
+    fs::create_dir_all(path).expect("failed to create staging dir");
+}
+
+fn sanitize(package_ref: &str) -> String {
+    package_ref.replace([':', '@', '/'], "-")
+}
+
+fn build_package_catalog(wit_root: &Utf8PathBuf) -> BTreeMap<String, Utf8PathBuf> {
+    let mut catalog = BTreeMap::new();
+    for entry in WalkDir::new(wit_root) {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        if !entry.file_type().is_file() || entry.file_name() != "package.wit" {
+            continue;
+        }
+        if entry.path().components().any(|c| c.as_os_str() == "deps") {
+            continue;
+        }
+        let path = Utf8PathBuf::from_path_buf(entry.path().to_path_buf()).expect("non-utf8 path");
+        let content = fs::read_to_string(&path).unwrap_or_default();
+        if let Some(line) = content
+            .lines()
+            .find(|l| l.trim_start().starts_with("package "))
+        {
+            let package_ref = line
+                .trim_start()
+                .trim_start_matches("package")
+                .trim()
+                .trim_end_matches(';')
+                .trim()
+                .to_string();
+            catalog.entry(package_ref).or_insert(path);
+        }
+    }
+
+    let root_interfaces_types = Utf8PathBuf::from("wit/types.wit");
+    if root_interfaces_types.exists()
+        && let Ok(content) = fs::read_to_string(&root_interfaces_types)
+        && let Some(line) = content
+            .lines()
+            .find(|l| l.trim_start().starts_with("package "))
+    {
+        let package_ref = line
+            .trim_start()
+            .trim_start_matches("package")
+            .trim()
+            .trim_end_matches(';')
+            .trim()
+            .to_string();
+        catalog
+            .entry(package_ref)
+            .or_insert(root_interfaces_types.clone());
+    }
+    catalog
+}
+
+fn stage_package(
+    package_ref: &str,
+    package_file: &Utf8PathBuf,
+    staged_root: &Utf8PathBuf,
+    catalog: &BTreeMap<String, Utf8PathBuf>,
+) {
+    let dest_dir = staged_root.join(sanitize(package_ref));
+    if dest_dir.exists() {
+        return;
+    }
+    fs::create_dir_all(&dest_dir).expect("failed to create staged package dir");
+
+    fs::copy(package_file, dest_dir.join("package.wit")).expect("failed to copy package.wit");
+
+    // Copy helper .wit files that do not declare their own package (e.g. world.wit).
+    let package_dir = package_file.parent().expect("package file parent");
+    if let Ok(entries) = fs::read_dir(package_dir) {
+        for entry in entries.flatten() {
+            let path = Utf8PathBuf::from_path_buf(entry.path()).expect("non-utf8 path");
+            if path.extension() != Some("wit") || path == *package_file {
+                continue;
+            }
+            let content = fs::read_to_string(&path).unwrap_or_default();
+            if content
+                .lines()
+                .any(|l| l.trim_start().starts_with("package "))
+            {
+                continue;
+            }
+            let dest = dest_dir.join(path.file_name().expect("wit filename"));
+            fs::copy(&path, dest).expect("failed to copy helper wit");
+        }
+    }
+
+    let deps = parse_deps(package_file);
+    if deps.is_empty() {
+        return;
+    }
+
+    let deps_dir = dest_dir.join("deps");
+    fs::create_dir_all(&deps_dir).expect("failed to create deps dir");
+
+    for dep_ref in deps {
+        if let Some(dep_file) = catalog.get(&dep_ref) {
+            stage_package(&dep_ref, dep_file, staged_root, catalog);
+            let dep_dest = deps_dir.join(sanitize(&dep_ref));
+            if !dep_dest.exists() {
+                fs::create_dir_all(&dep_dest).expect("failed to create dep dest");
+                let staged_dep = staged_root.join(sanitize(&dep_ref));
+                copy_dir(&staged_dep, &dep_dest);
+            }
+        }
+    }
+}
+
+fn parse_deps(package_file: &Utf8PathBuf) -> Vec<String> {
+    let content = fs::read_to_string(package_file).unwrap_or_default();
+    let mut deps = Vec::new();
+    for line in content.lines() {
+        let trimmed = line.trim_start();
+        let token = if trimmed.starts_with("use ") {
+            trimmed.trim_start_matches("use ").trim()
+        } else if trimmed.starts_with("import ") {
+            trimmed.trim_start_matches("import ").trim()
+        } else {
+            continue;
+        };
+        let token = token
+            .split(';')
+            .next()
+            .unwrap_or("")
+            .split('{')
+            .next()
+            .unwrap_or("")
+            .split(".{")
+            .next()
+            .unwrap_or("")
+            .trim_end_matches('.');
+        if !token.contains('@') {
+            continue;
+        }
+        let pkg_with_world = token.split('@').next().unwrap_or("");
+        let version = token.split('@').nth(1).unwrap_or("");
+        let pkg = pkg_with_world.split('/').next().unwrap_or("");
+        if !pkg.is_empty() && !version.is_empty() {
+            deps.push(format!("{pkg}@{version}"));
+        }
+    }
+    deps.sort();
+    deps.dedup();
+    deps
+}
+
+fn copy_dir(src: &Utf8PathBuf, dst: &Utf8PathBuf) {
+    if let Ok(entries) = fs::read_dir(src) {
+        for entry in entries.flatten() {
+            let path = Utf8PathBuf::from_path_buf(entry.path()).expect("non-utf8 path");
+            let dest = dst.join(path.file_name().expect("filename"));
+            if path.is_dir() {
+                fs::create_dir_all(&dest).expect("create dir");
+                copy_dir(&path, &dest);
+            } else {
+                fs::copy(&path, &dest).expect("copy file");
+            }
+        }
+    }
 }

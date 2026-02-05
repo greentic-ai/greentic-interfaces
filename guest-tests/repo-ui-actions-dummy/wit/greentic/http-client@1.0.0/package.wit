@@ -3,13 +3,7 @@
 package greentic:http@1.0.0;
 
 interface http-client {
-  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
-
-  /// Canonical host error payload.
-  record host-error {
-    code: string,
-    message: string,
-  }
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx, host-error};
 
   /// HTTP request issued by a component.
   record request {

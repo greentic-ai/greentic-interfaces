@@ -1,3 +1,17 @@
+// ------------------------------------------------------------
+// DEPRECATED
+//
+// This package is deprecated and kept for backward compatibility.
+//
+// Reason:
+//   Superseded by the CBOR-based, self-describing model.
+//
+// Replacement:
+//   greentic:pack@0.6.0
+//
+// Status:
+//   No new development. No new versions will be published.
+// ------------------------------------------------------------
 // SPDX-License-Identifier: MIT
 
 package greentic:pack-export@0.4.0;
@@ -5,6 +19,7 @@ package greentic:pack-export@0.4.0;
 /// discovery-related queries exposed by packs
 interface pack-queries {
   use greentic:types-core/types@0.4.0.{flow-id, flow-info, schema-doc, iface-error};
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx, tenant-id, team-id, user-id};
 
   list-flows: func() -> result<list<flow-info>, iface-error>;
   get-flow-schema: func(flow: flow-id) -> result<schema-doc, iface-error>;

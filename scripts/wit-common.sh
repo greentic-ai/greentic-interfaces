@@ -19,10 +19,18 @@ sanitize_ref() {
 }
 
 list_wit_sources() {
-  find "${WIT_ROOT}" -maxdepth 1 -type f -name "*.wit"
+  while IFS= read -r file; do
+    if [[ -n "$(package_ref_from_file "${file}" 2>/dev/null || true)" ]]; then
+      echo "${file}"
+    fi
+  done < <(find "${WIT_ROOT}" -maxdepth 1 -type f -name "*.wit")
   find "${WIT_ROOT}" -mindepth 1 -type f -name "package.wit" ! -path "*/deps/*"
   if [[ -d "${WIT_ROOT}/provider-common" ]]; then
-    find "${WIT_ROOT}/provider-common" -maxdepth 1 -type f -name "*.wit"
+    while IFS= read -r file; do
+      if [[ -n "$(package_ref_from_file "${file}" 2>/dev/null || true)" ]]; then
+        echo "${file}"
+      fi
+    done < <(find "${WIT_ROOT}/provider-common" -maxdepth 1 -type f -name "*.wit")
   fi
 }
 
@@ -77,25 +85,33 @@ resolve_wit_source() {
   local ver="${ref##*@}"
   local namespace="${pkg%%:*}"
   local remainder="${pkg#*:}"
-  local dir="${WIT_ROOT}"
-  if [[ "${pkg}" == "${remainder}" ]]; then
-    dir="${dir}/${pkg}@${ver}"
-  else
-    dir="${dir}/${namespace}/${remainder}@${ver}"
-  fi
-  dir="${dir//\/\//\/}"
-  local package_wit="${dir}/package.wit"
-  if [[ -f "${package_wit}" ]]; then
-    echo "${package_wit}"
-    return 0
+  local roots=("${WIT_ROOT}")
+  if [[ -n "${CANONICAL_WIT_ROOT:-}" && "${CANONICAL_WIT_ROOT}" != "${WIT_ROOT}" ]]; then
+    roots+=("${CANONICAL_WIT_ROOT}")
   fi
 
-  local found
-  found="$(grep -R -F -l "package ${ref};" "${WIT_ROOT}" | head -n1 || true)"
-  if [[ -n "${found}" ]]; then
-    echo "${found}"
-    return 0
-  fi
+  local root
+  for root in "${roots[@]}"; do
+    local dir="${root}"
+    if [[ "${pkg}" == "${remainder}" ]]; then
+      dir="${dir}/${pkg}@${ver}"
+    else
+      dir="${dir}/${namespace}/${remainder}@${ver}"
+    fi
+    dir="${dir//\/\//\/}"
+    local package_wit="${dir}/package.wit"
+    if [[ -f "${package_wit}" ]]; then
+      echo "${package_wit}"
+      return 0
+    fi
+
+    local found
+    found="$(grep -R -F -l "package ${ref};" "${root}" | head -n1 || true)"
+    if [[ -n "${found}" ]]; then
+      echo "${found}"
+      return 0
+    fi
+  done
 
   return 1
 }
@@ -141,7 +157,8 @@ copy_with_deps() {
 prepare_package_layout() {
   local source_file="$1"
   local tmpdir
-  tmpdir="$(mktemp -d)"
+  local tmpbase="${TMPDIR:-/tmp}"
+  tmpdir="$(mktemp -d "${tmpbase}/wit-stage.XXXXXX")"
 
   cp "${source_file}" "${tmpdir}/package.wit"
 
@@ -158,6 +175,89 @@ prepare_package_layout() {
     while IFS= read -r dep_ref; do
       [[ -z "${dep_ref}" ]] && continue
       if ! copy_with_deps "${dep_ref}" "${tmpdir}/deps"; then
+        rm -rf "${tmpdir}"
+        return 1
+      fi
+    done <<< "${deps}"
+  fi
+
+  printf '%s\n' "${tmpdir}"
+}
+
+# Copy all .wit files (and existing deps/) for a package, preserving layout.
+copy_package_dir() {
+  local src_dir="$1"
+  local dest_dir="$2"
+  local primary_file="${3:-}"
+
+  mkdir -p "${dest_dir}"
+
+  if [[ -n "${primary_file}" ]]; then
+    cp "${primary_file}" "${dest_dir}/package.wit"
+  fi
+
+  # Copy only helper .wit files that do not declare their own package.
+  # This avoids pulling in unrelated package roots like pack_api.wit.
+  while IFS= read -r wit_file; do
+    if ! grep -q '^package ' "${wit_file}"; then
+      cp "${wit_file}" "${dest_dir}/"
+    fi
+  done < <(find "${src_dir}" -maxdepth 1 -type f -name "*.wit")
+}
+
+# Stage a dependency package as a full directory (all .wit files + deps/).
+copy_with_deps_full() {
+  local ref="$1"
+  local dest_root="$2"
+
+  [[ -z "${ref}" ]] && return 0
+
+  local rel_dest
+  rel_dest="$(dest_dir_for_ref "${ref}")"
+  local dest_dir="${dest_root}/${rel_dest}"
+  if [[ -d "${dest_dir}" ]]; then
+    return 0
+  fi
+
+  local src
+  if ! src="$(resolve_wit_source "${ref}")"; then
+    echo "Missing dependency ${ref}" >&2
+    return 1
+  fi
+  local src_dir
+  src_dir="$(dirname "${src}")"
+
+  copy_package_dir "${src_dir}" "${dest_dir}" "${src}"
+
+  local subdeps
+  subdeps="$(parse_deps "${src}")"
+  if [[ -n "${subdeps}" ]]; then
+    mkdir -p "${dest_dir}/deps"
+    while IFS= read -r dep_ref; do
+      [[ -z "${dep_ref}" ]] && continue
+      copy_with_deps_full "${dep_ref}" "${dest_dir}/deps" || return 1
+    done <<< "${subdeps}"
+  fi
+}
+
+# Prepare a temp package layout with full dependency directories.
+prepare_package_layout_full() {
+  local source_file="$1"
+  local tmpdir
+  local tmpbase="${TMPDIR:-/tmp}"
+  tmpdir="$(mktemp -d "${tmpbase}/wit-stage.XXXXXX")"
+
+  local src_dir
+  src_dir="$(dirname "${source_file}")"
+  copy_package_dir "${src_dir}" "${tmpdir}" "${source_file}"
+
+  local deps
+  deps="$(parse_deps "${source_file}")"
+  if [[ -n "${deps}" ]]; then
+    mkdir -p "${tmpdir}/deps"
+    while IFS= read -r dep_ref; do
+      [[ -z "${dep_ref}" ]] && continue
+      if ! copy_with_deps_full "${dep_ref}" "${tmpdir}/deps"; then
         rm -rf "${tmpdir}"
         return 1
       fi

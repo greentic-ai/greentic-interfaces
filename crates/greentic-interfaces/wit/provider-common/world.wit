@@ -30,36 +30,7 @@ interface capabilities {
 }
 
 interface render {
-  type env-id = string;
-  type tenant-id = string;
-  type team-id = string;
-  type user-id = string;
-  record impersonation {
-    actor-id: user-id,
-    reason: option<string>,
-  }
-
-  record tenant-ctx {
-    env: env-id,
-    tenant: tenant-id,
-    tenant-id: tenant-id,
-    team: option<team-id>,
-    team-id: option<team-id>,
-    user: option<user-id>,
-    user-id: option<user-id>,
-    trace-id: option<string>,
-    i18n-id: option<string>,
-    correlation-id: option<string>,
-    attributes: list<tuple<string, string>>,
-    session-id: option<string>,
-    flow-id: option<string>,
-    node-id: option<string>,
-    provider-id: option<string>,
-    deadline-ms: option<s64>,
-    attempt: u32,
-    idempotency-key: option<string>,
-    impersonation: option<impersonation>,
-  }
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
 
   enum tier {
     tier-a,

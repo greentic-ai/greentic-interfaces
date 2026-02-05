@@ -5,6 +5,7 @@ package greentic:pack-export@0.4.0;
 /// discovery-related queries exposed by packs
 interface pack-queries {
   use greentic:types-core/types@0.4.0.{flow-id, flow-info, schema-doc, iface-error};
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx, iface-error, tenant-id, team-id, user-id};
 
   list-flows: func() -> result<list<flow-info>, iface-error>;
   get-flow-schema: func(flow: flow-id) -> result<schema-doc, iface-error>;

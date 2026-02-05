@@ -91,6 +91,7 @@ fn convert_tenant_ctx(ctx: bindings_v1_0::TenantCtx) -> bindings_v1_1::TenantCtx
         user: ctx.user,
         user_id: ctx.user_id,
         trace_id: ctx.trace_id,
+        i18n_id: ctx.i18n_id,
         correlation_id: ctx.correlation_id,
         attributes: ctx.attributes,
         session_id: ctx.session_id,

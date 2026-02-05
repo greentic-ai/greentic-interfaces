@@ -3,6 +3,8 @@
 package greentic:common-types@0.1.0;
 
 interface types {
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
+
   /// Flow categories aligned with greentic_types::FlowKind.
   enum flow-kind {
     messaging,
@@ -10,17 +12,6 @@ interface types {
     component-config,
     job,
     http,
-  }
-
-  /// Minimal tenant context propagated across calls.
-  record tenant-ctx {
-    env: string,
-    tenant-id: string,
-    team-id: option<string>,
-    user-id: option<string>,
-    session-id: option<string>,
-    flow-id: option<string>,
-    node-id: option<string>,
   }
 
   /// Component execution outcome status.

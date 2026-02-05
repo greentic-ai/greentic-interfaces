@@ -71,6 +71,9 @@ use greentic_interfaces_guest::secrets_store::secrets_store;
 - Wasmtime glue / linker helpers: `greentic-interfaces-wasmtime`
 - ABI/WIT tooling and validation: `greentic-interfaces`
 
+For debugging `wkg` resolution with fully staged dependencies, use
+`scripts/wkg-build-staged.sh` (defaults to attestation@1.0.0).
+
 ### Host examples
 
 ```rust

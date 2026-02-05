@@ -1,3 +1,17 @@
+// ------------------------------------------------------------
+// DEPRECATED
+//
+// This package is deprecated and kept for backward compatibility.
+//
+// Reason:
+//   Superseded by the CBOR-based, self-describing model.
+//
+// Replacement:
+//   greentic:pack@0.6.0
+//
+// Status:
+//   No new development. No new versions will be published.
+// ------------------------------------------------------------
 // SPDX-License-Identifier: MIT
 
 package greentic:pack-export@0.2.0;
@@ -7,24 +21,13 @@ interface exports {
   variant platform { k8s, nomad, systemd, cfworkers, lambda, baremetal, other }
 
   type flow-id = string;
-  type tenant-id = string;
-  type team-id = string;
-  type user-id = string;
+  use greentic:interfaces-types/types@0.1.0.{tenant-id, team-id, user-id, tenant-ctx, iface-error};
 
   record deployment-ctx {
     cloud: cloud,
     region: option<string>,
     platform: platform,
     runtime: option<string>,
-  }
-
-  record tenant-ctx {
-    tenant: tenant-id,
-    team: option<team-id>,
-    user: option<user-id>,
-    deployment: deployment-ctx,
-    trace-id: option<string>,
-    i18n-id: option<string>,
   }
 
   record flow-info {
@@ -37,6 +40,7 @@ interface exports {
 
   record run-opts {
     tenant: option<tenant-ctx>,
+    deployment: option<deployment-ctx>,
     timeout-ms: option<u32>,
     fuel-units: option<u64>,
   }
@@ -59,7 +63,7 @@ interface exports {
     score: f32,
   }
 
-  variant iface-error { invalid-arg, not-found, denied, unavailable, internal }
+  // iface-error imported from greentic:interfaces-types/types@0.1.0
 
   list-flows: func() -> result<list<flow-info>, iface-error>;
   get-flow-schema: func(flow: flow-id) -> result<schema-doc, iface-error>;

@@ -3,13 +3,7 @@
 package greentic:policy@1.0.0;
 
 interface policy-api {
-  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
-
-  /// Canonical host error payload.
-  record host-error {
-    code: string,
-    message: string,
-  }
+  use greentic:interfaces-types/types@0.1.0.{tenant-ctx, host-error};
 
   /// Policy reference.
   record policy-ref {

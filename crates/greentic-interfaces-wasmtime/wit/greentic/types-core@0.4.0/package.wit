@@ -1,3 +1,17 @@
+// ------------------------------------------------------------
+// DEPRECATED
+//
+// This package is deprecated and kept for backward compatibility.
+//
+// Reason:
+//   Superseded by canonical interfaces-types with greentic-types schemas.
+//
+// Replacement:
+//   greentic:interfaces-types@0.1.0 + greentic-types
+//
+// Status:
+//   No new development. No new versions will be published.
+// ------------------------------------------------------------
 // SPDX-License-Identifier: MIT
 
 package greentic:types-core@0.4.0;
@@ -5,9 +19,7 @@ package greentic:types-core@0.4.0;
 interface types {
   /// identifiers
   type flow-id = string;
-  type tenant-id = string;
-  type team-id = string;
-  type user-id = string;
+  use greentic:interfaces-types/types@0.1.0.{tenant-id, team-id, user-id, tenant-ctx, iface-error};
 
   /// clouds & platforms (keep enums stable; add variants only in minor bumps)
   enum cloud { aws, gcp, azure, hetzner, local, other }
@@ -20,20 +32,6 @@ interface types {
     platform: platform,
     runtime: option<string>,
     i18n-id: option<string>,
-  }
-
-  /// tenant identity and invocation metadata
-  record tenant-ctx {
-    tenant: tenant-id,
-    team: option<team-id>,
-    user: option<user-id>,
-    deployment: deployment-ctx,
-    trace-id: option<string>,
-    i18n-id: option<string>,
-    session-id: option<string>,
-    flow-id: option<string>,
-    node-id: option<string>,
-    provider-id: option<string>,
   }
 
   /// flow registration information
@@ -51,6 +49,7 @@ interface types {
   /// execution modifiers supplied when running a flow
   record run-opts {
     tenant: option<tenant-ctx>,
+    deployment: option<deployment-ctx>,
     timeout-ms: option<u32>,
     /// Wasm "fuel" if host enforces
     fuel-units: option<u64>,
@@ -79,7 +78,7 @@ interface types {
   }
 
   /// standardized interface errors
-  enum iface-error { invalid-arg, not-found, denied, unavailable, internal }
+  // iface-error imported from greentic:interfaces-types/types@0.1.0
 }
 
 world core {

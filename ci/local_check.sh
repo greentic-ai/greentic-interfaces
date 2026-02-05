@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage:
 #   LOCAL_CHECK_ONLINE=1 LOCAL_CHECK_STRICT=1 LOCAL_CHECK_VERBOSE=1 ci/local_check.sh
-# Defaults: offline, non-strict, quiet.
+# Defaults: non-strict, quiet.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -192,7 +192,7 @@ do_wit_validate() {
         echo "missing bash or wasm-tools"
         return 1
     fi
-    bash scripts/validate-wit.sh "${dir}"
+    WKG_FULL_STAGE=1 bash scripts/validate-wit.sh "${dir}"
 }
 
 do_wit_diff() {
@@ -246,8 +246,13 @@ do_wit_diff() {
     return 0
 }
 
+do_wit_ownership_lint() {
+    bash scripts/wit_ownership_lint.sh
+}
+
 if require_cargo; then run_step "cargo fmt" do_fmt; else skip_step "cargo fmt" "cargo missing"; fi
 if require_cargo; then run_step "cargo clippy" do_clippy; else skip_step "cargo clippy" "cargo missing"; fi
+run_step "WIT ownership lint" do_wit_ownership_lint
 if require_tool wasm-tools; then run_step "Validate ABI WIT" do_wit_validate crates/greentic-interfaces/wit; else skip_step "Validate ABI WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools; then run_step "Validate Wasmtime WIT" do_wit_validate crates/greentic-interfaces-wasmtime/wit; else skip_step "Validate Wasmtime WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" do_wit_diff; else skip_step "WIT diff guard" "missing wasm-tools or git"; fi

@@ -4,9 +4,7 @@ package greentic:distributor-api@1.0.0;
 
 interface distributor {
   use greentic:secrets-types/types@1.0.0.{secret-requirement};
-
-  /// Tenant identifier (opaque string/handle).
-  type tenant-id = string;
+  use greentic:interfaces-types/types@0.1.0.{tenant-id};
 
   /// Distributor environment identifier (opaque handle).
   type distributor-environment-id = string;

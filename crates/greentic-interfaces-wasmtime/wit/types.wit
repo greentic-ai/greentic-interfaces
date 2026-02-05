@@ -71,6 +71,21 @@ interface types {
     internal,
   }
 
+  /// Canonical host error payload.
+  record host-error {
+    code: string,
+    message: string,
+  }
+
+  /// Standard error codes returned by host services.
+  enum iface-error {
+    invalid-arg,
+    not-found,
+    denied,
+    unavailable,
+    internal,
+  }
+
   /// Pending outcome payload.
   record outcome-pending {
     reason: string,

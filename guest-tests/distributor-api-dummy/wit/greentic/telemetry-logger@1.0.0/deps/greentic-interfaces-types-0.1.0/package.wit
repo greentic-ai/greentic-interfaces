@@ -37,6 +37,7 @@ interface types {
     user: option<user-id>,
     user-id: option<user-id>,
     trace-id: option<string>,
+    i18n-id: option<string>,
     correlation-id: option<string>,
     attributes: list<tuple<string, string>>,
     session-id: option<string>,
@@ -66,6 +67,21 @@ interface types {
     unauthenticated,
     permission-denied,
     rate-limited,
+    unavailable,
+    internal,
+  }
+
+  /// Canonical host error payload.
+  record host-error {
+    code: string,
+    message: string,
+  }
+
+  /// Standard error codes returned by host services.
+  enum iface-error {
+    invalid-arg,
+    not-found,
+    denied,
     unavailable,
     internal,
   }

@@ -2,74 +2,70 @@
 
 package greentic:component@0.6.0;
 
-/// Minimal control helpers reused by every component world.
-interface control {
-  /// Returns true when the host requests cancellation.
-  should-cancel: func() -> bool;
+/// Canonical CBOR payload type used across the 0.6.0 component surface.
 
-  /// Yields execution back to the host.
-  yield-now: func();
+
+/// Structured self-description for components.
+interface component-descriptor {
+  /// Stable component identity and version metadata (CBOR-encoded).
+  get-component-info: func() -> list<u8>;
+
+  /// Full self-description (inputs, outputs, config, capabilities) as CBOR.
+  describe: func() -> list<u8>;
 }
 
-/// Component interface for greentic component version 0.6.0.
-interface node {
-  type json = string;
-  /// CBOR payload alias used by the 0.6.0 invoke ABI.
-  type cbor = list<u8>;
+/// CBOR-encoded schema exposure for inputs, outputs, and configuration.
+interface component-schema {
+  /// Deterministic, hashable CBOR schema for inputs.
+  input-schema: func() -> list<u8>;
 
-  /// Context carried with every invoke call in 0.6.0.
-  record invoke-ctx {
-    session-id: string,
-    i18n-id: string,
-    /// Optional tenant information for deterministic keying.
-    tenant-id: option<string>,
-  }
+  /// Deterministic, hashable CBOR schema for outputs.
+  output-schema: func() -> list<u8>;
 
-  /// A structured error code propagated back to the orchestrator.
-  record node-error {
-    code: string,
-    message: string,
-    retryable: bool,
-    backoff-ms: option<u64>,
-    details: option<json>,
-  }
-
-  /// Result of invoking an operation.
-  variant invoke-result {
-    ok(cbor),
-    err(node-error),
-  }
-
-  /// Streaming events emitted from a CBOR invoke.
-  variant stream-event {
-    data(cbor),
-    progress(u8),
-    done,
-    error(string),
-  }
-
-  /// Lifecycle status marker (mirrors the 0.4/0.5 worlds).
-  enum lifecycle-status {
-    ok,
-  }
-
-  /// Returns a JSON manifest describing the component's capabilities.
-  get-manifest: func() -> json;
-
-  /// Optional lifecycle hook when the component starts.
-  on-start: func(ctx: invoke-ctx) -> result<lifecycle-status, string>;
-
-  /// Optional lifecycle hook when the component stops.
-  on-stop: func(ctx: invoke-ctx, reason: string) -> result<lifecycle-status, string>;
-
-  /// Invoke a CBOR payload.
-  invoke: func(ctx: invoke-ctx, op: string, input: cbor) -> invoke-result;
-
-  /// Invoke that emits streaming events using CBOR payloads.
-  invoke-stream: func(ctx: invoke-ctx, op: string, input: cbor) -> list<stream-event>;
+  /// Deterministic, hashable CBOR schema for configuration/state.
+  config-schema: func() -> list<u8>;
 }
 
-world component {
-  import control;
-  export node;
+/// Component execution surface (CBOR payloads only).
+interface component-runtime {
+  /// Output + state payload for a run invocation.
+  record run-result {
+    output: list<u8>,
+    new-state: list<u8>,
+  }
+
+  /// Executes with CBOR input + state; returns CBOR output + new state.
+  run: func(input: list<u8>, state: list<u8>) -> run-result;
+}
+
+/// QA surface for configuration and upgrades.
+interface component-qa {
+  /// QA interaction modes for component configuration.
+  enum qa-mode {
+    default,
+    setup,
+    upgrade,
+    remove,
+  }
+
+  /// Returns CBOR-encoded QA spec for the given mode.
+  qa-spec: func(mode: qa-mode) -> list<u8>;
+
+  /// Applies CBOR-encoded answers to produce/update configuration.
+  apply-answers: func(mode: qa-mode, current-config: list<u8>, answers: list<u8>) -> list<u8>;
+}
+
+/// i18n is first-class for all human-facing fields.
+interface component-i18n {
+  /// Returns all i18n keys used by this component.
+  i18n-keys: func() -> list<string>;
+}
+
+/// Component world for greentic component version 0.6.0.
+world component-v0-v6-v0 {
+  import component-descriptor;
+  import component-schema;
+  import component-runtime;
+  import component-qa;
+  import component-i18n;
 }

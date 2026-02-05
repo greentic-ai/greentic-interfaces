@@ -10,7 +10,7 @@ use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
 const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
-const CANONICAL_INTERFACES_TYPES_FILE: &str = "types.wit";
+const CANONICAL_INTERFACES_TYPES_FILE: &str = "greentic/interfaces-types@0.1.0/package.wit";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -20,7 +20,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
-    let staged_root = out_dir.join("wit-staging");
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let staged_root = manifest_dir.join("target").join("wit-staging");
     reset_directory(&staged_root)?;
 
     let wit_root = Path::new("wit");
@@ -55,6 +56,32 @@ fn stage_package(
     fs::create_dir_all(&dest_dir)?;
     fs::copy(src_path, dest_dir.join("package.wit"))?;
     println!("cargo:rerun-if-changed={}", src_path.display());
+
+    // Copy helper .wit files that do not declare their own package (e.g. world.wit).
+    if let Some(src_dir) = src_path.parent() {
+        for entry in fs::read_dir(src_dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.extension().and_then(|ext| ext.to_str()) != Some("wit") {
+                continue;
+            }
+            if path.file_name().and_then(|name| name.to_str()) == Some("package.wit") {
+                continue;
+            }
+            let content = fs::read_to_string(&path).unwrap_or_default();
+            if content
+                .lines()
+                .any(|line| line.trim_start().starts_with("package "))
+            {
+                continue;
+            }
+            let dest = dest_dir.join(
+                path.file_name()
+                    .ok_or("failed to read helper WIT filename")?,
+            );
+            fs::copy(&path, dest)?;
+        }
+    }
 
     stage_dependencies(&dest_dir, src_path, catalog)?;
     Ok(())
@@ -338,6 +365,9 @@ fn discover_packages(
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
+            if path.file_name().and_then(|name| name.to_str()) == Some("deps") {
+                continue;
+            }
             let package_file = path.join("package.wit");
             if package_file.exists() {
                 let package_ref = read_package_ref(&package_file)?;
@@ -346,8 +376,11 @@ fn discover_packages(
                     .push(package_file.clone());
             }
             discover_packages(&path, out)?;
-        } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
-            let package_ref = read_package_ref(&path)?;
+        } else if path.is_file()
+            && path.extension().and_then(|ext| ext.to_str()) == Some("wit")
+            && path.file_name().and_then(|name| name.to_str()) != Some("package.wit")
+            && let Ok(package_ref) = read_package_ref(&path)
+        {
             out.entry(package_ref).or_default().push(path);
         }
     }

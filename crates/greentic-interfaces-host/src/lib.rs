@@ -138,9 +138,7 @@ pub mod worker {
         TenantCtx as WitWorkerTenantCtx, WorkerMessage as WitWorkerMessage,
         WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
     };
-    use greentic_interfaces::worker_v1::greentic::types_core::types::{
-        Cloud, DeploymentCtx, Platform,
-    };
+    use greentic_interfaces::worker_v1::greentic::interfaces_types::types as worker_types;
     use greentic_types::{ErrorCode, GreenticError, TenantCtx};
     use serde::{Deserialize, Serialize};
     use serde_json::Value;
@@ -152,47 +150,69 @@ pub mod worker {
     fn to_worker_tenant(ctx: TenantCtx) -> MapperResult<WitWorkerTenantCtx> {
         let base = crate::mappers::tenant_ctx_to_wit(ctx)?;
         Ok(WitWorkerTenantCtx {
+            env: base.env,
             tenant: base.tenant,
+            tenant_id: base.tenant_id,
             team: base.team,
+            team_id: base.team_id,
             user: base.user,
-            deployment: DeploymentCtx {
-                cloud: Cloud::Other,
-                region: None,
-                platform: Platform::Other,
-                runtime: None,
-            },
+            user_id: base.user_id,
             trace_id: base.trace_id,
-            i18n_id: base.i18n_id.clone(),
+            i18n_id: base.i18n_id,
+            correlation_id: base.correlation_id,
+            attributes: base.attributes,
             session_id: base.session_id,
             flow_id: base.flow_id,
             node_id: base.node_id,
             provider_id: base.provider_id,
+            deadline_ms: base.deadline_ms,
+            attempt: base.attempt,
+            idempotency_key: base.idempotency_key,
+            impersonation: base.impersonation.map(convert_impersonation_to_worker),
         })
     }
 
     fn from_worker_tenant(ctx: WitWorkerTenantCtx) -> MapperResult<TenantCtx> {
         let base = interfaces_types::TenantCtx {
-            env: "unknown".to_string(),
-            tenant: ctx.tenant.clone(),
-            tenant_id: ctx.tenant,
-            team: ctx.team.clone(),
-            team_id: ctx.team,
-            user: ctx.user.clone(),
-            user_id: ctx.user,
+            env: ctx.env,
+            tenant: ctx.tenant,
+            tenant_id: ctx.tenant_id,
+            team: ctx.team,
+            team_id: ctx.team_id,
+            user: ctx.user,
+            user_id: ctx.user_id,
             trace_id: ctx.trace_id,
-            i18n_id: ctx.i18n_id.clone(),
-            correlation_id: None,
+            i18n_id: ctx.i18n_id,
+            correlation_id: ctx.correlation_id,
             session_id: ctx.session_id,
             flow_id: ctx.flow_id,
             node_id: ctx.node_id,
             provider_id: ctx.provider_id,
-            deadline_ms: None,
-            attempt: 0,
-            idempotency_key: None,
-            impersonation: None,
-            attributes: Vec::new(),
+            deadline_ms: ctx.deadline_ms,
+            attempt: ctx.attempt,
+            idempotency_key: ctx.idempotency_key,
+            impersonation: ctx.impersonation.map(convert_impersonation_from_worker),
+            attributes: ctx.attributes,
         };
         crate::mappers::tenant_ctx_from_wit(base)
+    }
+
+    fn convert_impersonation_to_worker(
+        value: interfaces_types::Impersonation,
+    ) -> worker_types::Impersonation {
+        worker_types::Impersonation {
+            actor_id: value.actor_id,
+            reason: value.reason,
+        }
+    }
+
+    fn convert_impersonation_from_worker(
+        value: worker_types::Impersonation,
+    ) -> interfaces_types::Impersonation {
+        interfaces_types::Impersonation {
+            actor_id: value.actor_id,
+            reason: value.reason,
+        }
     }
 
     /// Host-friendly request wrapper for worker invocations (uses `greentic-types` and `serde_json` payloads).
