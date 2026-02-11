@@ -53,3 +53,98 @@ fn oauth_broker_worlds_include_client() {
         "expected additive broker-client world to be staged"
     );
 }
+
+#[test]
+fn component_v0_v6_exports_component_interfaces() {
+    use std::collections::BTreeSet;
+    use wit_parser::WorldKey;
+
+    let staged_root = Path::new(env!("WIT_STAGING_DIR"));
+    let package_dir = staged_root.join("greentic-component-0.6.0");
+
+    assert!(
+        package_dir.exists(),
+        "staged component package missing at {}",
+        package_dir.display()
+    );
+
+    let mut resolve = Resolve::new();
+    let (pkg, _) = resolve
+        .push_dir(&package_dir)
+        .unwrap_or_else(|err| panic!("failed to parse {}: {err}", package_dir.display()));
+
+    let world_id = resolve.packages[pkg]
+        .worlds
+        .get("component-v0-v6-v0")
+        .copied()
+        .expect("missing component-v0-v6-v0 world");
+
+    let world = &resolve.worlds[world_id];
+    let export_names: BTreeSet<String> = world
+        .exports
+        .keys()
+        .filter_map(|key| match key {
+            WorldKey::Name(name) => Some(name.clone()),
+            WorldKey::Interface(id) => resolve.interfaces[*id].name.clone(),
+        })
+        .collect();
+    let import_names: BTreeSet<String> = world
+        .imports
+        .keys()
+        .filter_map(|key| match key {
+            WorldKey::Name(name) => Some(name.clone()),
+            WorldKey::Interface(id) => resolve.interfaces[*id].name.clone(),
+        })
+        .collect();
+
+    for required in [
+        "component-descriptor",
+        "component-schema",
+        "component-runtime",
+        "component-qa",
+        "component-i18n",
+    ] {
+        assert!(
+            export_names.contains(required),
+            "expected component-v0-v6-v0 to export {required}"
+        );
+        assert!(
+            !import_names.contains(required),
+            "expected component-v0-v6-v0 not to import {required}"
+        );
+    }
+}
+
+#[test]
+fn component_v0_v6_wit_sources_match_canonical() {
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let canonical = manifest_dir.join("wit/greentic/component@0.6.0/package.wit");
+    let guest =
+        manifest_dir.join("../greentic-interfaces-guest/wit/greentic/component@0.6.0/package.wit");
+    let wasmtime = manifest_dir
+        .join("../greentic-interfaces-wasmtime/wit/greentic/component@0.6.0/package.wit");
+
+    let canonical_contents = std::fs::read_to_string(&canonical).unwrap_or_else(|err| {
+        panic!(
+            "failed to read canonical WIT at {}: {err}",
+            canonical.display()
+        )
+    });
+    let guest_contents = std::fs::read_to_string(&guest)
+        .unwrap_or_else(|err| panic!("failed to read guest WIT at {}: {err}", guest.display()));
+    let wasmtime_contents = std::fs::read_to_string(&wasmtime).unwrap_or_else(|err| {
+        panic!(
+            "failed to read wasmtime WIT at {}: {err}",
+            wasmtime.display()
+        )
+    });
+
+    assert_eq!(
+        canonical_contents, guest_contents,
+        "guest WIT package.wit should match canonical source"
+    );
+    assert_eq!(
+        canonical_contents, wasmtime_contents,
+        "wasmtime WIT package.wit should match canonical source"
+    );
+}

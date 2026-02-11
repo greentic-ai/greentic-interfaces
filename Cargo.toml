@@ -19,7 +19,7 @@ resolver = "2"
 license = "MIT"
 edition = "2024"
 authors = ["Greentic.ai"]
-version = "0.4.89"
+version = "0.4.90"
 repository = "https://github.com/greentic-ai/greentic-interfaces"
 
 [workspace.dependencies]
@@ -39,7 +39,7 @@ wit-bindgen = { version = "0.52", default-features = false, features = ["macros"
 wit-bindgen-core = "0.52"
 wit-bindgen-rust = "0.52"
 schemars = { version = "1", features = ["derive"] }
-wit-parser = "0.244"
+wit-parser = "0.245"
 insta = { version = "1", features = ["json"] }
 camino = "1"
 proc-macro2 = "1"

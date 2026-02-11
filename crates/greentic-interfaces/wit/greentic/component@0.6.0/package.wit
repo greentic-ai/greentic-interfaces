@@ -62,10 +62,12 @@ interface component-i18n {
 }
 
 /// Component world for greentic component version 0.6.0.
+/// Components export descriptor/qa/i18n/runtime; hosts call these exports.
+/// Hosts provide only imported host services.
 world component-v0-v6-v0 {
-  import component-descriptor;
-  import component-schema;
-  import component-runtime;
-  import component-qa;
-  import component-i18n;
+  export component-descriptor;
+  export component-schema;
+  export component-runtime;
+  export component-qa;
+  export component-i18n;
 }
