@@ -17,6 +17,7 @@ default = [
     "bindings-rust",
     "common-types-v0-1",
     "component-v1",
+    "component-v0-6",
     "component-v0-5",
     "pack-export-v1",
     "pack-validate-v0-1",
@@ -56,6 +57,7 @@ default = [
 bindings-rust = ["dep:wit-bindgen"]
 common-types-v0-1 = []
 component-v1 = []
+component-v0-6 = []
 component-v0-5 = []
 component-v0-4 = []
 describe-v1 = []
@@ -98,6 +100,7 @@ wit-all = [
     "bindings-rust",
     "common-types-v0-1",
     "component-v1",
+    "component-v0-6",
     "component-v0-5",
     "component-v0-4",
     "describe-v1",

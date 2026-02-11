@@ -116,6 +116,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "component-v0-6")]
+declare_world!(
+    mod component_v0_6,
+    path = "target/wit-staging/greentic-component-0.6.0",
+    world = "greentic:component/component-v0-v6-v0@0.6.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:component@0.6.0";
+    }
+);
+
 #[cfg(feature = "component-v0-5")]
 declare_world!(
     mod component_configurable_v0_5,

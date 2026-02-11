@@ -1,14 +1,115 @@
 #![deny(unsafe_code)]
 #![warn(missing_docs, clippy::unwrap_used, clippy::expect_used)]
 //! Host-facing bindings and mappers re-exported from `greentic-interfaces`.
+//! `greentic:component@0.6.0` exports descriptor/schema/runtime/qa/i18n and is bound via
+//! [`component_v0_6`].
 
 #[cfg(target_arch = "wasm32")]
 compile_error!("greentic-interfaces-host is intended for native host targets.");
 
 pub use greentic_interfaces::{bindings, mappers, validate};
 
+/// Host bindings for `greentic:component/component@0.6.0` (world `component-v0-v6-v0`).
+pub mod component_v0_6 {
+    pub use greentic_interfaces::component_v0_6::*;
+
+    use greentic_interfaces::component_v0_6::exports::greentic::component::{
+        component_qa, component_runtime,
+    };
+    use wasmtime::component::{Component as WasmtimeComponent, Linker};
+    use wasmtime::{Result, Store};
+
+    /// Lightweight wrapper around the component-v0-v6-v0 exports.
+    pub struct ComponentV0_6 {
+        inner: ComponentV0V6V0,
+    }
+
+    impl ComponentV0_6 {
+        /// Wraps the generated instance bindings.
+        pub fn new(inner: ComponentV0V6V0) -> Self {
+            Self { inner }
+        }
+
+        /// Returns the underlying generated instance.
+        pub fn into_inner(self) -> ComponentV0V6V0 {
+            self.inner
+        }
+
+        /// Returns component identity and version metadata (CBOR).
+        pub fn get_component_info<T>(&self, store: &mut Store<T>) -> Result<Vec<u8>> {
+            self.inner
+                .greentic_component_component_descriptor()
+                .call_get_component_info(store)
+        }
+
+        /// Returns the full self-description payload (CBOR).
+        pub fn describe<T>(&self, store: &mut Store<T>) -> Result<Vec<u8>> {
+            self.inner
+                .greentic_component_component_descriptor()
+                .call_describe(store)
+        }
+
+        /// Returns the QA spec for the given mode (CBOR).
+        pub fn qa_spec<T>(
+            &self,
+            store: &mut Store<T>,
+            mode: component_qa::QaMode,
+        ) -> Result<Vec<u8>> {
+            self.inner
+                .greentic_component_component_qa()
+                .call_qa_spec(store, mode)
+        }
+
+        /// Applies answers to the current config (CBOR).
+        pub fn apply_answers<T>(
+            &self,
+            store: &mut Store<T>,
+            mode: component_qa::QaMode,
+            current_config: &[u8],
+            answers: &[u8],
+        ) -> Result<Vec<u8>> {
+            self.inner
+                .greentic_component_component_qa()
+                .call_apply_answers(store, mode, current_config, answers)
+        }
+
+        /// Returns all i18n keys referenced by the component.
+        pub fn i18n_keys<T>(&self, store: &mut Store<T>) -> Result<Vec<String>> {
+            self.inner
+                .greentic_component_component_i18n()
+                .call_i18n_keys(store)
+        }
+
+        /// Runs the component and returns its output + new state (CBOR).
+        pub fn run<T>(
+            &self,
+            store: &mut Store<T>,
+            input: &[u8],
+            state: &[u8],
+        ) -> Result<component_runtime::RunResult> {
+            self.inner
+                .greentic_component_component_runtime()
+                .call_run(store, input, state)
+        }
+    }
+
+    /// Instantiates a component-v0-v6-v0 export and wraps it for ergonomic access.
+    pub fn instantiate_component_v0_6<T>(
+        store: &mut Store<T>,
+        component: &WasmtimeComponent,
+        linker: &Linker<T>,
+    ) -> Result<ComponentV0_6> {
+        let inner = ComponentV0V6V0::instantiate(store, component, linker)?;
+        Ok(ComponentV0_6::new(inner))
+    }
+}
+
 /// Component control and exports.
 pub mod component {
+    /// Component ABI with descriptor/schema/runtime/qa/i18n exports `greentic:component/component@0.6.0`.
+    pub mod v0_6 {
+        pub use greentic_interfaces::component_v0_6::*;
+    }
     /// Component ABI with config surface `greentic:component/component@0.5.0`.
     pub mod v0_5 {
         pub use greentic_interfaces::component_v0_5::*;
