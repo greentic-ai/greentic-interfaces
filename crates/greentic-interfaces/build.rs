@@ -231,16 +231,19 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
     for path in package_paths {
         let mut resolve = Resolve::new();
         let (pkg, _) = resolve.push_dir(&path)?;
-        let package = &resolve.packages[pkg];
-
-        let mut worlds: Vec<_> = package.worlds.iter().collect();
+        let package_name = resolve.packages[pkg].name.clone();
+        let mut worlds: Vec<_> = resolve.packages[pkg]
+            .worlds
+            .iter()
+            .map(|(name, id)| (name.to_string(), *id))
+            .collect();
         worlds.sort_by(|(a_name, _), (b_name, _)| a_name.cmp(b_name));
 
         for (world_name, world_id) in worlds {
-            let module_name = module_name(&package.name, world_name);
+            let module_name = module_name(&package_name, &world_name);
             let mut files = Files::default();
             let mut generator = opts.clone().build();
-            generator.generate(&resolve, *world_id, &mut files)?;
+            generator.generate(&mut resolve, world_id, &mut files)?;
 
             let mut combined = Vec::new();
             for (_, contents) in files.iter() {
@@ -251,9 +254,9 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
                 "pub mod {module_name} {{ include!(concat!(env!(\"GREENTIC_INTERFACES_BINDINGS\"), \"/{module_name}.rs\")); }}\n"
             ));
 
-            if package.name.namespace == "greentic"
-                && package.name.name == "interfaces-pack"
-                && matches!(&package.name.version, Some(ver) if ver.major == 0 && ver.minor == 1)
+            if package_name.namespace == "greentic"
+                && package_name.name == "interfaces-pack"
+                && matches!(&package_name.version, Some(ver) if ver.major == 0 && ver.minor == 1)
                 && world_name == "component"
             {
                 default_module = Some(module_name.clone());
