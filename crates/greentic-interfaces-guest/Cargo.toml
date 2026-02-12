@@ -17,6 +17,7 @@ wit-bindgen = { workspace = true }
 [features]
 component-node = []
 component-node-v0-4 = []
+component-v0-6 = []
 component-v1 = ["greentic-interfaces"]
 lifecycle = []
 build = []
