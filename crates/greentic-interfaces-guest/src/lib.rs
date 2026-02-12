@@ -25,6 +25,12 @@ pub mod component {
     pub use crate::bindings::greentic_component_0_5_0_component::exports::greentic::component::*;
 }
 
+/// Component exports for `greentic:component/component@0.6.0` (world component-v0-v6-v0).
+#[cfg(feature = "component-v0-6")]
+pub mod component_v0_6 {
+    pub use crate::bindings::greentic_component_0_6_0_component_v0_v6_v0::exports::greentic::component::*;
+}
+
 /// Legacy component exports for `greentic:component/component@0.4.0`.
 #[cfg(feature = "component-node-v0-4")]
 pub mod component_v0_4 {

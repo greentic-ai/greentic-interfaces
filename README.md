@@ -6,11 +6,11 @@ This repository contains the shared ABI contracts and Wasmtime runtime helpers u
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
 
-> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. The generic component ABI is now provided by `component@0.5.0` (config-aware `config` record + optional JSON Schema export); `component@0.4.0` and the legacy pack worlds (`pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat.
+> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. The component ABI now has two active surfaces: `component@0.5.0` (JSON `node` interface) and `component@0.6.0` (CBOR descriptor/schema/runtime/qa/i18n via world `component-v0-v6-v0`). `component@0.4.0` and the legacy pack worlds (`pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat.
 
 - Host/guest reexports: `greentic-interfaces-host` and `greentic-interfaces-guest` now surface the v1 worlds plus mapper helpers: component outcomes (`ComponentOutcome`, `ComponentOutcomeStatus`) and pack/flow descriptors (`PackDescriptor`, `FlowDescriptor`) for the new pack-export-v1 ABI.
 
-### Component config shape
+### Component config shape (0.5.0)
 
 - `greentic:component@0.5.0` defines a canonical `@config` record inside the `node` interface. Doc comments become JSON Schema descriptions, `option<T>` marks optional properties, `@default(...)` carries defaults, and `@flow:hidden` maps to an `x_flow_hidden` extension.
 - Components can optionally export the `component-configurable` world (`get-config-schema() -> string`) to supply a JSON Schema directly; tooling still infers schemas from the `config` record by default.
@@ -37,7 +37,9 @@ record config {
 }
 ```
 
-### Feature flags for the new v1 worlds
+### Feature flags for component@0.6.0 + v1 worlds
+
+- `component-v0-6`: enables `greentic:component@0.6.0` (world `component-v0-v6-v0`) guest bindings.
 
 - `common-types-v0-1`: enables `greentic:common-types@0.1.0`.
 - `component-v1`: enables `greentic:component-v1@0.1.0` (component-host world) and reexports the component outcome mappers.
@@ -84,6 +86,14 @@ use greentic_interfaces_host::telemetry::log;
 
 ### Guest examples
 
+#### Component@0.6.0 (CBOR)
+
+```rust
+use greentic_interfaces_guest::component_v0_6::{
+    component_descriptor, component_i18n, component_qa, component_runtime, component_schema,
+};
+```
+
 ```rust
 use greentic_interfaces_guest::component::node::Guest;
 use greentic_interfaces_guest::secrets_store::secrets_store;
@@ -114,7 +124,7 @@ let resolved = ref_api.resolve_ref("oci://registry.example/greentic/component@sh
 let _artifact = ref_api.get_by_digest(&resolved.digest);
 ```
 
-#### Minimal guest component (2 funcs + macro)
+#### Minimal guest component (0.5.0 node; 2 funcs + macro)
 
 Use the `component_entrypoint!` macro so the crate generates the WASM export glue (marker section, unsafe `#[export_name]` funcs) for you. Only the payload description and invoke handler are required; streaming defaults to `[Progress(0), Data(result), Done]` and lifecycle hooks default to `Ok`.
 
