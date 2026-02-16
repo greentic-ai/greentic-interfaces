@@ -46,5 +46,6 @@ These names are guidelines, not enforcement; hosts may extend the list as needed
 - Hosts should keep `tenant-ctx` and `exec-ctx` in sync with the new `i18n_id` field so every phase of the invocation pipeline can format telemetry or localized output consistently.
 - Schema IDs + inline CBOR examples live in the descriptor ops metadata; tooling that validates `input/output` payloads can use those bytes to verify encoder/decoder compatibility before invoking the component.
 - The new descriptor `setup` contract (also described in `docs/component-descriptor.md`) allows components to ship QA specs and wizard answers, with `ref_pack_path` values relative to the component root.
+- In 0.6 QA mode enums, `upgrade` was renamed to `update`; hosts parsing string mode values should accept legacy `"upgrade"` as an alias and normalize to `update`.
 
 Document both your current JSON schema and the new CBOR schema to make the migration from `component@0.5.0` to `component@0.6.0` smooth for hosts and guests.

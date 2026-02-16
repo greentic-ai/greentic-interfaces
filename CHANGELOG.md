@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- WIT ABI update: renamed the 0.6 QA enum value `upgrade` to `update` in `greentic:component@0.6.0` and `greentic:pack@0.6.0`; interface hashes/snapshots changed as expected.
 - Remove legacy provider-protocol WIT worlds (`greentic:messaging@1.0.0`, `greentic:events@1.0.0` broker/source/sink/bridge, `greentic:secrets-provider@0.1.0` and its generator/audit/policy deps) and drop the corresponding host/guest/wasmtime bindings; provider-core is now the only supported provider protocol.
 - Add `greentic:secrets-types@1.0.0` and surface `secret-requirements` in distributor resolve responses plus a typed `get-pack-status-v2` (legacy string `get-pack-status` remains for compatibility).
 - Add `greentic:secrets-store@1.0.0` read-only secret lookup world (get -> option<bytes> with structured errors) and generate host/guest bindings.

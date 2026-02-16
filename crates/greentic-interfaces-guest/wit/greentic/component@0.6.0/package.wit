@@ -38,13 +38,13 @@ interface component-runtime {
   run: func(input: list<u8>, state: list<u8>) -> run-result;
 }
 
-/// QA surface for configuration and upgrades.
+/// QA surface for configuration and updates.
 interface component-qa {
   /// QA interaction modes for component configuration.
   enum qa-mode {
     default,
     setup,
-    upgrade,
+    update,
     remove,
   }
 

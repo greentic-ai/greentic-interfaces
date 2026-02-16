@@ -11,6 +11,11 @@ As of 2026-02-05, shared WIT types are centrally owned by `greentic:interfaces-t
 - `greentic:component@0.4.0` and `greentic:component@0.5.0` now use the canonical `tenant-ctx` shape from `greentic:interfaces-types`. If your component relied on the old, smaller record, update your bindings to the new canonical schema.
 - `greentic:types-core@0.2.0`, `greentic:types-core@0.4.0`, and `greentic:pack-export@0.2.0` now use the canonical `tenant-ctx`. The `deployment-ctx` data is no longer nested under `tenant-ctx`; it is now carried as `run-opts.deployment` instead.
 
+## 0.6 QA Mode Rename
+- In `greentic:component@0.6.0` and `greentic:pack@0.6.0`, the QA enum value `upgrade` was renamed to `update`.
+- This is an ABI-level WIT change and will update interface hashes/snapshots.
+- If host/CLI code accepts string mode values, keep backward parsing compatibility by mapping incoming `"upgrade"` to `update`, and emit `update` in output.
+
 ## Adding New Shared Types
 1. Define the shared record/enum in `crates/greentic-interfaces/wit/greentic/interfaces-types@0.1.0/types.wit`.
 2. Import it in all other packages with `use greentic:interfaces-types/types@0.1.0.{...}`.

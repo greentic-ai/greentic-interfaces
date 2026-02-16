@@ -61,7 +61,7 @@ Version `0.4.18` adds four optional identifiers to `greentic:types-core@0.4.x` a
 - `node_id: option<string>` – node identifier inside the flow DAG.
 - `provider_id: option<string>` – surface/runtime that accepted the invocation.
 
-All four fields are additive and stay backwards compatible with existing 0.4.x users—structures that omit them continue to deserialize, and callers can opt in as soon as both sides upgrade.
+All four fields are additive and stay backwards compatible with existing 0.4.x users—structures that omit them continue to deserialize, and callers can opt in as soon as both sides adopt the newer version.
 
 ```rust
 use greentic_types::{EnvId, TenantCtx, TenantId};
