@@ -106,10 +106,20 @@ jobs:
         run: |
           set -euo pipefail
           bundle="target/wit-packages/greentic-interfaces-wit-1.0.0.tar.gz"
-          image="ghcr.io/greentic-ai/greentic-interfaces-wit:1.0.0"
-          oras push "${image}" \
+          primary_image="ghcr.io/greentic-ai/greentic-interfaces-wit:1.0.0"
+          fallback_image="ghcr.io/greentic-ai-org/greentic-interfaces-wit:1.0.0"
+
+          if oras push "${primary_image}" \
             --artifact-type application/vnd.greentic.wit.bundle.v1+tar \
-            "${bundle}:application/gzip"
+            "${bundle}:application/gzip"; then
+            echo "Published bundle to ${primary_image}"
+          else
+            echo "Push to ${primary_image} failed, retrying with ${fallback_image}"
+            oras push "${fallback_image}" \
+              --artifact-type application/vnd.greentic.wit.bundle.v1+tar \
+              "${bundle}:application/gzip"
+            echo "Published bundle to ${fallback_image}"
+          fi
       - name: Publish all
         env:
           OCI_REPO_OWNER: ${{ github.repository_owner }}
