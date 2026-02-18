@@ -8,15 +8,23 @@ pub fn canonical_wit_root() -> PathBuf {
 
     // Local crate checkout (if this crate carries its own WIT).
     let local = manifest_dir.join("wit");
-    if local.exists() {
+    if has_wit_files(&local) {
         return local
             .canonicalize()
             .expect("Failed to locate canonical WIT root");
     }
 
     // Workspace checkout from `crates/<this-crate>`.
+    let workspace_root_wit = manifest_dir.join("../../wit");
+    if has_wit_files(&workspace_root_wit) {
+        return workspace_root_wit
+            .canonicalize()
+            .expect("Failed to locate canonical WIT root");
+    }
+
+    // Workspace checkout from `crates/<this-crate>`.
     let workspace_sibling = manifest_dir.join("../greentic-interfaces/wit");
-    if workspace_sibling.exists() {
+    if has_wit_files(&workspace_sibling) {
         return workspace_sibling
             .canonicalize()
             .expect("Failed to locate canonical WIT root");
@@ -24,7 +32,7 @@ pub fn canonical_wit_root() -> PathBuf {
 
     // `cargo package` verification from `target/package/<crate-version>`.
     let package_verify_workspace = manifest_dir.join("../../../crates/greentic-interfaces/wit");
-    if package_verify_workspace.exists() {
+    if has_wit_files(&package_verify_workspace) {
         return package_verify_workspace
             .canonicalize()
             .expect("Failed to locate canonical WIT root");
@@ -36,6 +44,24 @@ pub fn canonical_wit_root() -> PathBuf {
     }
 
     panic!("Failed to locate canonical WIT root");
+}
+
+fn has_wit_files(root: &Path) -> bool {
+    let mut stack = vec![root.to_path_buf()];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = fs::read_dir(dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                stack.push(path);
+            } else if path.extension().and_then(|s| s.to_str()) == Some("wit") {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 pub(crate) fn crates_io_sibling_wit_root(

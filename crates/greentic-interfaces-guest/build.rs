@@ -288,6 +288,9 @@ fn discover_packages(root: &Path, out: &mut Vec<PathBuf>) -> Result<(), Box<dyn 
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
+            if path.file_name().and_then(|n| n.to_str()) == Some("deps") {
+                continue;
+            }
             let package_file = path.join("package.wit");
             if package_file.exists() {
                 out.push(package_file);
@@ -310,6 +313,9 @@ fn find_package_recursive(
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
+            if path.file_name().and_then(|n| n.to_str()) == Some("deps") {
+                continue;
+            }
             let package_file = path.join("package.wit");
             if package_file.exists() {
                 let entry_package = read_package_ref(&package_file)?;
