@@ -4,7 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "${TMPDIR}"' EXIT
-export CARGO_TARGET_DIR="${ROOT}/target"
 
 consumer_dir="${TMPDIR}/wasmtime-consumer"
 
@@ -27,9 +26,9 @@ pub fn marker() -> &'static str {
 }
 RS
 
-cargo build --manifest-path "${consumer_dir}/Cargo.toml"
+CARGO_TARGET_DIR="${TMPDIR}/target" cargo build --manifest-path "${consumer_dir}/Cargo.toml"
 
-cargo package --manifest-path "${ROOT}/crates/greentic-interfaces/Cargo.toml" --no-verify --allow-dirty >/dev/null
+CARGO_TARGET_DIR="${ROOT}/target" cargo package --manifest-path "${ROOT}/crates/greentic-interfaces/Cargo.toml" --no-verify --allow-dirty >/dev/null
 crate_file="$(ls -t "${ROOT}/target/package"/greentic-interfaces-*.crate | head -n1)"
 
 if [[ -z "${crate_file}" ]]; then
@@ -37,7 +36,10 @@ if [[ -z "${crate_file}" ]]; then
     exit 1
 fi
 
-if ! tar -tf "${crate_file}" | grep -Eq '^greentic-interfaces-[^/]+/wit/'; then
+tar_listing="${TMPDIR}/crate-contents.txt"
+tar -tf "${crate_file}" > "${tar_listing}"
+
+if ! grep -Eq '^greentic-interfaces-[^/]+/wit/' "${tar_listing}"; then
     echo "Packaged greentic-interfaces crate is missing wit/** contents"
     exit 1
 fi
