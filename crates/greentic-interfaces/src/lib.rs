@@ -4,6 +4,12 @@
 
 //! ABI-oriented bindings for Greentic WIT packages.
 
+/// Returns the canonical WIT root shipped with this crate.
+#[must_use]
+pub fn wit_root() -> std::path::PathBuf {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("wit")
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 pub mod bindings;
 #[cfg(not(target_arch = "wasm32"))]

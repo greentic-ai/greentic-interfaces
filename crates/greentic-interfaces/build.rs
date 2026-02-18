@@ -24,7 +24,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let out_dir = PathBuf::from(env::var("OUT_DIR")?);
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let staged_root = manifest_dir.join("target").join("wit-staging");
-    reset_directory(&staged_root)?;
+    // Keep staging stable for `src/wit_all.rs` relative paths and avoid
+    // concurrent build-script races by not deleting the shared directory.
+    fs::create_dir_all(&staged_root)?;
 
     let wit_root_buf = canonical_wit_root();
     println!("cargo:rerun-if-changed={}", wit_root_buf.display());
@@ -178,13 +180,32 @@ fn parse_deps(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
             continue;
         }
 
-        let dep_ref = format!("{base_pkg}@{version}");
+        let dep_ref = format!("{base_pkg}@{}", normalize_wit_version(&version));
         if !deps.contains(&dep_ref) {
             deps.push(dep_ref);
         }
     }
 
     Ok(deps)
+}
+
+fn normalize_wit_version(version: &str) -> String {
+    version
+        .split('.')
+        .map(|segment| {
+            if segment.chars().all(|ch| ch.is_ascii_digit()) {
+                let trimmed = segment.trim_start_matches('0');
+                if trimmed.is_empty() {
+                    "0".to_string()
+                } else {
+                    trimmed.to_string()
+                }
+            } else {
+                segment.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(".")
 }
 
 fn sanitize(package_ref: &str) -> String {
