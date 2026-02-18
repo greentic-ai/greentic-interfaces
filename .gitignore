@@ -1,7 +1,11 @@
 /target
+/crates/greentic-interfaces/target/
+/crates/greentic-interfaces-wasmtime/target/
 .env
 wkg.lock
 .DS_Store
 ._*
 .Spotlight-V100
 .Trashes
+/crates/greentic-interfaces-wasmtime/target
+/crates/greentic-interfaces/target
