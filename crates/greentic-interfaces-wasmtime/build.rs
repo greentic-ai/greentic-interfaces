@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use std::{env, fs};
 use walkdir::WalkDir;
 
-include!("../greentic-interfaces/build_support/wit_paths.rs");
+include!("build_support/wit_paths.rs");
 
 fn world_names_from_str(content: &str) -> Vec<String> {
     content

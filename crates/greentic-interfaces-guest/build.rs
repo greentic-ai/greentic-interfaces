@@ -9,7 +9,7 @@ use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
-include!("../greentic-interfaces/build_support/wit_paths.rs");
+include!("build_support/wit_paths.rs");
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
