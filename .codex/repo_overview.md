@@ -60,3 +60,8 @@
 - When adding/changing WIT packages, update `crates/greentic-interfaces/src/mappers.rs` and rerun WIT validation (`scripts/validate-wit.sh` or `ci/local_check.sh`) to keep bindings in sync.
 - If guest fixture components are regenerated, refresh the Wasmtime test assets using `scripts/build-repo-ui-actions-dummy.sh` and `scripts/build-distributor-api-dummy.sh`.
 - Keep `docs/component-descriptor.md`, `tests/fixtures/component-descriptor-example.json`, and the descriptor round-trip test in sync if the descriptor schema evolves across pack/component releases.
+
+## 6. Current 0.6 Reset Work
+- `PR-03` just wrapped: the canonical 0.6 WIT tree now lives under `wit/greentic/**@0.6.0/**`, the shared CBOR schemas land under `schemas/cddl/`, and `scripts/wit_lint.sh` enforces no `@0.6.0` copies escape the canonical path before the rest of the checks run.
+- `PR-04` is active: we are authoring `greentic:types-core@0.6.0` (TenantCtx with i18n/tracing), `greentic:codec@0.6.0` helpers, and the CBOR-first `greentic:component/component@0.6.0` world/descriptor so hosts always send separated call specs and rely on the new descriptor metadata for schemas/capabilities.
+- The canonical descriptor, CBOR schemas, and component world feed `scripts/wit_lint.sh`/CI once `ci/local_check.sh` reruns successfully with the new 0.6 packages; downstream host/guest build scripts now look at `./wit` for every WIT source.

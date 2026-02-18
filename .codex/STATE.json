@@ -1,0 +1,495 @@
+{
+  "program": "Greentic Unified 0.6.0 Contract Reset",
+  "created_date": "2026-02-04",
+  "rules_version": "0.6-unified-v2",
+  "active_pr": "PR-04",
+  "prs": [
+    {
+      "id": "PR-01",
+      "title": "Ecosystem inventory + Canonical Map (richest semantics win)",
+      "scope": "Program-wide (docs + mapping)",
+      "depends_on": [],
+      "status": "in_progress",
+      "started_at": "2026-02-04T21:54:15Z",
+      "finished_at": "2026-02-04T22:06:22Z",
+      "acceptance_criteria": [
+        "CANONICAL_MAP.md exists and covers ctx/ids/envelope/errors/state/secrets/http/telemetry/i18n/descriptor/pack-flow",
+        "RENAMES.md exists and defines consistent naming",
+        "COMPAT_MATRIX.md exists and identifies deprecated versions"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "name": "map_written",
+          "status": "completed",
+          "notes": "contracts/0.6.0/CANONICAL_MAP.md created with canonical domain definitions."
+        },
+        {
+          "name": "rename_dict_written",
+          "status": "completed",
+          "notes": "contracts/0.6.0/RENAMES.md documents deterministic naming choices."
+        },
+        {
+          "name": "compat_matrix_written",
+          "status": "completed",
+          "notes": "contracts/0.6.0/COMPAT_MATRIX.md lists legacy versions and guardrails."
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "completed",
+          "notes": "Updated .codex/repo_overview.md to summarize the new contracts/0.6.0 artifacts."
+        }
+      ],
+      "result": {
+        "ci_local_check": "fail \u2013 `greentic-interfaces-wasmtime` still depends on `greentic-interfaces = \"^0.4\"`; clippy/build/test could not resolve the older version (only 0.6.0 exists). WKG warnings emitted for multiple packages but were non-fatal.",
+        "notes": "Local check run even though `cargo` input fails on the outdated dependency requirement.",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-02",
+      "title": "Vocabulary unification + naming lint",
+      "scope": "Contract repo + CI gates",
+      "depends_on": [
+        "PR-01"
+      ],
+      "status": "in_progress",
+      "started_at": "2026-02-04T22:06:22Z",
+      "finished_at": "2026-02-04T22:11:35Z",
+      "acceptance_criteria": [
+        "Naming dictionary applied in 0.6 docs",
+        "naming_lint.sh blocks forbidden terms and envelope-in-flow patterns"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "completed",
+          "notes": "Repo overview now calls out the step/call spec vocabulary and PR-02 naming work."
+        },
+        {
+          "name": "terminology_docs",
+          "status": "completed",
+          "notes": "README Terminology section plus contracts/0.6.0 docs now describe component/flow/step/call spec/invocation envelope."
+        },
+        {
+          "name": "naming_lint_added",
+          "status": "completed",
+          "notes": "`scripts/naming_lint.sh` enforces forbidden terms in contracts/0.6.0."
+        },
+        {
+          "name": "ci_wiring",
+          "status": "completed",
+          "notes": "ci/local_check.sh runs the naming lint before clippy/build/test."
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": "fail \u2013 `ci/local_check.sh` runs naming lint but hits the old dependency constraint (`greentic-interfaces-wasmtime` still requires `greentic-interfaces = \"^0.4\"` while only 0.6.0 is available), so clippy/build/test exit early (WIT warnings are non-fatal).",
+        "notes": "Finished documentation and lint wiring; naming lint passes locally.",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-03",
+      "title": "Canonical contract tree + remove copies",
+      "scope": "Canonical contracts + CI",
+      "depends_on": [
+        "PR-02"
+      ],
+      "status": "done",
+      "started_at": "2026-02-04T22:11:35Z",
+      "finished_at": "2026-02-04T22:20:40Z",
+      "acceptance_criteria": [
+        "Canonical 0.6 WIT+schemas exist under a single tree",
+        "No wit/**/deps/** committed",
+        "wit_lint wired and passing"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "completed",
+          "notes": "Repo overview now references the canonical wit/greentic tree and the upcoming wit lint guard."
+        },
+        {
+          "name": "canonical_tree_created",
+          "status": "completed",
+          "notes": "Moved the canonical 0.6 WIT tree to `wit/greentic/**@*` and created the shared `schemas/cddl` directory."
+        },
+        {
+          "name": "deps_removed",
+          "status": "completed",
+          "notes": "Removed all `deps/` snapshots from the canonical tree and rely on package discovery."
+        },
+        {
+          "name": "wit_lint_added",
+          "status": "completed",
+          "notes": "Added `scripts/wit_lint.sh` that checks for deps snapshots, duplicate records, and stray @0.6.0 packages outside `wit/greentic`."
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "completed",
+          "notes": "Repo overview now explicitly calls out the canonical tree + `wit_lint.sh`/CI wiring."
+        }
+      ],
+      "result": {
+        "ci_local_check": "fail \u2013 `ci/local_check.sh` aborts during clippy/build/test because `greentic-interfaces-wasmtime` still depends on `greentic-interfaces = \"^0.4\"` despite the workspace only providing 0.6.0; earlier lint/validation steps succeeded.",
+        "notes": "Canonical tree + wit lint complete; PR-04 now focuses on the 0.6 core contracts.",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-04",
+      "title": "Core contracts 0.6.0 (types-core + envelope + i18n)",
+      "scope": "Canonical contracts",
+      "depends_on": [
+        "PR-03"
+      ],
+      "status": "done",
+      "started_at": "2026-02-04T22:20:40Z",
+      "finished_at": "2026-02-04T22:58:28Z",
+      "acceptance_criteria": [
+        "types-core@0.6.0 and component@0.6.0 exist",
+        "tenant ctx unique in the 0.6.0 line (defined in types-core) and imported elsewhere",
+        "CDDL schemas exist"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "completed",
+          "notes": "Repo overview now advertises the 0.6 core contracts and descriptor work."
+        },
+        {
+          "name": "wit_core_added",
+          "status": "completed",
+          "notes": "New greentic:types-core@0.6.0 + component@0.6.0 + codec@0.6.0 WIT packages added."
+        },
+        {
+          "name": "schemas_added",
+          "status": "completed",
+          "notes": "schemas/cddl now holds invocation envelope and descriptor CDDL."
+        },
+        {
+          "name": "lints_updated",
+          "status": "completed",
+          "notes": "scripts/wit_lint.sh enforces canonical tree and is wired into ci/local_check.sh."
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "completed",
+          "notes": "Repo overview bullet mentions PR-04 and the new core packages."
+        }
+      ],
+      "result": {
+        "ci_local_check": "fail \u2013 `ci/local_check.sh` naming/wit lint steps pass but `cargo clippy` cannot reach https://index.crates.io/config.json while downloading `anyhow` (DNS lookup for index.crates.io failed).",
+        "notes": "Ownership-based lint and canonical packages are in place; `cargo clippy/build/test` cannot finish inside this environment because crates.io is unreachable and the workspace lockfile cannot be regenerated on-demand.",
+        "key_outputs": []
+      },
+      "accepted": null
+    },
+    {
+      "id": "PR-05",
+      "title": "Self-describing descriptor + capabilities + op schemas",
+      "scope": "Canonical contracts",
+      "depends_on": [
+        "PR-04"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "component-descriptor exists and references schemas",
+        "capability model canonical",
+        "perf/i18n hints included"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "descriptor_wit",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "schemas_updated",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "docs_updated",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-06",
+      "title": "Runtime unification for 0.6 (CallSpec->Envelope->invoke)",
+      "scope": "Runner/operator/harness",
+      "depends_on": [
+        "PR-05"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "Host always builds envelope",
+        "describe preflight enforced",
+        "demo run invokes 0.6 components"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "call_spec_impl",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "envelope_builder",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "describe_cache",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-07",
+      "title": "Deterministic migration tool (any version -> 0.6.0)",
+      "scope": "Migration tooling",
+      "depends_on": [
+        "PR-06"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "migrate tool exists with scan/plan/apply",
+        "deterministic output",
+        "migration_report.json produced"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "tool_scaffold",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "apply_logic",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "determinism_tests",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-08",
+      "title": "Bindings convergence (host+guest) \u2014 no mixed versions",
+      "scope": "Bindings across repos",
+      "depends_on": [
+        "PR-04",
+        "PR-06"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "Bindings generated from canonical WIT",
+        "No local WIT sources in consumers",
+        "CI checks prevent mixed versions"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "bindings_updated",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "ci_checks",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-09",
+      "title": "Port ALL components/providers to 0.6.0 (describe+CBOR)",
+      "scope": "All components/providers",
+      "depends_on": [
+        "PR-08",
+        "PR-05"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "All distribution components ported and tested",
+        "No WIT copies in components",
+        "Descriptors deterministic"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "component_list",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "ports_done",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "tests_green",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    },
+    {
+      "id": "PR-10",
+      "title": "Legacy adapters + removal of pre-0.6 lines",
+      "scope": "Cleanup + enforcement",
+      "depends_on": [
+        "PR-09",
+        "PR-07"
+      ],
+      "status": "todo",
+      "started_at": null,
+      "finished_at": null,
+      "acceptance_criteria": [
+        "0.6-only default across tools",
+        "Legacy mode explicit",
+        "CI blocks new pre-0.6 dependencies"
+      ],
+      "checkpoints": [
+        {
+          "name": "repo_overview_pre",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "adapter_optional",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "defaults_switched",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "ci_enforcement",
+          "status": "todo",
+          "notes": ""
+        },
+        {
+          "name": "repo_overview_post",
+          "status": "todo",
+          "notes": ""
+        }
+      ],
+      "result": {
+        "ci_local_check": null,
+        "notes": "",
+        "key_outputs": []
+      }
+    }
+  ],
+  "invariants": [
+    "Everything converges to 0.6.x (even if previously 1.0.0 / 0.0.1); richest semantics win per Canonical Map",
+    "Single canonical contract repo/tree for WIT+schemas; no WIT sources in other repos for 0.6",
+    "No committed wit/**/deps/** snapshots anywhere",
+    "Host constructs InvocationEnvelope; flows/packs only carry CallSpec (op + payload_cbor + metadata_cbor)",
+    "Protocol payloads/results are CBOR bytes; JSON allowed only as dev-authoring input converted to CBOR via schema",
+    "Every contract change bumps version (0.6.0 -> 0.6.1 etc.), never edit record shapes in-place",
+    "Self-describing components: describe() advertises capabilities + op schemas + performance hints",
+    "Determinism: stable schema ids, stable hashing, stable ordering, reproducible builds",
+    "i18n is first-class: ctx includes i18n identity/profile linkage; components can advertise language capabilities"
+  ]
+}

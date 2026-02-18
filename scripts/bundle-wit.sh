@@ -18,7 +18,7 @@ rm -rf "${TMP_DIR}"
 mkdir -p "${TMP_DIR}"
 
 for pkg in "${PKGS[@]}"; do
-  src="${ROOT}/crates/greentic-interfaces/wit/greentic/${pkg}"
+  src="${ROOT}/wit/greentic/${pkg}"
   dest="${TMP_DIR}/${pkg}"
   if [[ ! -d "${src}" ]]; then
     echo "Missing WIT package ${pkg} at ${src}" >&2

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WIT_ROOT="${ROOT}/crates/greentic-interfaces/wit"
+WIT_ROOT="${ROOT}/wit"
 OUT_DIR="${1:-${ROOT}/target/wit-packages}"
 DRY_RUN=${DRY_RUN:-0}
 

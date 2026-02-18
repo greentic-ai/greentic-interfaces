@@ -5,7 +5,7 @@ use exports::greentic::provider_schema_core::schema_core_api;
 
 #[cfg(target_arch = "wasm32")]
 wit_bindgen::generate!({
-    path: "../../crates/greentic-interfaces/wit/greentic/provider/schema-core@1.0.0",
+    path: "../../wit/greentic/provider/schema-core@1.0.0",
     world: "schema-core",
 });
 

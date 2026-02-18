@@ -2,6 +2,24 @@
 
 This repository contains the shared ABI contracts and Wasmtime runtime helpers used across the Greentic platform.
 
+## Terminology
+
+- **Component**: the WASM module that implements `describe()`/`invoke()` and is referenced by descriptors.
+- **Flow**: the graph definition whose runtime steps are wired together and whose metadata is stored as a `CallSpec`.
+- **Step**: a flow node instance. Each step has a `step_id` and resolves to one component plus an `op`.
+- **CallSpec**: the canonical `{op, payload_cbor, metadata_cbor}` that flows persist. This is everything stored in packs; the host never persists the invocation envelope.
+- **InvocationEnvelope**: the host-owned wrapper of `TenantCtx`, `flow_id`, `step_id`, `component_id`, and `attempt` plus the call spec bytes. Components only see the call spec.
+- **TenantCtx / i18n_id**: the tenant context carries tenant/team/user/env IDs and the mandatory `i18n_id` that threads localization and telemetry through every call.
+
+Refer to `contracts/0.6.0/RENAMES.md` for the full naming dictionary and `contracts/0.6.0/CANONICAL_MAP.md` for the decisions driving each term.
+`ci/local_check.sh` now runs `scripts/naming_lint.sh` to enforce this vocabulary in the canonical contract tree before the rest of the checks execute.
+
+## 0.6 Core Packages
+
+- `greentic:types-core@0.6.0` exposes the canonical identifier aliases plus the `TenantCtx` record (tenant/team/user/env IDs, required `i18n_id`, correlation/trace IDs, deadline, attempt, and idempotency key) so every host can build an invocation envelope with consistent metadata.
+- `greentic:codec@0.6.0` is a lightweight helper world for encoding/decoding CBOR payloads; tooling that emits descriptor examples or call specs can import it to keep hashes stable.
+- `greentic:component@0.6.0` is the CBOR-first component world: `describe()` returns a `component-descriptor` with ops, schema refs (hash + uri), optional setup, and capabilities, while `invoke()` consumes the host-built `InvocationEnvelope` and returns a structured `InvocationResult`.
+
 [![CI](https://github.com/greentic-ai/greentic-interfaces/actions/workflows/ci.yml/badge.svg)](https://github.com/greentic-ai/greentic-interfaces/actions/workflows/ci.yml)
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)

@@ -2,3 +2,6 @@
 .env
 wkg.lock
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes

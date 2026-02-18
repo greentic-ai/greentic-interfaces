@@ -2,7 +2,7 @@
 
 # Common helpers for working with the Greentic WIT workspace.
 # Assumes the caller defines ROOT (repository root) and WIT_ROOT pointing at
-# the directory that contains the WIT sources (crates/greentic-interfaces/wit).
+# the directory that contains the WIT sources (wit).
 
 ensure_cmd() {
   local cmd="$1"

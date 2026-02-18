@@ -9,6 +9,10 @@ use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
+#[path = "build_support/wit_paths.rs"]
+mod wit_paths;
+use wit_paths::canonical_wit_root;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
     if target_arch == "wasm32" {
@@ -22,18 +26,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let staged_root = out_dir.join("wit-staging");
     reset_directory(&staged_root)?;
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
-    let candidate_primary = manifest_dir.join("wit");
-    let candidate_fallback = manifest_dir.join("../greentic-interfaces/wit");
-    let wit_root = if candidate_primary.exists() {
-        candidate_primary
-    } else if candidate_fallback.exists() {
-        candidate_fallback
-    } else {
-        return Err(
-            "unable to locate WIT sources (expected ./wit or ../greentic-interfaces/wit)".into(),
-        );
-    };
+    let wit_root = canonical_wit_root();
+    println!("cargo:rerun-if-changed={}", wit_root.display());
     let mut package_paths = Vec::new();
     discover_packages(&wit_root, &mut package_paths)?;
     // Explicitly ensure new v1 surfaces are staged even if discovery misses them.
@@ -241,20 +235,24 @@ fn generate_rust_bindings(
     for path in package_paths {
         let mut resolve = Resolve::new();
         let (pkg, _) = resolve.push_dir(&path)?;
-        let package = &resolve.packages[pkg];
+        let package_name = resolve.packages[pkg].name.clone();
         let package_ref = read_package_ref(&path.join("package.wit"))?;
 
-        let mut worlds: Vec<_> = package.worlds.iter().collect();
+        let mut worlds: Vec<_> = resolve.packages[pkg]
+            .worlds
+            .iter()
+            .map(|(name, id)| (name.to_string(), *id))
+            .collect();
         worlds.sort_by(|(a_name, _), (b_name, _)| a_name.cmp(b_name));
 
         for (world_name, world_id) in worlds {
-            if !world_enabled(&package_ref, world_name, active_features) {
+            if !world_enabled(&package_ref, &world_name, active_features) {
                 continue;
             }
-            let module_name = module_name(&package.name, world_name);
+            let module_name = module_name(&package_name, &world_name);
             let mut files = Files::default();
             let mut generator = opts.clone().build();
-            generator.generate(&resolve, *world_id, &mut files)?;
+            generator.generate(&mut resolve, world_id, &mut files)?;
 
             let mut combined = Vec::new();
             for (_, contents) in files.iter() {
