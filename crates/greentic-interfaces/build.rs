@@ -9,6 +9,8 @@ use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
+include!("build_support/wit_paths.rs");
+
 const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
 const CANONICAL_INTERFACES_TYPES_FILE: &str = "greentic/interfaces-types@0.1.0/package.wit";
 
@@ -24,7 +26,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let staged_root = manifest_dir.join("target").join("wit-staging");
     reset_directory(&staged_root)?;
 
-    let wit_root = Path::new("wit");
+    let wit_root_buf = canonical_wit_root();
+    println!("cargo:rerun-if-changed={}", wit_root_buf.display());
+    let wit_root = wit_root_buf.as_path();
     let mut package_candidates = BTreeMap::new();
     discover_packages(wit_root, &mut package_candidates)?;
     verify_interfaces_types_duplicates(wit_root, &package_candidates)?;

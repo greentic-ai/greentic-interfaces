@@ -26,9 +26,156 @@ pub mod component {
 }
 
 /// Component exports for `greentic:component/component@0.6.0` (world component-v0-v6-v0).
+///
+/// Enable feature `component-v0-6` and export your implementation:
+///
+/// ```rust
+/// # use greentic_interfaces_guest::component_v0_6::{
+/// #     component_descriptor, component_i18n, component_qa, component_runtime, component_schema,
+/// # };
+/// # struct MyImpl;
+/// # impl component_descriptor::Guest for MyImpl {
+/// #     fn get_component_info() -> Vec<u8> { vec![] }
+/// #     fn describe() -> Vec<u8> { vec![] }
+/// # }
+/// # impl component_schema::Guest for MyImpl {
+/// #     fn input_schema() -> Vec<u8> { vec![] }
+/// #     fn output_schema() -> Vec<u8> { vec![] }
+/// #     fn config_schema() -> Vec<u8> { vec![] }
+/// # }
+/// # impl component_runtime::Guest for MyImpl {
+/// #     fn run(_input: Vec<u8>, _state: Vec<u8>) -> component_runtime::RunResult {
+/// #         component_runtime::RunResult { output: vec![], new_state: vec![] }
+/// #     }
+/// # }
+/// # impl component_qa::Guest for MyImpl {
+/// #     fn qa_spec(_mode: component_qa::QaMode) -> Vec<u8> { vec![] }
+/// #     fn apply_answers(_mode: component_qa::QaMode, _current_config: Vec<u8>, _answers: Vec<u8>) -> Vec<u8> { vec![] }
+/// # }
+/// # impl component_i18n::Guest for MyImpl {
+/// #     fn i18n_keys() -> Vec<String> { vec![] }
+/// # }
+/// greentic_interfaces_guest::export_component_v060!(MyImpl);
+/// ```
 #[cfg(feature = "component-v0-6")]
 pub mod component_v0_6 {
     pub use crate::bindings::greentic_component_0_6_0_component_v0_v6_v0::exports::greentic::component::*;
+}
+
+/// Exports a `greentic:component/component@0.6.0` guest implementation.
+#[cfg(feature = "component-v0-6")]
+#[macro_export]
+macro_rules! export_component_v060 {
+    ($ty:ty) => {
+        const _: () = {
+            use $crate::bindings::greentic_component_0_6_0_component_v0_v6_v0::exports::greentic::component::{
+                component_descriptor, component_i18n, component_qa, component_runtime, component_schema,
+            };
+
+            #[unsafe(export_name = "greentic:component/component-descriptor@0.6.0#get-component-info")]
+            unsafe extern "C" fn export_component_v060_get_component_info() -> *mut u8 {
+                unsafe { component_descriptor::_export_get_component_info_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-descriptor@0.6.0#get-component-info")]
+            unsafe extern "C" fn export_component_v060_post_get_component_info(arg0: *mut u8) {
+                unsafe { component_descriptor::__post_return_get_component_info::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-descriptor@0.6.0#describe")]
+            unsafe extern "C" fn export_component_v060_describe() -> *mut u8 {
+                unsafe { component_descriptor::_export_describe_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-descriptor@0.6.0#describe")]
+            unsafe extern "C" fn export_component_v060_post_describe(arg0: *mut u8) {
+                unsafe { component_descriptor::__post_return_describe::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-schema@0.6.0#input-schema")]
+            unsafe extern "C" fn export_component_v060_input_schema() -> *mut u8 {
+                unsafe { component_schema::_export_input_schema_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-schema@0.6.0#input-schema")]
+            unsafe extern "C" fn export_component_v060_post_input_schema(arg0: *mut u8) {
+                unsafe { component_schema::__post_return_input_schema::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-schema@0.6.0#output-schema")]
+            unsafe extern "C" fn export_component_v060_output_schema() -> *mut u8 {
+                unsafe { component_schema::_export_output_schema_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-schema@0.6.0#output-schema")]
+            unsafe extern "C" fn export_component_v060_post_output_schema(arg0: *mut u8) {
+                unsafe { component_schema::__post_return_output_schema::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-schema@0.6.0#config-schema")]
+            unsafe extern "C" fn export_component_v060_config_schema() -> *mut u8 {
+                unsafe { component_schema::_export_config_schema_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-schema@0.6.0#config-schema")]
+            unsafe extern "C" fn export_component_v060_post_config_schema(arg0: *mut u8) {
+                unsafe { component_schema::__post_return_config_schema::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-runtime@0.6.0#run")]
+            unsafe extern "C" fn export_component_v060_run(
+                arg0: *mut u8,
+                arg1: usize,
+                arg2: *mut u8,
+                arg3: usize,
+            ) -> *mut u8 {
+                unsafe { component_runtime::_export_run_cabi::<$ty>(arg0, arg1, arg2, arg3) }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-runtime@0.6.0#run")]
+            unsafe extern "C" fn export_component_v060_post_run(arg0: *mut u8) {
+                unsafe { component_runtime::__post_return_run::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-qa@0.6.0#qa-spec")]
+            unsafe extern "C" fn export_component_v060_qa_spec(arg0: i32) -> *mut u8 {
+                unsafe { component_qa::_export_qa_spec_cabi::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-qa@0.6.0#qa-spec")]
+            unsafe extern "C" fn export_component_v060_post_qa_spec(arg0: *mut u8) {
+                unsafe { component_qa::__post_return_qa_spec::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-qa@0.6.0#apply-answers")]
+            unsafe extern "C" fn export_component_v060_apply_answers(
+                arg0: i32,
+                arg1: *mut u8,
+                arg2: usize,
+                arg3: *mut u8,
+                arg4: usize,
+            ) -> *mut u8 {
+                unsafe {
+                    component_qa::_export_apply_answers_cabi::<$ty>(arg0, arg1, arg2, arg3, arg4)
+                }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-qa@0.6.0#apply-answers")]
+            unsafe extern "C" fn export_component_v060_post_apply_answers(arg0: *mut u8) {
+                unsafe { component_qa::__post_return_apply_answers::<$ty>(arg0) }
+            }
+
+            #[unsafe(export_name = "greentic:component/component-i18n@0.6.0#i18n-keys")]
+            unsafe extern "C" fn export_component_v060_i18n_keys() -> *mut u8 {
+                unsafe { component_i18n::_export_i18n_keys_cabi::<$ty>() }
+            }
+
+            #[unsafe(export_name = "cabi_post_greentic:component/component-i18n@0.6.0#i18n-keys")]
+            unsafe extern "C" fn export_component_v060_post_i18n_keys(arg0: *mut u8) {
+                unsafe { component_i18n::__post_return_i18n_keys::<$ty>(arg0) }
+            }
+        };
+    };
 }
 
 /// Legacy component exports for `greentic:component/component@0.4.0`.

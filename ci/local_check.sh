@@ -250,11 +250,15 @@ do_wit_ownership_lint() {
     bash scripts/wit_ownership_lint.sh
 }
 
+do_no_duplicate_wit_check() {
+    bash ci/check_no_duplicate_canonical_wit.sh .
+}
+
 if require_cargo; then run_step "cargo fmt" do_fmt; else skip_step "cargo fmt" "cargo missing"; fi
 if require_cargo; then run_step "cargo clippy" do_clippy; else skip_step "cargo clippy" "cargo missing"; fi
+if require_tool rg; then run_step "No duplicate canonical WIT" do_no_duplicate_wit_check; else skip_step "No duplicate canonical WIT" "ripgrep missing"; fi
 run_step "WIT ownership lint" do_wit_ownership_lint
 if require_tool wasm-tools; then run_step "Validate ABI WIT" do_wit_validate crates/greentic-interfaces/wit; else skip_step "Validate ABI WIT" "wasm-tools missing"; fi
-if require_tool wasm-tools; then run_step "Validate Wasmtime WIT" do_wit_validate crates/greentic-interfaces-wasmtime/wit; else skip_step "Validate Wasmtime WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" do_wit_diff; else skip_step "WIT diff guard" "missing wasm-tools or git"; fi
 if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
 if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi

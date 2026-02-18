@@ -9,6 +9,8 @@ use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
+include!("../greentic-interfaces/build_support/wit_paths.rs");
+
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
     if target_arch == "wasm32" {
@@ -22,18 +24,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let staged_root = out_dir.join("wit-staging");
     reset_directory(&staged_root)?;
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
-    let candidate_primary = manifest_dir.join("wit");
-    let candidate_fallback = manifest_dir.join("../greentic-interfaces/wit");
-    let wit_root = if candidate_primary.exists() {
-        candidate_primary
-    } else if candidate_fallback.exists() {
-        candidate_fallback
-    } else {
-        return Err(
-            "unable to locate WIT sources (expected ./wit or ../greentic-interfaces/wit)".into(),
-        );
-    };
+    let wit_root = canonical_wit_root();
+    println!("cargo:rerun-if-changed={}", wit_root.display());
     let mut package_paths = Vec::new();
     discover_packages(&wit_root, &mut package_paths)?;
     // Explicitly ensure new v1 surfaces are staged even if discovery misses them.

@@ -100,3 +100,6 @@ default = ["guest"]
 [build-dependencies]
 wit-bindgen-core = { workspace = true }
 wit-bindgen-rust = { workspace = true }
+
+[dev-dependencies]
+trybuild = "1"

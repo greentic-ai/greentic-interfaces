@@ -5,7 +5,7 @@ use exports::greentic::distributor_api::distributor;
 
 #[cfg(target_arch = "wasm32")]
 wit_bindgen::generate!({
-    path: "wit/greentic/distributor@1.0.0",
+    path: "../../crates/greentic-interfaces/wit/greentic/distributor@1.0.0/package.wit",
     world: "distributor-api",
     with: { "greentic:secrets-types/types@1.0.0": generate },
 });

@@ -14,11 +14,12 @@ struct Harness;
 impl exports::test::oauth_broker_client_harness::harness_api::Guest for Harness {
     fn run() -> Vec<String> {
         let scopes = vec!["openid".to_string(), "profile".to_string()];
-        let consent = greentic::oauth_broker::broker_v1::get_consent_url(
+        let consent = test::oauth_broker_client_harness::broker_v1::get_consent_url(
             "provider", "subject", &scopes, "/cb", "{}",
         );
-        let token = greentic::oauth_broker::broker_v1::get_token("provider", "subject", &scopes);
-        let exchanged = greentic::oauth_broker::broker_v1::exchange_code(
+        let token =
+            test::oauth_broker_client_harness::broker_v1::get_token("provider", "subject", &scopes);
+        let exchanged = test::oauth_broker_client_harness::broker_v1::exchange_code(
             "provider",
             "subject",
             "auth-code",

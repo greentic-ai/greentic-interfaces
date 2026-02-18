@@ -24,6 +24,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ripgrep
       - name: Install WIT tooling
         run: cargo install wasm-tools --locked
+      - name: Check for duplicate canonical WIT
+        run: bash ci/check_no_duplicate_canonical_wit.sh .
       - name: Show toolchain versions
         run: |
           wasm-tools --version
@@ -35,12 +37,10 @@ jobs:
       - run: cargo clippy --workspace --all-features -- -D warnings
       - name: Validate ABI WIT packages
         run: bash scripts/validate-wit.sh crates/greentic-interfaces/wit
-      - name: Validate Wasmtime WIT bundles
-        run: bash scripts/validate-wit.sh crates/greentic-interfaces-wasmtime/wit
       - name: Ensure SPDX headers present
         run: |
           set -euo pipefail
-          missing=$(rg --files -g 'package.wit' crates/greentic-interfaces/wit crates/greentic-interfaces-wasmtime/wit | while read -r file; do
+          missing=$(rg --files -g 'package.wit' crates/greentic-interfaces/wit | while read -r file; do
             if [[ "$(head -n1 "$file")" != "// SPDX-License-Identifier: MIT" ]]; then
               echo "$file"
             fi
@@ -91,8 +91,6 @@ jobs:
         run: |
           echo "ABI workspace packages:"
           wasm-tools component wit crates/greentic-interfaces/wit | head -n 5
-          echo "Wasmtime helper packages:"
-          wasm-tools component wit crates/greentic-interfaces-wasmtime/wit | head -n 5
       - name: Build guest (default features; legacy providers off)
         run: cargo build --manifest-path crates/greentic-interfaces-guest/Cargo.toml --target wasm32-wasip2
       - name: Prune wasm artifacts to save space

@@ -53,6 +53,17 @@ record config {
 
 > Node configuration schemas always live alongside their components. This repository only ships shared WIT contracts plus the corresponding bindings/mappers.
 
+## Canonical WIT Policy
+
+All shared `greentic:*` WIT packages live exclusively under:
+
+    crates/greentic-interfaces/wit/
+
+No other crate may define or copy these packages.
+Binding generation must reference the canonical path via `build.rs`.
+
+CI enforces this.
+
 Provider protocols are now unified under `greentic:provider-schema-core@1.0.0`. Legacy messaging/events/secrets provider WIT worlds have been removed; migrate provider components to provider-core JSON schemas instead of typed provider-specific worlds.
 
 These crates are published from this workspace. Downstream components that only need the ABI can depend solely on `greentic-interfaces`. Runtimes that execute packs should add `greentic-interfaces-wasmtime` and choose whether to stay on the stable Wasmtime feature path or opt into the nightly configuration. Hosts that just want re-exported bindings can depend on `greentic-interfaces-host`, while guest components can pull `greentic-interfaces-guest` for `wasm32-wasip2` builds.

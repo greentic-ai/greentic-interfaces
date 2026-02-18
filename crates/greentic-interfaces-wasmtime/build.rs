@@ -5,6 +5,8 @@ use std::collections::BTreeMap;
 use std::{env, fs};
 use walkdir::WalkDir;
 
+include!("../greentic-interfaces/build_support/wit_paths.rs");
+
 fn world_names_from_str(content: &str) -> Vec<String> {
     content
         .lines()
@@ -47,9 +49,12 @@ fn main() {
     let out_dir = Utf8PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR not set"));
     let manifest_dir =
         Utf8PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
-    let wit_root = Utf8PathBuf::from("wit").join("greentic");
+    let canonical_root = Utf8PathBuf::from_path_buf(canonical_wit_root())
+        .expect("canonical WIT root must be valid UTF-8");
+    let wit_root = canonical_root.join("greentic");
     let staged_root = manifest_dir.join("target").join("wit-staging-wasmtime");
     reset_directory(&staged_root);
+    println!("cargo:rerun-if-changed={}", canonical_root);
 
     let package_catalog = build_package_catalog(&wit_root);
     for (package_ref, package_file) in &package_catalog {
@@ -170,15 +175,13 @@ fn main() {
     modules.sort_by_key(|tokens| tokens.to_string());
 
     let src = quote! {
-        // Auto-generated modules for each greentic WIT world discovered under `wit/greentic/*@*`.
+        // Auto-generated modules for each greentic WIT world discovered under canonical WIT.
         #(#modules)*
     };
 
     fs::create_dir_all(&out_dir).expect("create OUT_DIR");
     let gen_path = out_dir.join("gen_all_worlds.rs");
     fs::write(&gen_path, src.to_string()).expect("write generated bindings");
-
-    println!("cargo:rerun-if-changed=wit");
 }
 
 fn reset_directory(path: &Utf8PathBuf) {
@@ -222,24 +225,6 @@ fn build_package_catalog(wit_root: &Utf8PathBuf) -> BTreeMap<String, Utf8PathBuf
         }
     }
 
-    let root_interfaces_types = Utf8PathBuf::from("wit/types.wit");
-    if root_interfaces_types.exists()
-        && let Ok(content) = fs::read_to_string(&root_interfaces_types)
-        && let Some(line) = content
-            .lines()
-            .find(|l| l.trim_start().starts_with("package "))
-    {
-        let package_ref = line
-            .trim_start()
-            .trim_start_matches("package")
-            .trim()
-            .trim_end_matches(';')
-            .trim()
-            .to_string();
-        catalog
-            .entry(package_ref)
-            .or_insert(root_interfaces_types.clone());
-    }
     catalog
 }
 

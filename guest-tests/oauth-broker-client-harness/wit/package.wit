@@ -2,7 +2,28 @@
 
 package test:oauth-broker-client-harness@0.1.0;
 
-use greentic:oauth-broker/broker-v1@1.0.0;
+interface broker-v1 {
+  get-consent-url: func(
+    provider-id: string,
+    subject: string,
+    scopes: list<string>,
+    redirect-path: string,
+    extra-json: string,
+  ) -> string;
+
+  exchange-code: func(
+    provider-id: string,
+    subject: string,
+    code: string,
+    redirect-path: string,
+  ) -> string;
+
+  get-token: func(
+    provider-id: string,
+    subject: string,
+    scopes: list<string>,
+  ) -> string;
+}
 
 interface harness-api {
   run: func() -> list<string>;

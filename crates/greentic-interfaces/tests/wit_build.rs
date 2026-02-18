@@ -116,35 +116,21 @@ fn component_v0_v6_exports_component_interfaces() {
 }
 
 #[test]
-fn component_v0_v6_wit_sources_match_canonical() {
+fn no_legacy_component_v0_v6_wit_mirrors_exist() {
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let canonical = manifest_dir.join("wit/greentic/component@0.6.0/package.wit");
     let guest =
         manifest_dir.join("../greentic-interfaces-guest/wit/greentic/component@0.6.0/package.wit");
     let wasmtime = manifest_dir
         .join("../greentic-interfaces-wasmtime/wit/greentic/component@0.6.0/package.wit");
 
-    let canonical_contents = std::fs::read_to_string(&canonical).unwrap_or_else(|err| {
-        panic!(
-            "failed to read canonical WIT at {}: {err}",
-            canonical.display()
-        )
-    });
-    let guest_contents = std::fs::read_to_string(&guest)
-        .unwrap_or_else(|err| panic!("failed to read guest WIT at {}: {err}", guest.display()));
-    let wasmtime_contents = std::fs::read_to_string(&wasmtime).unwrap_or_else(|err| {
-        panic!(
-            "failed to read wasmtime WIT at {}: {err}",
-            wasmtime.display()
-        )
-    });
-
-    assert_eq!(
-        canonical_contents, guest_contents,
-        "guest WIT package.wit should match canonical source"
+    assert!(
+        !guest.exists(),
+        "legacy guest mirror should not exist at {}",
+        guest.display()
     );
-    assert_eq!(
-        canonical_contents, wasmtime_contents,
-        "wasmtime WIT package.wit should match canonical source"
+    assert!(
+        !wasmtime.exists(),
+        "legacy wasmtime mirror should not exist at {}",
+        wasmtime.display()
     );
 }

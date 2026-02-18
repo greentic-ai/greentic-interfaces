@@ -12,7 +12,7 @@ wit-bindgen-rt = "0.44"
 package = "greentic:repo-ui-actions"
 
 [package.metadata.component.target]
-path = "wit"
+path = "../../crates/greentic-interfaces/wit/greentic/repo-ui-actions@1.0.0/package.wit"
 world = "repo-ui-worker"
 
 [package.metadata.component.target.dependencies]

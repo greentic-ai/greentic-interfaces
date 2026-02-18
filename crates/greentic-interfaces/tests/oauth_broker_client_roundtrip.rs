@@ -1,7 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use greentic_interfaces::oauth_broker_client_v1;
 use wasmtime::component::{Component, HasSelf, Linker, ResourceTable};
 use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiCtxView, WasiView, p2};
@@ -75,7 +74,7 @@ impl WasiView for HostState {
     }
 }
 
-impl oauth_broker_client_v1::greentic::oauth_broker::broker_v1::Host for HostState {
+impl harness_bindings::test::oauth_broker_client_harness::broker_v1::Host for HostState {
     fn get_consent_url(
         &mut self,
         provider_id: String,
@@ -115,7 +114,7 @@ fn broker_client_imports_roundtrip() -> anyhow::Result<()> {
     let engine = new_component_engine()?;
     let component = Component::from_file(&engine, &wasm_path)?;
     let mut linker = Linker::new(&engine);
-    oauth_broker_client_v1::greentic::oauth_broker::broker_v1::add_to_linker::<
+    harness_bindings::test::oauth_broker_client_harness::broker_v1::add_to_linker::<
         _,
         HasSelf<HostState>,
     >(&mut linker, |state| state)?;
