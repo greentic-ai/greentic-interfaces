@@ -7,8 +7,8 @@ This document defines the canonical distinction between payload and state for Gr
 The only canonical component-state ABI is:
 
 - `greentic:state/store@1.0.0` with `read`, `write`, `delete`.
-- WIT: `crates/greentic-interfaces/wit/greentic/state-store@1.0.0/package.wit`
-- Guest WIT mirror: `crates/greentic-interfaces-guest/wit/greentic/state-store@1.0.0/package.wit`
+- WIT: `wit/greentic/state-store@1.0.0/package.wit`
+- Guest WIT mirror: `wit/greentic/state-store@1.0.0/package.wit`
 
 Other host interfaces (for example, the runner-host `kv-v1`) are not canonical component-state APIs and should not be treated as such in component docs or examples.
 

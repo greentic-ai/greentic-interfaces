@@ -35,7 +35,7 @@ cat >"${OUT_PATH}" <<EOF_NOTES
 EOF_NOTES
 
 for pkg in "${PKGS[@]}"; do
-  file="${ROOT}/crates/greentic-interfaces/wit/greentic/${pkg}/package.wit"
+  file="${ROOT}/wit/greentic/${pkg}/package.wit"
   if [[ ! -f "${file}" ]]; then
     echo "Missing ${file}" >&2
     exit 1

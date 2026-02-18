@@ -5,7 +5,7 @@ use exports::greentic::component::describe_v1;
 
 #[cfg(target_arch = "wasm32")]
 wit_bindgen::generate!({
-    path: "../../crates/greentic-interfaces/wit/greentic/component@1.0.0",
+    path: "../../wit/greentic/component@1.0.0",
     world: "component",
 });
 

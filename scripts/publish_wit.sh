@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WIT_ROOT="${ROOT}/crates/greentic-interfaces/wit"
+WIT_ROOT="${ROOT}/wit"
 PACKAGE_SCRIPT="${ROOT}/scripts/package-wit.sh"
 DEFAULT_OUT_DIR="${ROOT}/target/wit-packages"
 DEFAULT_REGISTRY="ghcr.io"

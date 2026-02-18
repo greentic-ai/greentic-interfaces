@@ -1,0 +1,28 @@
+; CBOR schema for the host-owned invocation envelope.
+
+invocation-envelope = {
+  ctx: tenant-ctx,
+  flow_id: flow-id,
+  step_id: step-id,
+  component_id: component-id,
+  attempt: uint,
+  payload_cbor: bstr,
+  metadata_cbor: bstr / nil
+}
+
+tenant-ctx = {
+  tenant_id: text,
+  team_id: text,
+  user_id: text,
+  env_id: text,
+  trace_id: text,
+  correlation_id: text,
+  deadline_ms: uint,
+  attempt: uint,
+  idempotency_key: text,
+  i18n_id: text
+}
+
+flow-id = text
+step-id = text
+component-id = text

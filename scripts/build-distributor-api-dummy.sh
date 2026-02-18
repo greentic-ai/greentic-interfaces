@@ -5,7 +5,7 @@ CRATE_DIR="$ROOT/guest-tests/distributor-api-dummy"
 OUT_DIR="$ROOT/crates/greentic-interfaces-wasmtime/tests/assets"
 CORE_WASM="$ROOT/target/wasm32-wasip2/release/distributor_api_dummy.wasm"
 COMPONENT_WASM="$OUT_DIR/distributor_api_dummy.component.wasm"
-WIT_SRC="$ROOT/crates/greentic-interfaces/wit"
+WIT_SRC="$ROOT/wit"
 WIT_DST="$CRATE_DIR/wit"
 
 if [[ ! -d "$CRATE_DIR" ]]; then

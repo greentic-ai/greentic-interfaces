@@ -166,6 +166,13 @@ do_test() {
     cargo_cmd test --workspace --all-features "${WORKSPACE_EXCLUDES[@]}"
 }
 
+do_naming_lint() {
+    bash scripts/naming_lint.sh
+}
+do_wit_lint() {
+    bash scripts/wit_lint.sh
+}
+
 build_component_example() {
     CARGO_TARGET_DIR="$ROOT/target" cargo_cmd build \
         --manifest-path examples/component-describe/Cargo.toml \
@@ -221,7 +228,7 @@ do_wit_diff() {
     tmpdir="$(mktemp -d)"
     local current_dir="${tmpdir}/current"
     local prev_dir="${tmpdir}/prev"
-    if ! wasm-tools component wit crates/greentic-interfaces/wit --out-dir "${current_dir}" >/dev/null; then
+    if ! wasm-tools component wit wit --out-dir "${current_dir}" >/dev/null; then
         echo "Failed to materialize current WIT; skipping diff"
         rm -rf "${tmpdir}"
         return 0
@@ -231,8 +238,8 @@ do_wit_diff() {
         rm -rf "${tmpdir}"
         return 0
     fi
-    git archive "${baseline_tag}" crates/greentic-interfaces/wit | tar -x -C "${tmpdir}"
-    if ! wasm-tools component wit "${tmpdir}/crates/greentic-interfaces/wit" --out-dir "${prev_dir}" >/dev/null; then
+    git archive "${baseline_tag}" wit | tar -x -C "${tmpdir}"
+    if ! wasm-tools component wit "${tmpdir}/wit" --out-dir "${prev_dir}" >/dev/null; then
         echo "Failed to materialize baseline WIT; skipping diff"
         rm -rf "${tmpdir}"
         return 0
@@ -255,10 +262,11 @@ do_no_duplicate_wit_check() {
 }
 
 if require_cargo; then run_step "cargo fmt" do_fmt; else skip_step "cargo fmt" "cargo missing"; fi
+run_step "naming lint" do_naming_lint
+if require_tool rg; then run_step "wit lint" do_wit_lint; else skip_step "wit lint" "rg missing"; fi
 if require_cargo; then run_step "cargo clippy" do_clippy; else skip_step "cargo clippy" "cargo missing"; fi
-if require_tool rg; then run_step "No duplicate canonical WIT" do_no_duplicate_wit_check; else skip_step "No duplicate canonical WIT" "ripgrep missing"; fi
-run_step "WIT ownership lint" do_wit_ownership_lint
-if require_tool wasm-tools; then run_step "Validate ABI WIT" do_wit_validate crates/greentic-interfaces/wit; else skip_step "Validate ABI WIT" "wasm-tools missing"; fi
+if require_tool wasm-tools; then run_step "Validate ABI WIT" do_wit_validate wit; else skip_step "Validate ABI WIT" "wasm-tools missing"; fi
+if require_tool wasm-tools; then run_step "Validate Wasmtime WIT" do_wit_validate crates/greentic-interfaces-wasmtime/wit; else skip_step "Validate Wasmtime WIT" "wasm-tools missing"; fi
 if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" do_wit_diff; else skip_step "WIT diff guard" "missing wasm-tools or git"; fi
 if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
 if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi

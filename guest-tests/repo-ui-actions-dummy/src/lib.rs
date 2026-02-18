@@ -1,6 +1,6 @@
 #[cfg(target_arch = "wasm32")]
 wit_bindgen::generate!({
-    path: "../../crates/greentic-interfaces/wit/greentic/repo-ui-actions@1.0.0/package.wit",
+    path: "../../wit/greentic/repo-ui-actions@1.0.0/package.wit",
     world: "repo-ui-worker",
 });
 

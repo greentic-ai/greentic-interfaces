@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 use std::env;
 use std::error::Error;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 
 use wit_bindgen_core::Files;
@@ -9,10 +10,8 @@ use wit_bindgen_core::WorldGenerator;
 use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
-include!("build_support/wit_paths.rs");
-
 const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
-const CANONICAL_INTERFACES_TYPES_FILE: &str = "greentic/interfaces-types@0.1.0/package.wit";
+const CANONICAL_INTERFACES_TYPES_FILE: &str = "types.wit";
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -28,13 +27,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     // concurrent build-script races by not deleting the shared directory.
     fs::create_dir_all(&staged_root)?;
 
-    let wit_root_buf = canonical_wit_root();
-    println!("cargo:rerun-if-changed={}", wit_root_buf.display());
-    let wit_root = wit_root_buf.as_path();
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
+    let workspace_root = manifest_dir
+        .parent()
+        .and_then(|p| p.parent())
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::NotFound,
+                "unable to locate workspace root from CARGO_MANIFEST_DIR",
+            )
+        })?;
+    let wit_root = workspace_root.join("wit");
     let mut package_candidates = BTreeMap::new();
-    discover_packages(wit_root, &mut package_candidates)?;
-    verify_interfaces_types_duplicates(wit_root, &package_candidates)?;
-    let catalog = PackageCatalog::new(wit_root, package_candidates)?;
+    discover_packages(&wit_root, &mut package_candidates)?;
+    verify_interfaces_types_duplicates(&wit_root, &package_candidates)?;
+    let catalog = PackageCatalog::new(&wit_root, package_candidates)?;
 
     for (_, package_path) in catalog.iter() {
         stage_package(package_path, &staged_root, &catalog)?;
@@ -62,32 +69,6 @@ fn stage_package(
     fs::create_dir_all(&dest_dir)?;
     fs::copy(src_path, dest_dir.join("package.wit"))?;
     println!("cargo:rerun-if-changed={}", src_path.display());
-
-    // Copy helper .wit files that do not declare their own package (e.g. world.wit).
-    if let Some(src_dir) = src_path.parent() {
-        for entry in fs::read_dir(src_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.extension().and_then(|ext| ext.to_str()) != Some("wit") {
-                continue;
-            }
-            if path.file_name().and_then(|name| name.to_str()) == Some("package.wit") {
-                continue;
-            }
-            let content = fs::read_to_string(&path).unwrap_or_default();
-            if content
-                .lines()
-                .any(|line| line.trim_start().starts_with("package "))
-            {
-                continue;
-            }
-            let dest = dest_dir.join(
-                path.file_name()
-                    .ok_or("failed to read helper WIT filename")?,
-            );
-            fs::copy(&path, dest)?;
-        }
-    }
 
     stage_dependencies(&dest_dir, src_path, catalog)?;
     Ok(())
@@ -257,6 +238,7 @@ fn generate_rust_bindings(staged_root: &Path, out_dir: &Path) -> Result<PathBuf,
         let mut resolve = Resolve::new();
         let (pkg, _) = resolve.push_dir(&path)?;
         let package_name = resolve.packages[pkg].name.clone();
+
         let mut worlds: Vec<_> = resolve.packages[pkg]
             .worlds
             .iter()
@@ -404,11 +386,8 @@ fn discover_packages(
                     .push(package_file.clone());
             }
             discover_packages(&path, out)?;
-        } else if path.is_file()
-            && path.extension().and_then(|ext| ext.to_str()) == Some("wit")
-            && path.file_name().and_then(|name| name.to_str()) != Some("package.wit")
-            && let Ok(package_ref) = read_package_ref(&path)
-        {
+        } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("wit") {
+            let package_ref = read_package_ref(&path)?;
             out.entry(package_ref).or_default().push(path);
         }
     }

@@ -33,7 +33,7 @@ HTML
 for idx in "${!PKGS[@]}"; do
   pkg="${PKGS[${idx}]}"
   feature="${FEATURES[${idx}]}"
-  src="${ROOT}/crates/greentic-interfaces/wit/greentic/${pkg}/package.wit"
+  src="${ROOT}/wit/greentic/${pkg}/package.wit"
   dest="${OUT_DIR}/${pkg}"
   mkdir -p "${dest}"
   cp "${src}" "${dest}/package.wit"

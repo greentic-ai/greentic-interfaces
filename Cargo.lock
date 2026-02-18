@@ -110,9 +110,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.19.1"
+version = "3.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd9dc738b7a8311c7ade152424974d8115f2cdad61e8dab8dac9f2362298510"
+checksum = "5c6f81257d10a0f602a294ae4182251151ff97dbb504ef9afcdda4a64b24d9b4"
 dependencies = [
  "allocator-api2",
 ]
@@ -271,7 +271,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "distributor-api-dummy"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -780,7 +780,7 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -793,7 +793,7 @@ dependencies = [
  "time",
  "wasmtime",
  "wasmtime-wasi",
- "wit-bindgen 0.53.1",
+ "wit-bindgen",
  "wit-bindgen-core 0.53.1",
  "wit-bindgen-rust 0.53.1",
  "wit-parser 0.245.1",
@@ -801,26 +801,25 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
- "trybuild",
- "wit-bindgen 0.53.1",
+ "wit-bindgen",
  "wit-bindgen-core 0.53.1",
  "wit-bindgen-rust 0.53.1",
 ]
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -831,7 +830,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "anyhow",
  "camino",
@@ -871,7 +870,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",
@@ -1235,7 +1234,7 @@ dependencies = [
 
 [[package]]
 name = "oauth-broker-client-harness"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -1327,7 +1326,7 @@ dependencies = [
 
 [[package]]
 name = "provider-core-dummy"
-version = "0.4.96"
+version = "0.4.97"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -1746,12 +1745,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca"
 
 [[package]]
-name = "target-triple"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "591ef38edfb78ca4771ee32cf494cb8771944bee237a9b91fc9c1424ac4b777b"
-
-[[package]]
 name = "tempfile"
 version = "3.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2052,6 +2045,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5428f8bf88ea5ddc08faddef2ac4a67e390b88186c703ce6dbd955e1c145aca5"
 dependencies = [
  "wit-bindgen 0.51.0",
+]
+
+[[package]]
+name = "wasip3"
+version = "0.4.0+wasi-0.3.0-rc-2026-01-06"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5428f8bf88ea5ddc08faddef2ac4a67e390b88186c703ce6dbd955e1c145aca5"
+dependencies = [
+ "wit-bindgen",
 ]
 
 [[package]]
@@ -2895,21 +2897,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "wit-bindgen-rust-macro"
-version = "0.53.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d14f3a9bfa3804bb0e9ab7f66da047f210eded6a1297ae3ba5805b384d64797f"
-dependencies = [
- "anyhow",
- "prettyplease",
- "proc-macro2",
- "quote",
- "syn",
- "wit-bindgen-core 0.53.1",
- "wit-bindgen-rust 0.53.1",
-]
-
-[[package]]
 name = "wit-component"
 version = "0.244.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3123,3 +3110,7 @@ name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
+
+[[patch.unused]]
+name = "greentic-types"
+version = "0.6.0"

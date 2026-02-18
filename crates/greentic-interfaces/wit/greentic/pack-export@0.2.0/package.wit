@@ -32,6 +32,15 @@ interface exports {
     runtime: option<string>,
   }
 
+  record tenant-ctx {
+    tenant: tenant-id,
+    team: option<team-id>,
+    user: option<user-id>,
+    i18n-id: option<string>,
+    deployment: deployment-ctx,
+    trace-id: option<string>,
+  }
+
   record flow-info {
     id: flow-id,
     profile: string,

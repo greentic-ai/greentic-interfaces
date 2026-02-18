@@ -5,11 +5,11 @@ This repo exposes component state as a host-provided capability. Components do n
 ## Interfaces
 
 - `greentic:state/store@1.0.0` is the canonical state store interface.
-  - WIT: `crates/greentic-interfaces/wit/greentic/state-store@1.0.0/package.wit`
-  - Guest WIT mirror: `crates/greentic-interfaces-guest/wit/greentic/state-store@1.0.0/package.wit`
+  - WIT: `wit/greentic/state-store@1.0.0/package.wit`
+  - Guest WIT mirror: `wit/greentic/state-store@1.0.0/package.wit`
   - Types: `state-key` and `tenant-ctx` come from `greentic:interfaces-types/types@0.1.0`.
 - The runner-host world also exposes a simple string KV for host use:
-  - WIT: `crates/greentic-interfaces/wit/greentic/host@1.0.0/package.wit` (`kv-v1`)
+  - WIT: `wit/greentic/host@1.0.0/package.wit` (`kv-v1`)
   - This is not a canonical component-state API and should not be treated as a substitute for `greentic:state/store@1.0.0` in component docs or examples.
 
 ## Guest usage

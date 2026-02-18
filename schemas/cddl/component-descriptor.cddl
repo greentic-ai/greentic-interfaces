@@ -1,0 +1,52 @@
+; CBOR schema describing component capabilities and ops.
+
+component-descriptor = {
+  name: text,
+  version: text,
+  ops: [op],
+  capabilities: [capability-id],
+  setup: setup-contract / nil
+}
+
+op = {
+  name: text,
+  summary: text / nil,
+  input: io-schema,
+  output: io-schema,
+  examples: [example]
+}
+
+io-schema = {
+  schema: schema-source,
+  content_type: text
+}
+
+schema-source =
+  cbor_schema_id: text /
+  inline_cbor: bstr /
+  ref_pack_path: text /
+  ref_uri: text
+
+example = {
+  title: text,
+  input_cbor: bstr,
+  output_cbor: bstr
+}
+
+capability-id = text
+
+setup-contract = {
+  qa_spec: schema-source,
+  answers_schema: schema-source,
+  examples: [setup-example],
+  outputs: [setup-output]
+}
+
+setup-example = {
+  title: text,
+  answers_cbor: bstr
+}
+
+setup-output =
+  config_only: nil /
+  template_scaffold: {template_ref: text, output_layout: text?}
