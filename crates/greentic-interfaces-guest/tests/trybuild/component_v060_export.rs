@@ -1,59 +1,29 @@
-use greentic_interfaces_guest::component_v0_6::{
-    component_descriptor, component_i18n, component_qa, component_runtime, component_schema,
-};
+use greentic_interfaces_guest::component_v0_6::node;
 
 struct Impl;
 
-impl component_descriptor::Guest for Impl {
-    fn get_component_info() -> Vec<u8> {
-        vec![]
-    }
-
-    fn describe() -> Vec<u8> {
-        vec![]
-    }
-}
-
-impl component_schema::Guest for Impl {
-    fn input_schema() -> Vec<u8> {
-        vec![]
-    }
-
-    fn output_schema() -> Vec<u8> {
-        vec![]
-    }
-
-    fn config_schema() -> Vec<u8> {
-        vec![]
-    }
-}
-
-impl component_runtime::Guest for Impl {
-    fn run(_input: Vec<u8>, _state: Vec<u8>) -> component_runtime::RunResult {
-        component_runtime::RunResult {
-            output: vec![],
-            new_state: vec![],
+impl node::Guest for Impl {
+    fn describe() -> node::ComponentDescriptor {
+        node::ComponentDescriptor {
+            name: "demo".into(),
+            version: "0.1.0".into(),
+            summary: None,
+            capabilities: vec![],
+            ops: vec![],
+            schemas: vec![],
+            setup: None,
         }
     }
-}
 
-impl component_qa::Guest for Impl {
-    fn qa_spec(_mode: component_qa::QaMode) -> Vec<u8> {
-        vec![]
-    }
-
-    fn apply_answers(
-        _mode: component_qa::QaMode,
-        _current_config: Vec<u8>,
-        _answers: Vec<u8>,
-    ) -> Vec<u8> {
-        vec![]
-    }
-}
-
-impl component_i18n::Guest for Impl {
-    fn i18n_keys() -> Vec<String> {
-        vec![]
+    fn invoke(
+        _op: String,
+        _envelope: node::InvocationEnvelope,
+    ) -> Result<node::InvocationResult, node::NodeError> {
+        Ok(node::InvocationResult {
+            ok: true,
+            output_cbor: vec![],
+            output_metadata_cbor: None,
+        })
     }
 }
 

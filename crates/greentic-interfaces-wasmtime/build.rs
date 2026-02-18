@@ -59,7 +59,7 @@ fn main() {
     reset_directory(&staged_root);
     println!("cargo:rerun-if-changed={}", canonical_root);
 
-    let package_catalog = build_package_catalog(&wit_root);
+    let package_catalog = build_package_catalog(&canonical_root);
     for (package_ref, package_file) in &package_catalog {
         stage_package(package_ref, package_file, &staged_root, &package_catalog);
     }
@@ -205,13 +205,16 @@ fn build_package_catalog(wit_root: &Utf8PathBuf) -> BTreeMap<String, Utf8PathBuf
             Ok(e) => e,
             Err(_) => continue,
         };
-        if !entry.file_type().is_file() || entry.file_name() != "package.wit" {
+        if !entry.file_type().is_file() {
+            continue;
+        }
+        let path = Utf8PathBuf::from_path_buf(entry.path().to_path_buf()).expect("non-utf8 path");
+        if path.extension() != Some("wit") {
             continue;
         }
         if entry.path().components().any(|c| c.as_os_str() == "deps") {
             continue;
         }
-        let path = Utf8PathBuf::from_path_buf(entry.path().to_path_buf()).expect("non-utf8 path");
         let content = fs::read_to_string(&path).unwrap_or_default();
         if let Some(line) = content
             .lines()

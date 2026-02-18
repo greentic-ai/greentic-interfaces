@@ -6,18 +6,18 @@ pub fn canonical_wit_root() -> PathBuf {
         PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR must be set"));
     let package_version = std::env::var("CARGO_PKG_VERSION").unwrap_or_default();
 
-    // Local crate checkout (if this crate carries its own WIT).
-    let local = manifest_dir.join("wit");
-    if has_wit_files(&local) {
-        return local
-            .canonicalize()
-            .expect("Failed to locate canonical WIT root");
-    }
-
     // Workspace checkout from `crates/<this-crate>`.
     let workspace_root_wit = manifest_dir.join("../../wit");
     if has_wit_files(&workspace_root_wit) {
         return workspace_root_wit
+            .canonicalize()
+            .expect("Failed to locate canonical WIT root");
+    }
+
+    // Local crate checkout (if this crate carries its own WIT).
+    let local = manifest_dir.join("wit");
+    if has_wit_files(&local) {
+        return local
             .canonicalize()
             .expect("Failed to locate canonical WIT root");
     }

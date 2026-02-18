@@ -55,7 +55,7 @@ fn oauth_broker_worlds_include_client() {
 }
 
 #[test]
-fn component_v0_v6_exports_component_interfaces() {
+fn component_v0_v6_exports_node_interface() {
     use std::collections::BTreeSet;
     use wit_parser::WorldKey;
 
@@ -75,9 +75,9 @@ fn component_v0_v6_exports_component_interfaces() {
 
     let world_id = resolve.packages[pkg]
         .worlds
-        .get("component-v0-v6-v0")
+        .get("component")
         .copied()
-        .expect("missing component-v0-v6-v0 world");
+        .expect("missing component world");
 
     let world = &resolve.worlds[world_id];
     let export_names: BTreeSet<String> = world
@@ -97,22 +97,14 @@ fn component_v0_v6_exports_component_interfaces() {
         })
         .collect();
 
-    for required in [
-        "component-descriptor",
-        "component-schema",
-        "component-runtime",
-        "component-qa",
-        "component-i18n",
-    ] {
-        assert!(
-            export_names.contains(required),
-            "expected component-v0-v6-v0 to export {required}"
-        );
-        assert!(
-            !import_names.contains(required),
-            "expected component-v0-v6-v0 not to import {required}"
-        );
-    }
+    assert!(
+        export_names.contains("node"),
+        "expected component world to export node"
+    );
+    assert!(
+        import_names.contains("control"),
+        "expected component world to import control"
+    );
 }
 
 #[test]

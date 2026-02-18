@@ -40,8 +40,6 @@ fn offset_to_timestamp_ms(dt: &OffsetDateTime) -> MapperResult<i64> {
 
 type WitTenantCtx = bindings::greentic::interfaces_types::types::TenantCtx;
 type WitImpersonation = bindings::greentic::interfaces_types::types::Impersonation;
-type WitCommonImpersonation =
-    bindings::greentic_common_types_0_1_0_common::greentic::interfaces_types::types::Impersonation;
 type WitSessionCursor = bindings::greentic::interfaces_types::types::SessionCursor;
 type WitOutcome = bindings::greentic::interfaces_types::types::Outcome;
 type WitOutcomePending = bindings::greentic::interfaces_types::types::OutcomePending;
@@ -583,41 +581,35 @@ pub fn pack_kind_from_wit(kind: WitPackKind) -> types::PackKind {
 pub fn tenant_ctx_from_common(ctx: WitCommonTenantCtx) -> MapperResult<types::TenantCtx> {
     let WitCommonTenantCtx {
         env,
+        tenant_id,
+        team_id,
+        user_id,
+        i18n_id,
+        session_id,
+        flow_id,
+        node_id,
+    } = ctx;
+    let tenant_id: types::TenantId = tenant_id.try_into()?;
+    let tenant = tenant_id.clone();
+    let team = team_id
+        .as_ref()
+        .map(|id| id.as_str().try_into())
+        .transpose()?;
+    let team_id = team_id.map(|id| id.try_into()).transpose()?;
+    let user = user_id
+        .as_ref()
+        .map(|id| id.as_str().try_into())
+        .transpose()?;
+    let user_id = user_id.map(|id| id.try_into()).transpose()?;
+
+    Ok(types::TenantCtx {
+        env: env.try_into()?,
         tenant,
         tenant_id,
         team,
         team_id,
         user,
         user_id,
-        i18n_id,
-        session_id,
-        flow_id,
-        node_id,
-        provider_id,
-        deadline_ms,
-        attempt,
-        idempotency_key,
-        impersonation,
-    } = ctx;
-
-    let deadline = deadline_ms.map(|ms| types::InvocationDeadline::from_unix_millis(ms as i128));
-    let impersonation = match impersonation {
-        Some(value) => Some(types::Impersonation {
-            actor_id: value.actor_id.try_into()?,
-            reason: value.reason,
-        }),
-        None => None,
-    };
-    let attributes: BTreeMap<String, String> = attributes.into_iter().collect();
-
-    Ok(types::TenantCtx {
-        env: env.try_into()?,
-        tenant: tenant.try_into()?,
-        tenant_id: tenant_id.try_into()?,
-        team: team.map(|id| id.try_into()).transpose()?,
-        team_id: team_id.map(|id| id.try_into()).transpose()?,
-        user: user.map(|id| id.try_into()).transpose()?,
-        user_id: user_id.map(|id| id.try_into()).transpose()?,
         session_id,
         flow_id,
         node_id,
@@ -635,32 +627,15 @@ pub fn tenant_ctx_from_common(ctx: WitCommonTenantCtx) -> MapperResult<types::Te
 
 /// Convert a shared `TenantCtx` into the WIT `tenant-ctx` (v1 subset).
 pub fn tenant_ctx_to_common(ctx: types::TenantCtx) -> MapperResult<WitCommonTenantCtx> {
-    let deadline_ms = match ctx.deadline {
-        Some(deadline) => Some(i128_to_i64(deadline.unix_millis())?),
-        None => None,
-    };
-    let attributes: Vec<(String, String)> = ctx.attributes.into_iter().collect();
-
     Ok(WitCommonTenantCtx {
         env: ctx.env.into(),
-        tenant: ctx.tenant.into(),
         tenant_id: ctx.tenant_id.into(),
-        team: ctx.team.map(Into::into),
         team_id: ctx.team_id.map(Into::into),
-        user: ctx.user.map(Into::into),
         user_id: ctx.user_id.map(Into::into),
         i18n_id: ctx.i18n_id,
         session_id: ctx.session_id,
         flow_id: ctx.flow_id,
         node_id: ctx.node_id,
-        provider_id: ctx.provider_id,
-        deadline_ms,
-        attempt: ctx.attempt,
-        idempotency_key: ctx.idempotency_key,
-        impersonation: ctx.impersonation.map(|value| WitCommonImpersonation {
-            actor_id: value.actor_id.into(),
-            reason: value.reason,
-        }),
     })
 }
 

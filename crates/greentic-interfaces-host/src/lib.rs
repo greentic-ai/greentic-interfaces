@@ -13,95 +13,8 @@ pub use greentic_interfaces::{bindings, mappers, validate};
 pub mod component_v0_6 {
     pub use greentic_interfaces::component_v0_6::*;
 
-    use greentic_interfaces::component_v0_6::exports::greentic::component::{
-        component_qa, component_runtime,
-    };
-    use wasmtime::component::{Component as WasmtimeComponent, Linker};
-    use wasmtime::{Result, Store};
-
-    /// Lightweight wrapper around the component-v0-v6-v0 exports.
-    pub struct ComponentV0_6 {
-        inner: ComponentV0V6V0,
-    }
-
-    impl ComponentV0_6 {
-        /// Wraps the generated instance bindings.
-        pub fn new(inner: ComponentV0V6V0) -> Self {
-            Self { inner }
-        }
-
-        /// Returns the underlying generated instance.
-        pub fn into_inner(self) -> ComponentV0V6V0 {
-            self.inner
-        }
-
-        /// Returns component identity and version metadata (CBOR).
-        pub fn get_component_info<T>(&self, store: &mut Store<T>) -> Result<Vec<u8>> {
-            self.inner
-                .greentic_component_component_descriptor()
-                .call_get_component_info(store)
-        }
-
-        /// Returns the full self-description payload (CBOR).
-        pub fn describe<T>(&self, store: &mut Store<T>) -> Result<Vec<u8>> {
-            self.inner
-                .greentic_component_component_descriptor()
-                .call_describe(store)
-        }
-
-        /// Returns the QA spec for the given mode (CBOR).
-        pub fn qa_spec<T>(
-            &self,
-            store: &mut Store<T>,
-            mode: component_qa::QaMode,
-        ) -> Result<Vec<u8>> {
-            self.inner
-                .greentic_component_component_qa()
-                .call_qa_spec(store, mode)
-        }
-
-        /// Applies answers to the current config (CBOR).
-        pub fn apply_answers<T>(
-            &self,
-            store: &mut Store<T>,
-            mode: component_qa::QaMode,
-            current_config: &[u8],
-            answers: &[u8],
-        ) -> Result<Vec<u8>> {
-            self.inner
-                .greentic_component_component_qa()
-                .call_apply_answers(store, mode, current_config, answers)
-        }
-
-        /// Returns all i18n keys referenced by the component.
-        pub fn i18n_keys<T>(&self, store: &mut Store<T>) -> Result<Vec<String>> {
-            self.inner
-                .greentic_component_component_i18n()
-                .call_i18n_keys(store)
-        }
-
-        /// Runs the component and returns its output + new state (CBOR).
-        pub fn run<T>(
-            &self,
-            store: &mut Store<T>,
-            input: &[u8],
-            state: &[u8],
-        ) -> Result<component_runtime::RunResult> {
-            self.inner
-                .greentic_component_component_runtime()
-                .call_run(store, input, state)
-        }
-    }
-
-    /// Instantiates a component-v0-v6-v0 export and wraps it for ergonomic access.
-    pub fn instantiate_component_v0_6<T>(
-        store: &mut Store<T>,
-        component: &WasmtimeComponent,
-        linker: &Linker<T>,
-    ) -> Result<ComponentV0_6> {
-        let inner = ComponentV0V6V0::instantiate(store, component, linker)?;
-        Ok(ComponentV0_6::new(inner))
-    }
+    /// Back-compat alias for older host helper code/tests.
+    pub type ComponentV0V6V0 = Component;
 }
 
 /// Component control and exports.
@@ -239,7 +152,9 @@ pub mod worker {
         TenantCtx as WitWorkerTenantCtx, WorkerMessage as WitWorkerMessage,
         WorkerRequest as WitWorkerRequest, WorkerResponse as WitWorkerResponse,
     };
-    use greentic_interfaces::worker_v1::greentic::interfaces_types::types as worker_types;
+    use greentic_interfaces::worker_v1::greentic::types_core::types::{
+        Cloud, DeploymentCtx, Platform,
+    };
     use greentic_types::{ErrorCode, GreenticError, TenantCtx};
     use serde::{Deserialize, Serialize};
     use serde_json::Value;
@@ -251,11 +166,8 @@ pub mod worker {
     fn to_worker_tenant(ctx: TenantCtx) -> MapperResult<WitWorkerTenantCtx> {
         let base = crate::mappers::tenant_ctx_to_wit(ctx)?;
         Ok(WitWorkerTenantCtx {
-            env: base.env,
             tenant: base.tenant,
-            tenant_id: base.tenant_id,
             team: base.team,
-            team_id: base.team_id,
             user: base.user,
             deployment: DeploymentCtx {
                 cloud: Cloud::Other,
@@ -270,22 +182,20 @@ pub mod worker {
             flow_id: base.flow_id,
             node_id: base.node_id,
             provider_id: base.provider_id,
-            deadline_ms: base.deadline_ms,
-            attempt: base.attempt,
-            idempotency_key: base.idempotency_key,
-            impersonation: base.impersonation.map(convert_impersonation_to_worker),
         })
     }
 
     fn from_worker_tenant(ctx: WitWorkerTenantCtx) -> MapperResult<TenantCtx> {
+        let team = ctx.team.clone();
+        let user = ctx.user.clone();
         let base = interfaces_types::TenantCtx {
-            env: ctx.env,
-            tenant: ctx.tenant,
-            tenant_id: ctx.tenant_id,
-            team: ctx.team,
-            team_id: ctx.team_id,
-            user: ctx.user,
-            user_id: ctx.user_id,
+            env: "unknown".to_string(),
+            tenant: ctx.tenant.clone(),
+            tenant_id: ctx.tenant,
+            team,
+            team_id: ctx.team,
+            user,
+            user_id: ctx.user,
             trace_id: ctx.trace_id,
             i18n_id: ctx.i18n_id.or(ctx.deployment.i18n_id),
             correlation_id: None,
@@ -293,31 +203,13 @@ pub mod worker {
             flow_id: ctx.flow_id,
             node_id: ctx.node_id,
             provider_id: ctx.provider_id,
-            deadline_ms: ctx.deadline_ms,
-            attempt: ctx.attempt,
-            idempotency_key: ctx.idempotency_key,
-            impersonation: ctx.impersonation.map(convert_impersonation_from_worker),
-            attributes: ctx.attributes,
+            deadline_ms: None,
+            attempt: 0,
+            idempotency_key: None,
+            impersonation: None,
+            attributes: Vec::new(),
         };
         crate::mappers::tenant_ctx_from_wit(base)
-    }
-
-    fn convert_impersonation_to_worker(
-        value: interfaces_types::Impersonation,
-    ) -> worker_types::Impersonation {
-        worker_types::Impersonation {
-            actor_id: value.actor_id,
-            reason: value.reason,
-        }
-    }
-
-    fn convert_impersonation_from_worker(
-        value: worker_types::Impersonation,
-    ) -> interfaces_types::Impersonation {
-        interfaces_types::Impersonation {
-            actor_id: value.actor_id,
-            reason: value.reason,
-        }
     }
 
     /// Host-friendly request wrapper for worker invocations (uses `greentic-types` and `serde_json` payloads).

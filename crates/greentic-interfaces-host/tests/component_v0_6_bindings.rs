@@ -6,9 +6,7 @@ fn component_v0_6_bindings_exist() {
         component: &component_v0_6::ComponentV0V6V0,
         store: &mut wasmtime::Store<T>,
     ) {
-        let _ = component
-            .greentic_component_component_descriptor()
-            .call_describe(store);
+        let _ = component.greentic_component_node().call_describe(store);
     }
 
     let _ = assert_describe::<()>;

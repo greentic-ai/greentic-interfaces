@@ -120,7 +120,7 @@ declare_world!(
 declare_world!(
     mod component_v0_6,
     path = "target/wit-staging/greentic-component-0.6.0",
-    world = "greentic:component/component-v0-v6-v0@0.6.0",
+    world = "greentic:component/component@0.6.0",
     legacy = {
         /// Canonical package identifier.
         pub const PACKAGE_ID: &str = "greentic:component@0.6.0";
