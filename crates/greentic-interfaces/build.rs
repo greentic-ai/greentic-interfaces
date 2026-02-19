@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashSet};
 use std::env;
 use std::error::Error;
+use std::ffi::OsStr;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -11,7 +12,8 @@ use wit_bindgen_core::wit_parser::Resolve;
 use wit_bindgen_rust::Opts;
 
 const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
-const CANONICAL_INTERFACES_TYPES_FILE: &str = "types.wit";
+const CANONICAL_INTERFACES_TYPES_CANDIDATES: [&str; 2] =
+    ["types.wit", "greentic/interfaces-types@0.1.0/package.wit"];
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -27,17 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // concurrent build-script races by not deleting the shared directory.
     fs::create_dir_all(&staged_root)?;
 
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
-    let workspace_root = manifest_dir
-        .parent()
-        .and_then(|p| p.parent())
-        .ok_or_else(|| {
-            io::Error::new(
-                io::ErrorKind::NotFound,
-                "unable to locate workspace root from CARGO_MANIFEST_DIR",
-            )
-        })?;
-    let wit_root = workspace_root.join("wit");
+    let wit_root = resolve_wit_root(&manifest_dir)?;
     let mut package_candidates = BTreeMap::new();
     discover_packages(&wit_root, &mut package_candidates)?;
     verify_interfaces_types_duplicates(&wit_root, &package_candidates)?;
@@ -57,6 +49,42 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     Ok(())
+}
+
+fn resolve_wit_root(manifest_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
+    if let Ok(explicit) = env::var("GREENTIC_INTERFACES_WIT_ROOT") {
+        let explicit_root = PathBuf::from(explicit);
+        if explicit_root.is_dir() {
+            return Ok(explicit_root);
+        }
+        return Err(format!(
+            "GREENTIC_INTERFACES_WIT_ROOT is set but not a directory: {}",
+            explicit_root.display()
+        )
+        .into());
+    }
+
+    for ancestor in manifest_dir.ancestors() {
+        let candidate = ancestor.join("wit");
+        if candidate.join("types.wit").is_file() {
+            return Ok(candidate);
+        }
+    }
+
+    let local_wit = manifest_dir.join("wit");
+    if local_wit.is_dir() {
+        return Ok(local_wit);
+    }
+
+    Err(io::Error::new(
+        io::ErrorKind::NotFound,
+        format!(
+            "unable to locate WIT root; tried {} and workspace-relative wit/ from {}",
+            local_wit.display(),
+            manifest_dir.display()
+        ),
+    )
+    .into())
 }
 
 fn stage_package(
@@ -375,9 +403,6 @@ fn discover_packages(
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
-            if path.file_name().and_then(|name| name.to_str()) == Some("deps") {
-                continue;
-            }
             let package_file = path.join("package.wit");
             if package_file.exists() {
                 let package_ref = read_package_ref(&package_file)?;
@@ -394,8 +419,21 @@ fn discover_packages(
     Ok(())
 }
 
-fn canonical_interfaces_types_path(wit_root: &Path) -> PathBuf {
-    wit_root.join(CANONICAL_INTERFACES_TYPES_FILE)
+fn canonical_interfaces_types_path(wit_root: &Path) -> Result<PathBuf, Box<dyn Error>> {
+    for relative_path in CANONICAL_INTERFACES_TYPES_CANDIDATES {
+        let candidate = wit_root.join(relative_path);
+        if candidate.exists() {
+            return Ok(candidate);
+        }
+    }
+
+    Err(format!(
+        "none of the canonical WIT sources for {} exist under {} (tried: {})",
+        CANONICAL_INTERFACES_TYPES_REF,
+        wit_root.display(),
+        CANONICAL_INTERFACES_TYPES_CANDIDATES.join(", ")
+    )
+    .into())
 }
 
 fn verify_interfaces_types_duplicates(
@@ -403,20 +441,16 @@ fn verify_interfaces_types_duplicates(
     candidates: &BTreeMap<String, Vec<PathBuf>>,
 ) -> Result<(), Box<dyn Error>> {
     let canonical_ref = CANONICAL_INTERFACES_TYPES_REF;
-    let canonical_path = canonical_interfaces_types_path(wit_root);
-    if !canonical_path.exists() {
-        return Err(format!(
-            "canonical WIT source {} is missing",
-            canonical_path.display()
-        )
-        .into());
-    }
+    let canonical_path = canonical_interfaces_types_path(wit_root)?;
 
-    let entries = candidates
+    let mut entries: Vec<PathBuf> = candidates
         .get(canonical_ref)
-        .ok_or_else(|| format!("package {canonical_ref} was not discovered"))?;
+        .ok_or_else(|| format!("package {canonical_ref} was not discovered"))?
+        .clone();
+    entries.sort();
+    entries.dedup();
 
-    if !entries.iter().any(|path| path == &canonical_path) {
+    if !entries.iter().any(|path| path == canonical_path.as_path()) {
         return Err(format!(
             "canonical WIT source {} for {} was not discovered; only found:\n  {}",
             canonical_path.display(),
@@ -439,7 +473,8 @@ fn verify_interfaces_types_duplicates(
         }
     }
 
-    if !mismatches.is_empty() {
+    let strict_canonical = canonical_path.file_name() == Some(OsStr::new("types.wit"));
+    if strict_canonical && !mismatches.is_empty() {
         return Err(format!(
             "duplicates of {} diverge from canonical {}:\n  {}",
             canonical_ref,
@@ -451,6 +486,14 @@ fn verify_interfaces_types_duplicates(
                 .join("\n  ")
         )
         .into());
+    }
+    if !strict_canonical && !mismatches.is_empty() {
+        println!(
+            "cargo:warning=Found {} non-identical copies of {} while using packaged/local wit root (canonical: {}). Continuing without strict duplicate-byte enforcement.",
+            mismatches.len(),
+            canonical_ref,
+            canonical_path.display()
+        );
     }
 
     if entries.len() > 1 {
@@ -482,14 +525,7 @@ fn select_preferred_package_path(
     }
 
     if package_ref == CANONICAL_INTERFACES_TYPES_REF {
-        let canonical_path = canonical_interfaces_types_path(wit_root);
-        if !canonical_path.exists() {
-            return Err(format!(
-                "canonical WIT source {} for {package_ref} is missing",
-                canonical_path.display()
-            )
-            .into());
-        }
+        let canonical_path = canonical_interfaces_types_path(wit_root)?;
         if !candidates.iter().any(|path| path == &canonical_path) {
             return Err(format!(
                 "canonical WIT source {} for {package_ref} was not discovered; found {} entries",
