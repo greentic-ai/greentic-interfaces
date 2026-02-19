@@ -22,7 +22,7 @@ Refer to `contracts/0.6.0/RENAMES.md` for the full naming dictionary and `contra
 
 [![CI](https://github.com/greentic-ai/greentic-interfaces/actions/workflows/ci.yml/badge.svg)](https://github.com/greentic-ai/greentic-interfaces/actions/workflows/ci.yml)
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
-[![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
+[![MSRV](https://img.shields.io/badge/MSRV-1.91%2B-blue)](#minimum-supported-rust-version)
 
 > Canonical runtime target: `greentic:component@0.6.0` + `greentic:types-core@0.6.0` + `greentic:codec@0.6.0`.
 > Older surfaces are compatibility-only and are documented in `docs/vision/legacy.md`.
@@ -307,7 +307,7 @@ Hosts wire this world alongside the existing runner-host imports, so deployment 
 
 ## Minimum Supported Rust Version
 
-The workspace targets **Rust 1.88** or newer (required by the 2024 edition). CI pins the same stable toolchain for formatting/clippy, so make sure your local toolchain matches 1.88+ when hacking.
+The workspace targets **Rust 1.91** or newer (required by the 2024 edition). CI pins the same stable toolchain for formatting/clippy, so make sure your local toolchain matches 1.91+ when hacking.
 
 ## Examples
 
@@ -321,7 +321,7 @@ Two smoke-level examples live under `examples/`:
 
 ```bash
 # Install the WASI Preview 2 target once (matches CI)
-rustup target add wasm32-wasip2 --toolchain 1.88.0
+rustup target add wasm32-wasip2 --toolchain 1.91.0
 
 # Compile the component to Wasm (targets wasm32-wasip2)
 CARGO_TARGET_DIR=target cargo build --manifest-path examples/component-describe/Cargo.toml --target wasm32-wasip2
@@ -352,7 +352,7 @@ Toggles:
 - `LOCAL_CHECK_STRICT=1` – fail immediately if required tools are missing.
 - `LOCAL_CHECK_VERBOSE=1` – print every command before executing it.
 - `LOCAL_CHECK_EXAMPLES=1` – build/run the example crates (requires the `wasm32-wasip2` target).
-- The example steps expect `rustup target add wasm32-wasip2 --toolchain 1.88.0` to have been run first.
+- The example steps expect `rustup target add wasm32-wasip2 --toolchain 1.91.0` to have been run first.
 
 A `pre-push` hook is installed automatically (if absent) to run the script before pushing; remove `.git/hooks/pre-push` if you prefer to opt out.
 

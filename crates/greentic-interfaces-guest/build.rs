@@ -114,7 +114,13 @@ fn wit_path(package_ref: &str, wit_root: &Path) -> Result<PathBuf, Box<dyn Error
     let base_pkg = pkg.split('/').next().unwrap_or(pkg);
     let target_root = format!("{base_pkg}@{version}");
     let mut fallback = None;
-    if let Some(found) = find_package_recursive(wit_root, package_ref, &target_root, &mut fallback)?
+    if let Some(found) =
+        find_package_recursive(wit_root, package_ref, &target_root, &mut fallback, false)?
+    {
+        return Ok(found);
+    }
+    if let Some(found) =
+        find_package_recursive(wit_root, package_ref, &target_root, &mut fallback, true)?
     {
         return Ok(found);
     }
@@ -308,12 +314,13 @@ fn find_package_recursive(
     package_ref: &str,
     target_root: &str,
     fallback: &mut Option<PathBuf>,
+    include_deps: bool,
 ) -> Result<Option<PathBuf>, Box<dyn Error>> {
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
         if path.is_dir() {
-            if path.file_name().and_then(|n| n.to_str()) == Some("deps") {
+            if !include_deps && path.file_name().and_then(|n| n.to_str()) == Some("deps") {
                 continue;
             }
             let package_file = path.join("package.wit");
@@ -326,7 +333,8 @@ fn find_package_recursive(
                     *fallback = Some(package_file.clone());
                 }
             }
-            if let Some(found) = find_package_recursive(&path, package_ref, target_root, fallback)?
+            if let Some(found) =
+                find_package_recursive(&path, package_ref, target_root, fallback, include_deps)?
             {
                 return Ok(Some(found));
             }

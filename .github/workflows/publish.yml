@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.89.0
+          toolchain: 1.91.0
           components: rustfmt,clippy
       - name: Lint & Test
         run: |
@@ -39,7 +39,7 @@ jobs:
           fetch-depth: 0
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.89.0
+          toolchain: 1.91.0
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Detect changed crate versions and create tags
@@ -107,7 +107,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@v1
         with:
-          toolchain: 1.89.0
+          toolchain: 1.91.0
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
       - name: Publish crates to crates.io
