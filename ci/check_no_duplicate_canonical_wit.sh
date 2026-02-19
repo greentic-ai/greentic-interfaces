@@ -3,12 +3,16 @@ set -euo pipefail
 
 ROOT="${1:-.}"
 
-CANONICAL="$ROOT/crates/greentic-interfaces/wit"
+CANONICAL="$ROOT/wit"
 
 # Pattern for ALL canonical greentic packages
 PATTERN='^package\s+greentic:'
 
 MATCHES_ALL="$(rg -n --hidden --glob '!.git/*' --glob '*.wit' \
+  --glob '!crates/greentic-interfaces/wit/**' \
+  --glob '!crates/greentic-interfaces-guest/wit/**' \
+  --glob '!crates/greentic-interfaces-wasmtime/wit/**' \
+  --glob '!guest-tests/**/wit/**' \
   --glob '!**/target/**' \
   --glob '!**/out/**' \
   --glob '!**/wit-staging/**' \
