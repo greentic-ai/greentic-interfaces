@@ -4,6 +4,8 @@ use crate::http_client_client_v1_1::greentic::http::http_client as bindings_v1_1
 /// Host trait for `greentic:http/client@1.0.0`.
 pub use bindings_v1_0::Host as HttpClientHost;
 pub use bindings_v1_0::{HostError as HttpClientError, Request, Response, TenantCtx};
+pub type ImpersonationV1_0 =
+    crate::http_client_client_v1_0::greentic::interfaces_types::types::Impersonation;
 
 /// Host trait for `greentic:http/client@1.1.0`.
 pub use bindings_v1_1::Host as HttpClientHostV1_1;
@@ -11,6 +13,8 @@ pub use bindings_v1_1::{
     HostError as HttpClientErrorV1_1, Request as RequestV1_1, RequestOptions as RequestOptionsV1_1,
     Response as ResponseV1_1, TenantCtx as TenantCtxV1_1,
 };
+pub type ImpersonationV1_1 =
+    crate::http_client_client_v1_1::greentic::interfaces_types::types::Impersonation;
 
 /// Register the HTTP client world on the provided linker.
 pub fn add_http_client_to_linker<T>(
