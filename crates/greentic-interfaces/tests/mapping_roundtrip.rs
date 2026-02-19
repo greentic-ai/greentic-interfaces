@@ -2,7 +2,6 @@
 
 use std::convert::TryFrom;
 
-use greentic_interfaces::bindings;
 use greentic_types as types;
 use semver::Version;
 use time::OffsetDateTime;
@@ -47,7 +46,7 @@ fn sample_tenant_ctx() -> types::TenantCtx {
 #[test]
 fn tenant_ctx_roundtrip_external() {
     let ctx = sample_tenant_ctx();
-    let wit = match bindings::greentic::interfaces_types::types::TenantCtx::try_from(ctx.clone()) {
+    let wit = match greentic_interfaces::canonical::types::TenantCtx::try_from(ctx.clone()) {
         Ok(value) => value,
         Err(err) => panic!("wit conversion failed: {err}"),
     };
@@ -76,7 +75,7 @@ fn tenant_ctx_old_style_is_accepted() {
     ctx.team = None;
     ctx.user = None;
     ctx.deadline = None;
-    let wit = bindings::greentic::interfaces_types::types::TenantCtx::try_from(ctx.clone())
+    let wit = greentic_interfaces::canonical::types::TenantCtx::try_from(ctx.clone())
         .expect("old style to wit");
     let round = types::TenantCtx::try_from(wit).expect("old style from wit");
     assert!(round.session_id.is_none());
@@ -87,7 +86,7 @@ fn tenant_ctx_old_style_is_accepted() {
 
 #[test]
 fn outcome_roundtrip_external() {
-    use bindings::greentic::interfaces_types::types::Outcome as WitOutcome;
+    use greentic_interfaces::canonical::types::Outcome as WitOutcome;
 
     let outcome = types::Outcome::Pending {
         reason: "waiting".into(),
@@ -112,7 +111,7 @@ fn outcome_roundtrip_external() {
 
 #[test]
 fn span_context_roundtrip() {
-    use bindings::greentic::interfaces_types::types::SpanContext as WitSpanContext;
+    use greentic_interfaces::canonical::types::SpanContext as WitSpanContext;
 
     let span = types::SpanContext {
         tenant: fixture_id("tenant"),
@@ -131,7 +130,7 @@ fn span_context_roundtrip() {
 
 #[test]
 fn allow_list_roundtrip() {
-    use bindings::greentic::interfaces_types::types::AllowList as WitAllowList;
+    use greentic_interfaces::canonical::types::AllowList as WitAllowList;
 
     let list = types::AllowList {
         domains: vec!["example.com".into()],
@@ -150,7 +149,7 @@ fn allow_list_roundtrip() {
 
 #[test]
 fn pack_ref_roundtrip() {
-    use bindings::greentic::interfaces_types::types::PackRef as WitPackRef;
+    use greentic_interfaces::canonical::types::PackRef as WitPackRef;
 
     let pack = types::PackRef {
         oci_url: "registry.example.com/pack".into(),

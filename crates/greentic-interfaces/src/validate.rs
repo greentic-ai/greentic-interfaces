@@ -3,16 +3,12 @@
 use greentic_types::error::{ErrorCode, GResult, GreenticError};
 use semver::Version;
 
-use crate::bindings;
-
 fn invalid_input(message: impl Into<String>) -> GreenticError {
     GreenticError::new(ErrorCode::InvalidInput, message)
 }
 
 /// Validates provider metadata generated from WIT bindings.
-pub fn validate_provider_meta(
-    meta: bindings::greentic::interfaces_provider::provider::ProviderMeta,
-) -> GResult<()> {
+pub fn validate_provider_meta(meta: crate::abi::v0_6_0::provider::ProviderMeta) -> GResult<()> {
     if meta.name.trim().is_empty() {
         return Err(invalid_input("provider name must not be empty"));
     }
@@ -35,7 +31,7 @@ pub fn validate_provider_meta(
     }
 
     for protocol in &meta.allow_list.protocols {
-        if let bindings::greentic::interfaces_types::types::Protocol::Custom(value) = protocol
+        if let crate::canonical::types::Protocol::Custom(value) = protocol
             && value.trim().is_empty()
         {
             return Err(invalid_input(

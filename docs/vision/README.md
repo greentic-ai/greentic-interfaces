@@ -12,3 +12,5 @@ This folder defines the intended ABI direction for `greentic-interfaces`.
 
 1. `docs/vision/v0_6.md`
 2. `docs/vision/legacy.md`
+3. `docs/vision/codex.md`
+4. `docs/vision/deprecations.md`

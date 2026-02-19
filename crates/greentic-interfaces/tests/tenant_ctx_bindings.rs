@@ -5,7 +5,7 @@ mod tenant_ctx_fields {
     #[test]
     fn tenantctx_has_i18n_id_in_bindings() {
         #[allow(dead_code)]
-        fn assert_field(ctx: interfaces::bindings::greentic::interfaces_types::types::TenantCtx) {
+        fn assert_field(ctx: interfaces::canonical::types::TenantCtx) {
             let _ = ctx.i18n_id;
         }
 

@@ -12,7 +12,7 @@ macro_rules! declare_world {
         $(, legacy = { $($legacy:item)* } )?
     ) => {
         pub mod $mod_name {
-            mod bindings {
+            mod generated {
                 wasmtime::component::bindgen!({
                     path: $path_literal,
                     world: $world_literal,
@@ -20,7 +20,7 @@ macro_rules! declare_world {
             }
 
             #[allow(unused_imports)]
-            pub use bindings::*;
+            pub use generated::*;
 
             $(
                 $($legacy)*
@@ -61,7 +61,7 @@ declare_world!(
         use wasmtime::component::{Component as WasmtimeComponent, Linker};
         use wasmtime::StoreContextMut;
 
-        pub use bindings::greentic::component::control::Host as ControlHost;
+        pub use generated::greentic::component::control::Host as ControlHost;
 
         /// Registers the Greentic control interface with the provided linker.
         pub fn add_control_to_linker<T>(
@@ -137,7 +137,7 @@ declare_world!(
         use wasmtime::component::{Component as WasmtimeComponent, Linker};
         use wasmtime::StoreContextMut;
 
-        pub use bindings::greentic::component::control::Host as ControlHost;
+        pub use generated::greentic::component::control::Host as ControlHost;
 
         /// Registers the Greentic control interface with the provided linker.
         pub fn add_control_to_linker<T>(
@@ -213,7 +213,7 @@ declare_world!(
         use wasmtime::component::{Component as WasmtimeComponent, Linker};
         use wasmtime::StoreContextMut;
 
-        pub use bindings::greentic::component::control::Host as ControlHost;
+        pub use generated::greentic::component::control::Host as ControlHost;
 
         /// Registers the Greentic control interface with the provided linker.
         pub fn add_control_to_linker<T>(
@@ -333,7 +333,7 @@ declare_world!(
         use wasmtime::component::Linker;
         use wasmtime::{Result, StoreContextMut};
 
-        pub use bindings::greentic::host::{http_v1, kv_v1};
+        pub use generated::greentic::host::{http_v1, kv_v1};
 
         /// Minimal trait hosts implement to satisfy the runner-host imports.
         pub trait RunnerHost {

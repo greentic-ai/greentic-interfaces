@@ -38,20 +38,20 @@ fn offset_to_timestamp_ms(dt: &OffsetDateTime) -> MapperResult<i64> {
         .map_err(|_| invalid_input("timestamp overflow converting to milliseconds"))
 }
 
-type WitTenantCtx = bindings::greentic::interfaces_types::types::TenantCtx;
-type WitImpersonation = bindings::greentic::interfaces_types::types::Impersonation;
-type WitSessionCursor = bindings::greentic::interfaces_types::types::SessionCursor;
-type WitOutcome = bindings::greentic::interfaces_types::types::Outcome;
-type WitOutcomePending = bindings::greentic::interfaces_types::types::OutcomePending;
-type WitOutcomeError = bindings::greentic::interfaces_types::types::OutcomeError;
-type WitErrorCode = bindings::greentic::interfaces_types::types::ErrorCode;
-type WitAllowList = bindings::greentic::interfaces_types::types::AllowList;
-type WitProtocol = bindings::greentic::interfaces_types::types::Protocol;
-type WitNetworkPolicy = bindings::greentic::interfaces_types::types::NetworkPolicy;
-type WitSpanContext = bindings::greentic::interfaces_types::types::SpanContext;
-type WitPackRef = bindings::greentic::interfaces_types::types::PackRef;
-type WitSignature = bindings::greentic::interfaces_types::types::Signature;
-type WitSignatureAlgorithm = bindings::greentic::interfaces_types::types::SignatureAlgorithm;
+type WitTenantCtx = crate::canonical::types::TenantCtx;
+type WitImpersonation = crate::canonical::types::Impersonation;
+type WitSessionCursor = crate::canonical::types::SessionCursor;
+type WitOutcome = crate::canonical::types::Outcome;
+type WitOutcomePending = crate::canonical::types::OutcomePending;
+type WitOutcomeError = crate::canonical::types::OutcomeError;
+type WitErrorCode = crate::canonical::types::ErrorCode;
+type WitAllowList = crate::canonical::types::AllowList;
+type WitProtocol = crate::canonical::types::Protocol;
+type WitNetworkPolicy = crate::canonical::types::NetworkPolicy;
+type WitSpanContext = crate::canonical::types::SpanContext;
+type WitPackRef = crate::canonical::types::PackRef;
+type WitSignature = crate::canonical::types::Signature;
+type WitSignatureAlgorithm = crate::canonical::types::SignatureAlgorithm;
 type WitCommonFlowKind =
     bindings::greentic_common_types_0_1_0_common::exports::greentic::common_types::types::FlowKind;
 type WitCommonTenantCtx =

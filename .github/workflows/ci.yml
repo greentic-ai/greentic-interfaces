@@ -101,6 +101,8 @@ jobs:
         run: bash ci/smoke/wasmtime_consumer.sh
       - run: cargo build --workspace --all-features
       - run: cargo test --workspace --all-features
+      - name: Packaged external consumer check (greentic-interfaces)
+        run: bash ci/steps/external_consumer_check.sh
       - name: Build describe-v1 component example
         env:
           CARGO_TARGET_DIR: target

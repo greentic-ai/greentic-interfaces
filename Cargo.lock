@@ -271,7 +271,7 @@ dependencies = [
 
 [[package]]
 name = "component-describe"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "distributor-api-dummy"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -780,7 +780,7 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "greentic-interfaces"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "anyhow",
  "greentic-types",
@@ -801,14 +801,14 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-crates-io-consumer"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "greentic-interfaces",
 ]
 
 [[package]]
 name = "greentic-interfaces-guest"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -820,7 +820,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-host"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "greentic-interfaces",
  "greentic-types",
@@ -831,7 +831,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-interfaces-wasmtime"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "anyhow",
  "camino",
@@ -847,9 +847,9 @@ dependencies = [
 
 [[package]]
 name = "greentic-types"
-version = "0.4.51"
+version = "0.4.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5538a87835f94745a7d65f056991b89c7250952785b1b23602b3d9da0c005a7"
+checksum = "2d79e62588f45c9f77e7b766a8e873f26e3112a783c7d3a3fa80a9d66b0568df"
 dependencies = [
  "anyhow",
  "blake3",
@@ -871,7 +871,7 @@ dependencies = [
 
 [[package]]
 name = "guest-node-minimal"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "greentic-interfaces-guest",
  "greentic-types",
@@ -1235,7 +1235,7 @@ dependencies = [
 
 [[package]]
 name = "oauth-broker-client-harness"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]
@@ -1327,7 +1327,7 @@ dependencies = [
 
 [[package]]
 name = "provider-core-dummy"
-version = "0.4.100"
+version = "0.4.101"
 dependencies = [
  "wit-bindgen 0.53.1",
 ]

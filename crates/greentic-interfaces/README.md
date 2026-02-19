@@ -111,10 +111,10 @@ The bindings follow the `TenantCtx`, `Outcome`, `ProviderMeta`, and `AllowList` 
 
 ```rust
 use greentic_interfaces::bindings::exports::greentic::interfaces_pack::component_api;
-use greentic_interfaces::bindings;
+use greentic_interfaces::canonical;
 
-fn empty_allow_list() -> bindings::greentic::interfaces_types::types::AllowList {
-    bindings::greentic::interfaces_types::types::AllowList {
+fn empty_allow_list() -> canonical::types::AllowList {
+    canonical::types::AllowList {
         domains: Vec::new(),
         ports: Vec::new(),
         protocols: Vec::new(),
@@ -130,7 +130,7 @@ impl component_api::Guest for GreetingComponent {
             version: "0.1.0".into(),
             capabilities: vec!["invoke".into()],
             allow_list: empty_allow_list(),
-            network_policy: bindings::greentic::interfaces_types::types::NetworkPolicy {
+            network_policy: canonical::types::NetworkPolicy {
                 egress: empty_allow_list(),
                 deny_on_miss: false,
             },

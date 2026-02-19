@@ -38,10 +38,25 @@ fn has_wit_files(root: &std::path::Path) -> bool {
     false
 }
 
+/// Stable ABI facade modules (`canonical`, `v0_6_0`) over generated bindings.
+#[cfg(all(feature = "bindings-rust", not(target_arch = "wasm32")))]
+pub mod abi;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod bindings;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod wit_all;
+#[cfg(all(
+    feature = "bindings-rust",
+    feature = "wit-v0_6_0",
+    not(target_arch = "wasm32")
+))]
+pub use abi::canonical;
+#[cfg(all(
+    feature = "bindings-rust",
+    feature = "wit-v0_6_0",
+    not(target_arch = "wasm32")
+))]
+pub use abi::v0_6_0;
 #[cfg(all(
     feature = "bindings-rust",
     feature = "provider-common",
@@ -51,7 +66,15 @@ pub use bindings::provider_common_0_0_2_common;
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused_imports)]
 pub use wit_all::*;
-#[cfg(all(feature = "bindings-rust", not(target_arch = "wasm32")))]
+#[cfg(all(
+    feature = "bindings-rust",
+    feature = "wit-v0_6_0",
+    not(target_arch = "wasm32")
+))]
 pub mod mappers;
-#[cfg(all(feature = "bindings-rust", not(target_arch = "wasm32")))]
+#[cfg(all(
+    feature = "bindings-rust",
+    feature = "wit-v0_6_0",
+    not(target_arch = "wasm32")
+))]
 pub mod validate;
