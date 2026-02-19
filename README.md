@@ -24,36 +24,19 @@ Refer to `contracts/0.6.0/RENAMES.md` for the full naming dictionary and `contra
 [![WIT Docs](https://img.shields.io/badge/docs-WIT%20packages-4c9)](https://greentic-ai.github.io/greentic-interfaces/)
 [![MSRV](https://img.shields.io/badge/MSRV-1.88%2B-blue)](#minimum-supported-rust-version)
 
-> New v1 WIT surfaces for the unified flow/pack model live under `greentic:common-types@0.1.0`, `greentic:component-v1@0.1.0`, and `greentic:pack-export-v1@0.1.0`. The component ABI now has two active surfaces: `component@0.5.0` (JSON `node` interface) and `component@0.6.0` (CBOR descriptor/schema/runtime/qa/i18n via world `component-v0-v6-v0`). `component@0.4.0` and the legacy pack worlds (`pack-export@0.4.0`, `pack-export@0.2.0`) remain for back-compat.
+> Canonical runtime target: `greentic:component@0.6.0` + `greentic:types-core@0.6.0` + `greentic:codec@0.6.0`.
+> Older surfaces are compatibility-only and are documented in `docs/vision/legacy.md`.
+
+## Documentation Map
+
+- Docs index: `docs/README.md`
+- Vision docs: `docs/vision/README.md`
+- Canonical v0.6 direction: `docs/vision/v0_6.md`
+- Legacy compatibility matrix and replacements: `docs/vision/legacy.md`
 
 - Host/guest reexports: `greentic-interfaces-host` and `greentic-interfaces-guest` now surface the v1 worlds plus mapper helpers: component outcomes (`ComponentOutcome`, `ComponentOutcomeStatus`) and pack/flow descriptors (`PackDescriptor`, `FlowDescriptor`) for the new pack-export-v1 ABI.
 
-### Component config shape (0.5.0)
-
-- `greentic:component@0.5.0` defines a canonical `@config` record inside the `node` interface. Doc comments become JSON Schema descriptions, `option<T>` marks optional properties, `@default(...)` carries defaults, and `@flow:hidden` maps to an `x_flow_hidden` extension.
-- Components can optionally export the `component-configurable` world (`get-config-schema() -> string`) to supply a JSON Schema directly; tooling still infers schemas from the `config` record by default.
-- Example WIT shape used by `component@0.5.0`:
-
-```wit
-/// Configuration for this component.
-/// Tooling will map this record to JSON Schema.
-/// @config
-record config {
-  /// Human-friendly title presented in UIs.
-  title: string,
-  /// Optional description used in documentation or previews.
-  description: option<string>,
-  /// Layout hint for hosts rendering collections.
-  /// @default("stacked")
-  layout: display-mode,
-  /// Maximum items to emit before truncating results.
-  /// @default(10)
-  max-items: u32,
-  /// Connection identifier propagated by flows but hidden from user config.
-  /// @flow:hidden
-  connection-id: option<string>,
-}
-```
+Legacy JSON component config guidance (`component@0.5.0`) is tracked in `docs/vision/legacy.md`.
 
 ### Feature flags for component@0.6.0 + v1 worlds
 
@@ -75,7 +58,7 @@ record config {
 
 All shared `greentic:*` WIT packages live exclusively under:
 
-    crates/greentic-interfaces/wit/
+    wit/
 
 No other crate may define or copy these packages.
 Binding generation must reference the canonical path via `build.rs`.
@@ -153,7 +136,7 @@ let resolved = ref_api.resolve_ref("oci://registry.example/greentic/component@sh
 let _artifact = ref_api.get_by_digest(&resolved.digest);
 ```
 
-#### Minimal guest component (0.5.0 node; 2 funcs + macro)
+#### Legacy guest example (component@0.5.0 node)
 
 Use the `component_entrypoint!` macro so the crate generates the WASM export glue (marker section, unsafe `#[export_name]` funcs) for you. Only the payload description and invoke handler are required; streaming defaults to `[Progress(0), Data(result), Done]` and lifecycle hooks default to `Ok`.
 

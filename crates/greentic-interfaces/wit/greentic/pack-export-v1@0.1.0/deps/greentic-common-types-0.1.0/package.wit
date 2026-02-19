@@ -3,8 +3,6 @@
 package greentic:common-types@0.1.0;
 
 interface types {
-  use greentic:interfaces-types/types@0.1.0.{tenant-ctx};
-
   /// Flow categories aligned with greentic_types::FlowKind.
   enum flow-kind {
     messaging,

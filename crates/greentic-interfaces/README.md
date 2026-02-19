@@ -2,6 +2,9 @@
 
 Shared WebAssembly Interface Types (WIT) packages and Rust bindings for the Greentic next-gen platform. The crate is MIT licensed and evolves additively—new fields or functions land in minor releases, while breaking changes require a new package version.
 
+> Canonical target for new work: `component@0.6.0` + `types-core@0.6.0` + `codec@0.6.0`.
+> Legacy compatibility surfaces remain shipped but are tracked in `../docs/vision/legacy.md`.
+
 ## Overview
 
 The repository serves two goals:

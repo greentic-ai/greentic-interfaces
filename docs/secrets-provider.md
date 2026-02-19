@@ -1,5 +1,8 @@
 # Secrets provider WIT packages
 
+> Legacy note: this page documents removed typed provider surfaces.
+> Canonical provider direction is `greentic:provider-schema-core@1.0.0`; see `docs/vision/v0_6.md` and `docs/vision/legacy.md`.
+
 The legacy typed secrets provider worlds (`greentic:secrets-provider@0.1.0` plus the generators/audit-exporter/policy-validator add-ons) have been removed. Provider implementations must migrate to `greentic:provider-schema-core@1.0.0` and publish JSON schemas instead of relying on WIT-defined provider operations.
 
 - Hosts continue to expose `greentic:secrets-store/store@1.0.0` for consumers that need to read secrets; this surface is unchanged.

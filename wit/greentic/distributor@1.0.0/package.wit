@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LEGACY COMPATIBILITY SURFACE.
+// Prefer greentic:distributor-api@1.1.0 for new integrations.
 
 package greentic:distributor-api@1.0.0;
 

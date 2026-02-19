@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LEGACY COMPATIBILITY SURFACE.
+// New pack export integrations should target greentic:pack-export-v1@0.1.0.
 
 package greentic:pack-export@0.2.0;
 

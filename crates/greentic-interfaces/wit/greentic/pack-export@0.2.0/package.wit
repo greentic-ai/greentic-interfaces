@@ -23,7 +23,7 @@ interface exports {
   variant platform { k8s, nomad, systemd, cfworkers, lambda, baremetal, other }
 
   type flow-id = string;
-  use greentic:interfaces-types/types@0.1.0.{tenant-id, team-id, user-id, tenant-ctx, iface-error};
+  use greentic:interfaces-types/types@0.1.0.{tenant-id, team-id, user-id, iface-error};
 
   record deployment-ctx {
     cloud: cloud,
