@@ -69,8 +69,9 @@ for rec in "${!OWNERS[@]}"; do
   fi
 done
 
-# No stray @0.6.0 packages outside canonical tree.
-mapfile -t extra < <(find "${ROOT}" -path '*@0.6.0/package.wit' -print || true)
+# No stray @0.6.0 packages outside canonical tree under the canonical wit root.
+# Crate-local mirrors may exist for packaging and are validated separately.
+mapfile -t extra < <(find "${ROOT}/wit" -path '*@0.6.0/package.wit' -print || true)
 for file in "${extra[@]}"; do
   [[ -z "${file}" ]] && continue
   if [[ "${file}" != ${CANONICAL}/* ]]; then

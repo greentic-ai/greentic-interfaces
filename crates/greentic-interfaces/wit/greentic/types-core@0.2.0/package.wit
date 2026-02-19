@@ -1,20 +1,6 @@
 // SPDX-License-Identifier: MIT
-
-// ------------------------------------------------------------
-// DEPRECATED
-//
-// This package is deprecated and kept for backward compatibility.
-//
-// Reason:
-//   Superseded by canonical interfaces-types with greentic-types schemas.
-//
-// Replacement:
-//   greentic:interfaces-types@0.1.0 + greentic-types
-//
-// Status:
-//   No new development. No new versions will be published.
-// ------------------------------------------------------------
-// SPDX-License-Identifier: MIT
+// LEGACY COMPATIBILITY SURFACE.
+// New components/hosts should target greentic:types-core@0.6.0.
 
 package greentic:types-core@0.2.0;
 
@@ -23,7 +9,9 @@ interface shared {
   type flow-id = string;
 
   /// Identifiers for tenant-scoped access control.
-  use greentic:interfaces-types/types@0.1.0.{tenant-id, team-id, user-id, tenant-ctx, iface-error};
+  type tenant-id = string;
+  type team-id = string;
+  type user-id = string;
 
   /// Supported cloud providers.
   variant cloud { aws, gcp, azure, hetzner, local, other }
@@ -40,6 +28,16 @@ interface shared {
     i18n-id: option<string>,
   }
 
+  /// Tenant identity and invocation metadata.
+  record tenant-ctx {
+    tenant: tenant-id,
+    team: option<team-id>,
+    user: option<user-id>,
+    deployment: deployment-ctx,
+    trace-id: option<string>,
+    i18n-id: option<string>,
+  }
+
   /// Describes a flow that can be invoked by the pack.
   record flow-info {
     id: flow-id,
@@ -52,7 +50,6 @@ interface shared {
   /// Runtime configuration when executing a flow.
   record run-opts {
     tenant: option<tenant-ctx>,
-    deployment: option<deployment-ctx>,
     timeout-ms: option<u32>,
     fuel-units: option<u64>,
   }
@@ -79,7 +76,7 @@ interface shared {
   }
 
   /// Standard error codes returned by host services.
-  // iface-error imported from greentic:interfaces-types/types@0.1.0
+  variant iface-error { invalid-arg, not-found, denied, unavailable, internal }
 }
 
 world core {

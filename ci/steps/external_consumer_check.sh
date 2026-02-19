@@ -3,11 +3,16 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CRATE_NAME="greentic-interfaces"
+ALLOW_DIRTY="${EXTERNAL_CONSUMER_ALLOW_DIRTY:-0}"
 
 cd "${ROOT}"
 
 echo "[external-consumer] packaging ${CRATE_NAME}"
-cargo package --no-verify -p "${CRATE_NAME}"
+package_args=(package --no-verify -p "${CRATE_NAME}")
+if [[ "${ALLOW_DIRTY}" == "1" ]]; then
+  package_args+=(--allow-dirty)
+fi
+cargo "${package_args[@]}"
 
 crate_tar="$(ls -1t "target/package/${CRATE_NAME}-"*.crate | head -n1)"
 if [[ -z "${crate_tar}" ]]; then

@@ -12,6 +12,7 @@ cd "${ROOT}"
 : "${LOCAL_CHECK_VERBOSE:=0}"
 : "${LOCAL_CHECK_EXAMPLES:=0}"
 : "${LOCAL_CHECK_WASM_TARGET:=wasm32-wasip2}"
+: "${LOCAL_CHECK_ALLOW_DIRTY_PACKAGE:=1}"
 WORKSPACE_EXCLUDES=(--exclude component-describe --exclude greentic-interfaces-crates-io-consumer)
 
 if [[ "${LOCAL_CHECK_VERBOSE}" == "1" ]]; then
@@ -166,6 +167,11 @@ do_test() {
     cargo_cmd test --workspace --all-features "${WORKSPACE_EXCLUDES[@]}"
 }
 
+do_external_consumer_check() {
+    EXTERNAL_CONSUMER_ALLOW_DIRTY="${LOCAL_CHECK_ALLOW_DIRTY_PACKAGE}" \
+        bash ci/steps/external_consumer_check.sh
+}
+
 do_naming_lint() {
     bash scripts/naming_lint.sh
 }
@@ -270,6 +276,7 @@ if require_tool wasm-tools; then run_step "Validate Wasmtime WIT" do_wit_validat
 if require_tool wasm-tools && require_tool git; then run_step "WIT diff guard" do_wit_diff; else skip_step "WIT diff guard" "missing wasm-tools or git"; fi
 if require_cargo; then run_step "cargo build" do_build; else skip_step "cargo build" "cargo missing"; fi
 if require_cargo; then run_step "cargo test" do_test; else skip_step "cargo test" "cargo missing"; fi
+if require_cargo; then run_step "Packaged external consumer check" do_external_consumer_check; else skip_step "Packaged external consumer check" "cargo missing"; fi
 
 if [[ "${LOCAL_CHECK_EXAMPLES}" == "1" ]]; then
     if require_cargo && ensure_rust_target "${LOCAL_CHECK_WASM_TARGET}"; then

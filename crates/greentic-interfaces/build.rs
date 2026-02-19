@@ -13,7 +13,7 @@ use wit_bindgen_rust::Opts;
 
 const CANONICAL_INTERFACES_TYPES_REF: &str = "greentic:interfaces-types@0.1.0";
 const CANONICAL_INTERFACES_TYPES_CANDIDATES: [&str; 2] =
-    ["types.wit", "greentic/interfaces-types@0.1.0/package.wit"];
+    ["greentic/interfaces-types@0.1.0/package.wit", "types.wit"];
 
 fn main() -> Result<(), Box<dyn Error>> {
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -64,16 +64,16 @@ fn resolve_wit_root(manifest_dir: &Path) -> Result<PathBuf, Box<dyn Error>> {
         .into());
     }
 
+    let local_wit = manifest_dir.join("wit");
+    if local_wit.is_dir() {
+        return Ok(local_wit);
+    }
+
     for ancestor in manifest_dir.ancestors() {
         let candidate = ancestor.join("wit");
         if candidate.join("types.wit").is_file() {
             return Ok(candidate);
         }
-    }
-
-    let local_wit = manifest_dir.join("wit");
-    if local_wit.is_dir() {
-        return Ok(local_wit);
     }
 
     Err(io::Error::new(

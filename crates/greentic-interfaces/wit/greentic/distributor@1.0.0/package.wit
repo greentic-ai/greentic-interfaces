@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
+// LEGACY COMPATIBILITY SURFACE.
+// Prefer greentic:distributor-api@1.1.0 for new integrations.
 
 package greentic:distributor-api@1.0.0;
 
 interface distributor {
   use greentic:secrets-types/types@1.0.0.{secret-requirement};
-  use greentic:interfaces-types/types@0.1.0.{tenant-id};
+
+  /// Tenant identifier (opaque string/handle).
+  type tenant-id = string;
 
   /// Distributor environment identifier (opaque handle).
   type distributor-environment-id = string;
