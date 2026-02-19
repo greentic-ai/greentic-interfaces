@@ -137,12 +137,6 @@ copy_with_deps() {
 
   mkdir -p "${dest_dir}"
   cp "${src}" "${dest_dir}/package.wit"
-  local src_dir
-  src_dir="$(dirname "${src}")"
-  if [[ "$(basename "${src}")" == "package.wit" && -d "${src_dir}/deps" ]]; then
-    cp -R "${src_dir}/deps" "${dest_dir}/"
-  fi
-
   local subdeps
   subdeps="$(parse_deps "${src}")"
   if [[ -n "${subdeps}" ]]; then
@@ -161,12 +155,6 @@ prepare_package_layout() {
   tmpdir="$(mktemp -d "${tmpbase}/wit-stage.XXXXXX")"
 
   cp "${source_file}" "${tmpdir}/package.wit"
-
-  local src_dir
-  src_dir="$(dirname "${source_file}")"
-  if [[ "$(basename "${source_file}")" == "package.wit" && -d "${src_dir}/deps" ]]; then
-    cp -R "${src_dir}/deps" "${tmpdir}/"
-  fi
 
   local deps
   deps="$(parse_deps "${source_file}")"
