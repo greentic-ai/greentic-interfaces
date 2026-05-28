@@ -309,8 +309,8 @@ else
 fi
 
 if [[ "${FAILURES}" -ne 0 ]]; then
-    echo "\nSome checks failed."
+    printf '\nSome checks failed.\n'
     exit 1
 fi
 
-echo "\nAll local checks passed."
+printf '\nAll local checks passed.\n'
