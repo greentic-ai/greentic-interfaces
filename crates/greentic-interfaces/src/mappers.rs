@@ -794,4 +794,214 @@ mod tests {
             _ => panic!("expected pending"),
         }
     }
+
+    #[test]
+    fn outcome_error_codes_roundtrip_all_variants() {
+        let codes = [
+            types::ErrorCode::Unknown,
+            types::ErrorCode::InvalidInput,
+            types::ErrorCode::NotFound,
+            types::ErrorCode::Conflict,
+            types::ErrorCode::Timeout,
+            types::ErrorCode::Unauthenticated,
+            types::ErrorCode::PermissionDenied,
+            types::ErrorCode::RateLimited,
+            types::ErrorCode::Unavailable,
+            types::ErrorCode::Internal,
+        ];
+
+        for code in codes {
+            let wit_code = WitErrorCode::from(code);
+            let round = types::ErrorCode::from(wit_code);
+            assert_eq!(round, code);
+        }
+
+        let done: WitOutcome = types::Outcome::Done("ok".to_string()).into();
+        assert!(
+            matches!(types::Outcome::<String>::from(done), types::Outcome::Done(value) if value == "ok")
+        );
+
+        let error: WitOutcome = types::Outcome::Error {
+            code: types::ErrorCode::PermissionDenied,
+            message: "denied".into(),
+        }
+        .into();
+        assert!(matches!(
+            types::Outcome::<String>::from(error),
+            types::Outcome::Error {
+                code: types::ErrorCode::PermissionDenied,
+                message
+            } if message == "denied"
+        ));
+    }
+
+    #[test]
+    fn connectivity_policy_roundtrips_all_protocol_variants() {
+        let protocols = vec![
+            types::Protocol::Http,
+            types::Protocol::Https,
+            types::Protocol::Tcp,
+            types::Protocol::Udp,
+            types::Protocol::Grpc,
+            types::Protocol::Custom("mqtt".into()),
+        ];
+        let policy = types::NetworkPolicy {
+            egress: types::AllowList {
+                domains: vec!["example.com".into()],
+                ports: vec![443, 8443],
+                protocols: protocols.clone(),
+            },
+            deny_on_miss: true,
+        };
+
+        let wit = WitNetworkPolicy::from(policy.clone());
+        let round = types::NetworkPolicy::from(wit);
+        assert_eq!(round.deny_on_miss, policy.deny_on_miss);
+        assert_eq!(round.egress.domains, policy.egress.domains);
+        assert_eq!(round.egress.ports, policy.egress.ports);
+        assert_eq!(round.egress.protocols, protocols);
+    }
+
+    #[test]
+    fn span_context_rejects_unrepresentable_timestamps() {
+        let wit = WitSpanContext {
+            tenant: "tenant".into(),
+            session_id: None,
+            flow_id: "flow".into(),
+            node_id: None,
+            provider: "provider".into(),
+            start_ms: Some(i64::MAX),
+            end_ms: None,
+        };
+
+        let err = match types::SpanContext::try_from(wit) {
+            Ok(_) => panic!("timestamp should be invalid"),
+            Err(err) => err,
+        };
+        assert!(
+            err.to_string().contains("timestamp"),
+            "unexpected error: {err}"
+        );
+    }
+
+    #[test]
+    fn pack_ref_rejects_invalid_version() {
+        let wit = WitPackRef {
+            oci_url: "registry.example.com/pack".into(),
+            version: "not-semver".into(),
+            digest: "sha256:deadbeef".into(),
+            signatures: Vec::new(),
+        };
+
+        let err = match types::PackRef::try_from(wit) {
+            Ok(_) => panic!("invalid version should fail"),
+            Err(err) => err,
+        };
+        assert!(
+            err.to_string().contains("invalid version"),
+            "unexpected error: {err}"
+        );
+    }
+
+    #[test]
+    fn common_tenant_ctx_preserves_subset_and_defaults_missing_fields() {
+        let wit = WitCommonTenantCtx {
+            env: "prod".into(),
+            tenant_id: "tenant-1".into(),
+            team_id: Some("team-1".into()),
+            user_id: Some("user-1".into()),
+            i18n_id: Some("nl-NL".into()),
+            session_id: Some("session".into()),
+            flow_id: Some("flow".into()),
+            node_id: Some("node".into()),
+        };
+
+        let ctx = match tenant_ctx_from_common(wit) {
+            Ok(ctx) => ctx,
+            Err(err) => panic!("common tenant ctx rejected: {err}"),
+        };
+        assert_eq!(ctx.env.as_str(), "prod");
+        assert_eq!(ctx.tenant.as_str(), "tenant-1");
+        assert_eq!(ctx.team.as_ref().map(|id| id.as_str()), Some("team-1"));
+        assert_eq!(ctx.user.as_ref().map(|id| id.as_str()), Some("user-1"));
+        assert_eq!(ctx.attempt, 0);
+        assert!(ctx.attributes.is_empty());
+        assert!(ctx.impersonation.is_none());
+
+        let round = match tenant_ctx_to_common(ctx) {
+            Ok(ctx) => ctx,
+            Err(err) => panic!("common tenant ctx conversion failed: {err}"),
+        };
+        assert_eq!(round.tenant_id, "tenant-1");
+        assert_eq!(round.team_id.as_deref(), Some("team-1"));
+        assert_eq!(round.user_id.as_deref(), Some("user-1"));
+        assert_eq!(round.session_id.as_deref(), Some("session"));
+    }
+
+    #[test]
+    fn component_outcome_maps_status_and_payload_fields() {
+        for (status, wit_status) in [
+            (ComponentOutcomeStatus::Done, WitOutcomeStatus::Done),
+            (ComponentOutcomeStatus::Pending, WitOutcomeStatus::Pending),
+            (ComponentOutcomeStatus::Error, WitOutcomeStatus::Error),
+        ] {
+            let outcome = ComponentOutcome {
+                status: status.clone(),
+                code: Some("code".into()),
+                payload: "{\"ok\":true}".into(),
+                metadata: Some("{\"trace\":\"1\"}".into()),
+            };
+            let wit = component_outcome_to_wit(outcome.clone());
+            assert_eq!(wit.status, wit_status);
+            let round = component_outcome_from_wit(wit);
+            assert_eq!(round, outcome);
+        }
+    }
+
+    #[test]
+    fn pack_and_flow_descriptors_roundtrip_all_kind_variants() {
+        for kind in [
+            types::PackKind::Application,
+            types::PackKind::Provider,
+            types::PackKind::Infrastructure,
+            types::PackKind::Library,
+        ] {
+            let desc = PackDescriptor {
+                pack_id: fixture_id("pack"),
+                version: match Version::parse("1.2.3") {
+                    Ok(version) => version,
+                    Err(err) => panic!("valid version rejected: {err}"),
+                },
+                kind,
+                publisher: "greentic".into(),
+            };
+            let wit = pack_descriptor_to_wit(desc.clone());
+            let round = match pack_descriptor_from_wit(wit) {
+                Ok(desc) => desc,
+                Err(err) => panic!("pack descriptor rejected: {err}"),
+            };
+            assert_eq!(round, desc);
+        }
+
+        for kind in [
+            types::FlowKind::Messaging,
+            types::FlowKind::Event,
+            types::FlowKind::ComponentConfig,
+            types::FlowKind::Job,
+            types::FlowKind::Http,
+        ] {
+            let desc = FlowDescriptor {
+                id: fixture_id("flow"),
+                kind,
+                tags: vec!["tag".into()],
+                entrypoints: vec!["main".into()],
+            };
+            let wit = flow_descriptor_to_wit(desc.clone());
+            let round = match flow_descriptor_from_wit(wit) {
+                Ok(desc) => desc,
+                Err(err) => panic!("flow descriptor rejected: {err}"),
+            };
+            assert_eq!(round, desc);
+        }
+    }
 }

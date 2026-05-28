@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "global": {
+    "line_coverage_min": 60.0
+  },
+  "defaults": {
+    "per_file_line_coverage_min": 60.0
+  },
+  "exclusions": {
+    "files": [
+      "crates/greentic-interfaces/src/bindings.rs",
+      "crates/greentic-interfaces/src/wit_all.rs",
+      "crates/greentic-interfaces-guest/src/bindings.rs",
+      "crates/greentic-interfaces-guest/src/distributor_api_imports.rs",
+      "crates/greentic-interfaces-guest/src/distributor_api_imports_v1_1.rs",
+      "crates/greentic-interfaces/build.rs",
+      "crates/greentic-interfaces-guest/build.rs",
+      "crates/greentic-interfaces-wasmtime/build.rs",
+      "crates/greentic-interfaces-wasmtime/src/host_helpers/v1/http_client.rs",
+      "crates/greentic-interfaces-wasmtime/src/host_helpers/v1/oauth_broker.rs",
+      "crates/greentic-interfaces-wasmtime/src/host_helpers/v1/runner_host_kv.rs",
+      "crates/greentic-interfaces-wasmtime/src/host_helpers/v1/secrets_store.rs",
+      "crates/greentic-interfaces-wasmtime/src/host_helpers/v1/state_store.rs",
+      "examples/crates-io-consumer/src/main.rs",
+      "examples/runner-host-smoke/src/main.rs",
+      "guest-tests/repo-ui-actions-dummy/src/lib.rs"
+    ]
+  },
+  "per_file": {
+    "crates/greentic-interfaces/src/mappers.rs": {
+      "line_coverage_min": 80.0
+    },
+    "crates/greentic-interfaces/src/validate.rs": {
+      "line_coverage_min": 85.0
+    },
+    "crates/greentic-interfaces/src/abi/mod.rs": {
+      "line_coverage_min": 75.0
+    },
+    "crates/greentic-interfaces-guest/src/host_bridge.rs": {
+      "line_coverage_min": 75.0
+    }
+  }
+}
