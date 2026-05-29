@@ -246,6 +246,17 @@ declare_world!(
     }
 );
 
+#[cfg(feature = "provider-instance-identity-v1")]
+declare_world!(
+    mod provider_instance_identity_v1,
+    path = "bundled-wit/greentic-provider-instance-identity-0.1.0",
+    world = "greentic:provider-instance-identity/instance-identity@0.1.0",
+    legacy = {
+        /// Canonical package identifier.
+        pub const PACKAGE_ID: &str = "greentic:provider-instance-identity@0.1.0";
+    }
+);
+
 #[cfg(feature = "provider-common")]
 declare_world!(
     mod provider_common,
