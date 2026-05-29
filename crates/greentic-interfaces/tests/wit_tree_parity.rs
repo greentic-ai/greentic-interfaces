@@ -95,9 +95,9 @@ fn wit_trees_carry_the_same_package_set() {
     );
     let canonical_pkgs: Vec<&String> = canonical.keys().collect();
 
+    // Trees to verify against the canonical set — canonical itself is the
+    // reference, so don't list it (would trivially compare to itself).
     let mut all_trees: Vec<(String, BTreeMap<String, PathBuf>)> = Vec::new();
-    all_trees.push(("workspace wit/".to_string(), canonical.clone()));
-
     for relative in &WORKSPACE_RELATIVE_TREES[1..] {
         let root = crate_dir().join(relative);
         all_trees.push((relative.to_string(), collect_packages(&root)));

@@ -10,15 +10,6 @@ use greentic_interfaces_host::provider_instance_identity_v1::{
 
 #[test]
 fn instance_identity_host_reexport_compiles() {
-    let pre_name = std::any::type_name::<InstanceIdentityPre<()>>();
-    assert!(
-        pre_name.contains("InstanceIdentityPre"),
-        "InstanceIdentityPre re-export missing: {pre_name}"
-    );
-
-    let world_name = std::any::type_name::<InstanceIdentity>();
-    assert!(
-        world_name.contains("InstanceIdentity"),
-        "InstanceIdentity re-export missing: {world_name}"
-    );
+    let _ = core::mem::size_of::<InstanceIdentityPre<()>>();
+    let _ = core::mem::size_of::<InstanceIdentity>();
 }
