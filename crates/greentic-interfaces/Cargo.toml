@@ -55,6 +55,7 @@ default = [
     "worker-api",
     "gui-fragment",
     "provider-core-v1",
+    "provider-instance-identity-v1",
     "operator-hooks-v1",
     "provider-common",
     "oauth-broker-v1",
@@ -98,6 +99,7 @@ worker-api = []
 gui-fragment = []
 provider-common = []
 provider-core-v1 = []
+provider-instance-identity-v1 = []
 operator-hooks-v1 = []
 wit-all = [
     "bindings-rust",
@@ -136,6 +138,7 @@ wit-all = [
     "operator-hooks-v1",
     "provider-common",
     "provider-core-v1",
+    "provider-instance-identity-v1",
     "oauth-broker-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]

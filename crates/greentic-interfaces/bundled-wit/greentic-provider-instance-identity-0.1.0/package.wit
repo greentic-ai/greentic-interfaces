@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: MIT
+
+package greentic:provider-instance-identity@0.1.0;
+
+/// Phase M1.4: per-endpoint instance discrimination.
+///
+/// Sibling contract to `greentic:provider-schema-core`. Provider components
+/// export this in addition to `schema-core` when they host multiple
+/// instances of the same `provider_type` on one runtime — e.g.
+/// `teams-legal-bot` and `teams-accounting-bot` are both `provider_type =
+/// "teams"` but are distinct identities discriminated by bot id.
+///
+/// The contract is opt-in. Providers that own a single instance per
+/// environment (or whose inbound payloads carry no information that lets
+/// them tell instances apart) SHOULD NOT export this world; the host
+/// treats absence as "single-instance fallback" and uses the operator's
+/// statically-declared `provider_id` without inspecting the payload.
+///
+/// Implementations MAY identify the instance from EITHER the inbound
+/// payload (e.g. Slack `team_id`, Teams `bot_id`, Telegram bot-token
+/// hash) OR pre-shared configuration values that were validated at boot.
+/// Returning `none` means "this payload does not belong to any known
+/// instance of this provider type" — the host fails the request closed
+/// (401/404), it does not fall back to the default instance.
+interface instance-identity-api {
+  /// Inspect `input-json` (the inbound provider payload, JSON-encoded
+  /// using the same shape passed to `schema-core-api.invoke`) and return
+  /// the matching `provider_id` if any. The returned id MUST match the
+  /// `provider_id` declared on a `MessagingEndpoint` registration in the
+  /// operator's environment for the host to admit the request.
+  identify-instance: func(input-json: list<u8>) -> option<string>;
+}
+
+world instance-identity {
+  export instance-identity-api;
+}
