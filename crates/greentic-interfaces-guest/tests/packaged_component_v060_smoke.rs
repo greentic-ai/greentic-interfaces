@@ -24,7 +24,10 @@ fn packaged_guest_crate_builds_as_a_standalone_component_consumer() {
         return;
     }
 
-    let workspace_root = workspace_root().expect("workspace root");
+    let workspace_root = match workspace_root() {
+        Some(root) => root,
+        None => panic!("workspace root unavailable"),
+    };
     let package_dir = workspace_root.join("target/package");
     let temp_root = temp_root("packaged-guest");
     let unpack_root = temp_root.join("pkg");
@@ -32,19 +35,34 @@ fn packaged_guest_crate_builds_as_a_standalone_component_consumer() {
     let consumer_src = consumer_root.join("src");
     let target_dir = temp_root.join("target");
 
-    fs::create_dir_all(&unpack_root).expect("create unpack root");
-    fs::create_dir_all(&consumer_src).expect("create consumer src");
+    if let Err(err) = fs::create_dir_all(&unpack_root) {
+        panic!("create unpack root: {err}");
+    }
+    if let Err(err) = fs::create_dir_all(&consumer_src) {
+        panic!("create consumer src: {err}");
+    }
 
-    run(Command::new("cargo").current_dir(&workspace_root).args([
-        "package",
-        "--allow-dirty",
-        "--no-verify",
-        "-p",
-        "greentic-interfaces-guest",
-    ]));
+    let package_output =
+        command_output_allowing_failure(cargo_command().current_dir(&workspace_root).args([
+            "package",
+            "--allow-dirty",
+            "--no-verify",
+            "-p",
+            "greentic-interfaces-guest",
+        ]));
+    if !package_output.status.success() {
+        let stderr = String::from_utf8_lossy(&package_output.stderr);
+        if is_crates_io_index_unavailable(&stderr) {
+            eprintln!("skipping packaged guest smoke test: crates.io index unavailable");
+            return;
+        }
+        panic!("command failed with status {}", package_output.status);
+    }
 
-    let crate_file = latest_packaged_crate(&package_dir, "greentic-interfaces-guest")
-        .expect("packaged guest crate");
+    let crate_file = match latest_packaged_crate(&package_dir, "greentic-interfaces-guest") {
+        Some(path) => path,
+        None => panic!("packaged guest crate missing"),
+    };
     let listing = command_output(Command::new("tar").arg("-tf").arg(&crate_file));
     assert!(
         listing.contains("/wit/"),
@@ -87,10 +105,12 @@ greentic-interfaces-guest = {{ path = "{}" , default-features = false, features 
             unpacked_guest.display()
         ),
     )
-    .expect("write consumer manifest");
-    fs::write(consumer_src.join("lib.rs"), consumer_source()).expect("write consumer source");
+    .unwrap_or_else(|err| panic!("write consumer manifest: {err}"));
+    if let Err(err) = fs::write(consumer_src.join("lib.rs"), consumer_source()) {
+        panic!("write consumer source: {err}");
+    }
 
-    run(Command::new("cargo")
+    run(cargo_command()
         .current_dir(&consumer_root)
         .env("CARGO_TARGET_DIR", &target_dir)
         .args([
@@ -101,8 +121,14 @@ greentic-interfaces-guest = {{ path = "{}" , default-features = false, features 
             "--release",
         ]));
 
-    let wasm_path = built_component_path(&target_dir).expect("built wasm artifact");
-    let wasm = fs::read(&wasm_path).expect("read wasm artifact");
+    let wasm_path = match built_component_path(&target_dir) {
+        Some(path) => path,
+        None => panic!("built wasm artifact missing"),
+    };
+    let wasm = match fs::read(&wasm_path) {
+        Ok(wasm) => wasm,
+        Err(err) => panic!("read wasm artifact: {err}"),
+    };
     assert!(
         contains_bytes(&wasm, b"greentic:component/node@0.6.0"),
         "expected canonical node export identity in {}",
@@ -237,18 +263,55 @@ greentic_interfaces_guest::export_component_v060!(
 }
 
 fn run(command: &mut Command) {
-    let status = command.status().expect("run command");
+    let status = match command.status() {
+        Ok(status) => status,
+        Err(err) => panic!("run command: {err}"),
+    };
     assert!(status.success(), "command failed with status {status}");
 }
 
+fn cargo_command() -> Command {
+    let mut command = Command::new("cargo");
+    // cargo-llvm-cov instruments the outer test process. Propagating those
+    // flags into nested wasm component builds can require profiler runtimes
+    // that are not available for wasm targets.
+    for key in [
+        "CARGO_BUILD_RUSTFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "CARGO_TARGET_WASM32_WASIP1_RUSTFLAGS",
+        "CARGO_TARGET_WASM32_WASIP2_RUSTFLAGS",
+        "RUSTFLAGS",
+        "LLVM_PROFILE_FILE",
+    ] {
+        command.env(key, "");
+    }
+    command
+}
+
 fn command_output(command: &mut Command) -> String {
-    let output = command.output().expect("run command");
+    let output = command_output_allowing_failure(command);
     assert!(
         output.status.success(),
         "command failed with status {}",
         output.status
     );
-    String::from_utf8(output.stdout).expect("utf8 stdout")
+    match String::from_utf8(output.stdout) {
+        Ok(stdout) => stdout,
+        Err(err) => panic!("utf8 stdout: {err}"),
+    }
+}
+
+fn command_output_allowing_failure(command: &mut Command) -> std::process::Output {
+    match command.output() {
+        Ok(output) => output,
+        Err(err) => panic!("run command: {err}"),
+    }
+}
+
+fn is_crates_io_index_unavailable(stderr: &str) -> bool {
+    stderr.contains("Could not resolve host: index.crates.io")
+        || stderr.contains("failed to download from `https://index.crates.io/config.json`")
+        || stderr.contains("download of config.json failed")
 }
 
 fn latest_packaged_crate(package_dir: &Path, name: &str) -> Option<PathBuf> {
@@ -321,10 +384,10 @@ fn workspace_root() -> Option<PathBuf> {
 }
 
 fn temp_root(label: &str) -> PathBuf {
-    let unique = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .expect("time went backwards")
-        .as_nanos();
+    let unique = match SystemTime::now().duration_since(UNIX_EPOCH) {
+        Ok(duration) => duration.as_nanos(),
+        Err(err) => panic!("time went backwards: {err}"),
+    };
     std::env::temp_dir().join(format!("gi-guest-{label}-{unique}"))
 }
 
