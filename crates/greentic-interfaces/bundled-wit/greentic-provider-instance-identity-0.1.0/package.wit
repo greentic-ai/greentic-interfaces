@@ -19,9 +19,22 @@ package greentic:provider-instance-identity@0.1.0;
 /// Implementations MAY identify the instance from EITHER the inbound
 /// payload (e.g. Slack `team_id`, Teams `bot_id`, Telegram bot-token
 /// hash) OR pre-shared configuration values that were validated at boot.
-/// Returning `none` means "this payload does not belong to any known
-/// instance of this provider type" — the host fails the request closed
-/// (401/404), it does not fall back to the default instance.
+///
+/// Returning `none` means "this payload does not match a known instance
+/// of this provider type". The host fold (see
+/// `RunnerHost::identify_messaging_endpoints_for_revision`) decides
+/// admission against the env's `(provider_type, provider_id) -> endpoint_id`
+/// admit table:
+///
+/// - Env declares exactly ONE endpoint of this `provider_type` AND the
+///   probe returns `none`: host falls through to the single-instance
+///   fallback (admission proceeds against the operator's statically-
+///   declared `provider_id`). Backward-compatible with single-instance
+///   setups that have not yet provisioned a per-instance discriminator.
+/// - Env declares two or more endpoints AND no probed component returns
+///   `some(provider-id)` for any of them: resolver poisons to Ambiguous
+///   and greentic-start rejects the request 422 (fail-closed; without a
+///   discriminator we cannot route between siblings).
 interface instance-identity-api {
   /// Inspect `input-json` and return the matching `provider_id` if any.
   /// The returned id MUST match the `provider_id` declared on a
@@ -42,17 +55,18 @@ interface instance-identity-api {
   /// }
   /// ```
   ///
-  /// The host whitelists routing-relevant headers (currently `x-*`,
-  /// excluding `Authorization` / `Cookie`) so that providers whose
-  /// discriminator does not live in the body (notably Telegram, whose
-  /// payload does not carry the bot's identity) can identify the instance
-  /// from the request headers. Bodies that don't parse as JSON are passed
-  /// through as `body: null`.
+  /// The host whitelists routing-relevant headers (an explicit
+  /// per-header allowlist — currently `x-telegram-bot-api-secret-token`
+  /// only) so that providers whose discriminator does not live in the
+  /// body (notably Telegram, whose payload does not carry the bot's
+  /// identity) can identify the instance from the request headers.
+  /// Bodies that don't parse as JSON are passed through as `body: null`.
   ///
-  /// Implementations SHOULD accept both the wrapper shape AND a bare
+  /// Implementations MUST accept BOTH the wrapper shape AND a bare
   /// inbound body at the top level — older hosts and direct test
-  /// harnesses still pass raw bodies. The conventional implementation
-  /// pattern is:
+  /// harnesses still pass raw bodies, and shipping a wrapper-only
+  /// implementation would break backward compatibility with deployed
+  /// hosts. The conventional implementation pattern is:
   /// 1. Try to extract the discriminator from the JSON at the top level.
   /// 2. If absent, fall back to extracting from `value["body"]` (the
   ///    wrapped body) and `value["headers"]` (the wrapped header list).
