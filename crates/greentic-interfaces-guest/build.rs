@@ -480,6 +480,11 @@ const WORLD_FEATURES: &[WorldFeature] = &[
         feature: "provider-instance-identity-v1",
     },
     WorldFeature {
+        package: "greentic:provider-instance-identity@0.1.0",
+        world: "instance-identity-describe",
+        feature: "provider-instance-identity-describe-v1",
+    },
+    WorldFeature {
         package: "greentic:operator@1.0.0",
         world: "hook-provider",
         feature: "operator-hooks-v1",
