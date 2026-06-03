@@ -30,6 +30,7 @@ worker = []
 repo = []
 provider-core-v1 = []
 provider-instance-identity-v1 = []
+provider-instance-identity-describe-v1 = []
 operator-hooks-v1 = []
 scan = []
 signing = []
@@ -70,6 +71,7 @@ guest = [
     "repo",
     "provider-core-v1",
     "provider-instance-identity-v1",
+    "provider-instance-identity-describe-v1",
     "operator-hooks-v1",
     "scan",
     "signing",

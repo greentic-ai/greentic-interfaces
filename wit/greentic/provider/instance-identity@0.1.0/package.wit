@@ -78,6 +78,36 @@ interface instance-identity-api {
   identify-instance: func(input-json: list<u8>) -> option<string>;
 }
 
+/// Phase D: optional metadata describing how a component identifies instances.
+///
+/// Separated into its own interface so that existing components that export
+/// only `instance-identity-api` continue to instantiate without change.
+/// Components that additionally export this interface let the host scope
+/// per-provider header allowlists and potentially short-circuit simple
+/// extraction without invoking the full `identify-instance` function.
+///
+/// Returns JSON-encoded `IdentifyInstanceHint`:
+/// ```json
+/// {
+///   "sources": [
+///     { "header": { "name": "x-telegram-bot-api-secret-token" } },
+///     { "body_path": { "json_pointer": "/recipient/id" } }
+///   ]
+/// }
+/// ```
+/// First match wins. Components that do not export this interface are
+/// treated as unhinted — the host falls back to invoking
+/// `identify-instance` with all allowlisted inputs.
+interface instance-identity-describe-api {
+  /// Return an optional JSON-encoded hint describing how this component
+  /// extracts the instance discriminator from inbound requests.
+  describe-identify-instance: func() -> option<list<u8>>;
+}
+
 world instance-identity {
   export instance-identity-api;
+}
+
+world instance-identity-describe {
+  export instance-identity-describe-api;
 }

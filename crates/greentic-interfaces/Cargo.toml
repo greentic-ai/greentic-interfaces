@@ -56,6 +56,7 @@ default = [
     "gui-fragment",
     "provider-core-v1",
     "provider-instance-identity-v1",
+    "provider-instance-identity-describe-v1",
     "operator-hooks-v1",
     "provider-common",
     "oauth-broker-v1",
@@ -100,6 +101,7 @@ gui-fragment = []
 provider-common = []
 provider-core-v1 = []
 provider-instance-identity-v1 = []
+provider-instance-identity-describe-v1 = []
 operator-hooks-v1 = []
 wit-all = [
     "bindings-rust",
@@ -139,6 +141,7 @@ wit-all = [
     "provider-common",
     "provider-core-v1",
     "provider-instance-identity-v1",
+    "provider-instance-identity-describe-v1",
     "oauth-broker-v1",
 ]
 schema = ["dep:schemars", "greentic-types/schemars"]
