@@ -6,12 +6,9 @@ package greentic:runtime-config@1.0.0;
 ///
 /// Components import this interface to read `pack-config.v1.non_secret`
 /// values resolved at deploy time. Sensitive material stays on
-/// `greentic:secrets-store`.
-///
-/// Future expansion (C5: `runtime_refs` resolution via `runtime://` refs)
-/// will bump this package to `@1.1.0` and add a `get-runtime-ref` func,
-/// mirroring the `secrets-store@1.0.0` → `@1.1.0` upgrade pattern.
-/// Hosts SHOULD register both via a single compat helper.
+/// `greentic:secrets-store`. C5's `runtime_refs` (`runtime://`) resolution
+/// will land via a `@1.1.0` compat upgrade, mirroring the
+/// `secrets-store@1.0.0` → `@1.1.0` path.
 interface runtime-config {
   /// Canonical error payload for non-secret config lookups.
   enum config-error {
@@ -25,11 +22,8 @@ interface runtime-config {
     internal,
   }
 
-  /// Reads a non-secret config value; returns `none` when the key is missing.
-  ///
-  /// Returns the value as a UTF-8 string. Values are conventionally
-  /// JSON-encoded (mirroring `PackConfig.non_secret: serde_json::Value`);
-  /// components are responsible for parsing the inner payload.
+  /// Reads a non-secret config value by key. Returns the value as a UTF-8
+  /// string, conventionally JSON-encoded (mirrors `PackConfig.non_secret`).
   get: func(key: string) -> result<option<string>, config-error>;
 }
 

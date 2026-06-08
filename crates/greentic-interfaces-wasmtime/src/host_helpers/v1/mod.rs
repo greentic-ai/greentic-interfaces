@@ -29,15 +29,10 @@ pub struct HostFns<T> {
     /// Prefer providing this to expose both `secrets-store@1.1.0` and the legacy `@1.0.0` import.
     pub secrets_store_v1_1: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHostV1_1>,
     pub secrets_store: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHost>,
-    /// Non-secret runtime config channel (`pack-config.v1.non_secret`).
-    ///
-    /// MUST be wired for any host that loads components importing
-    /// `greentic:runtime-config@1.0.0`. Wasmtime validates the entire
-    /// import graph eagerly at `instantiate_pre` — a component importing
-    /// this world will FAIL TO INSTANTIATE if the slot is `None`, not
-    /// produce a runtime `not-found`. The fallback compat shim (e.g.
-    /// reading secrets-store on a miss) is a host-impl concern, not part
-    /// of this ABI.
+    /// `pack-config.v1.non_secret` channel. MUST be wired for any host that
+    /// loads components importing `greentic:runtime-config@1.0.0` — Wasmtime
+    /// validates the import graph eagerly at `instantiate_pre`, so `None`
+    /// fails instantiation rather than returning a runtime `not-found`.
     pub runtime_config: Option<fn(&mut T) -> &mut dyn runtime_config::RuntimeConfigHost>,
 }
 

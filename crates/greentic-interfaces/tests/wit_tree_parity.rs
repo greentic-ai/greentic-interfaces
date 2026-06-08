@@ -138,30 +138,27 @@ fn all_wit_mirror_trees_are_byte_identical() {
     // (e.g. component@0.6.0 omits qa/i18n worlds). Its package-set coverage is
     // verified by `wit_trees_carry_the_same_package_set`; byte-identity only
     // applies to the three true mirror trees.
-    let workspace = crate_dir().join("../../wit");
-    let workspace = workspace.canonicalize().expect("workspace wit/");
-    let workspace_pkgs = collect_packages(&workspace);
-
-    let mirrors: Vec<(String, BTreeMap<String, PathBuf>)> = vec![
+    const MIRROR_TREES: &[(&str, &str)] = &[
+        ("crate-local (wit/)", "wit"),
         (
-            "crate-local (wit/)".to_string(),
-            collect_packages(
-                &crate_dir()
-                    .join("wit")
-                    .canonicalize()
-                    .expect("crate-local wit/"),
-            ),
-        ),
-        (
-            "guest (interfaces-guest/wit/)".to_string(),
-            collect_packages(
-                &crate_dir()
-                    .join("../greentic-interfaces-guest/wit")
-                    .canonicalize()
-                    .expect("guest wit/"),
-            ),
+            "guest (interfaces-guest/wit/)",
+            "../greentic-interfaces-guest/wit",
         ),
     ];
+
+    let workspace = crate_dir()
+        .join("../../wit")
+        .canonicalize()
+        .expect("workspace wit/");
+    let workspace_pkgs = collect_packages(&workspace);
+
+    let mirrors: Vec<(&str, BTreeMap<String, PathBuf>)> = MIRROR_TREES
+        .iter()
+        .map(|(label, rel)| {
+            let root = crate_dir().join(rel).canonicalize().expect(label);
+            (*label, collect_packages(&root))
+        })
+        .collect();
 
     let mut drift = Vec::new();
     for (pkg, ws_path) in &workspace_pkgs {
