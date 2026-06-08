@@ -1,7 +1,7 @@
 use anyhow::Result;
 use greentic_interfaces_wasmtime::host_helpers::v1::{
-    HostFns, http_client, oauth_broker, runner_host_http, runner_host_kv, secrets_store,
-    state_store, telemetry_logger,
+    HostFns, http_client, oauth_broker, runner_host_http, runner_host_kv, runtime_config,
+    secrets_store, state_store, telemetry_logger,
 };
 use wasmtime::component::Linker;
 use wasmtime::{Config, Engine};
@@ -184,6 +184,19 @@ impl secrets_store::SecretsStoreHostV1_1 for DummySecrets {
     }
 }
 
+struct DummyRuntimeConfig;
+impl runtime_config::RuntimeConfigHost for DummyRuntimeConfig {
+    fn get(
+        &mut self,
+        _key: wasmtime::component::__internal::String,
+    ) -> std::result::Result<
+        Option<wasmtime::component::__internal::Vec<u8>>,
+        runtime_config::ConfigError,
+    > {
+        Ok(None)
+    }
+}
+
 struct HostState {
     http: DummyHttpClient,
     oauth: DummyOAuthBroker,
@@ -192,6 +205,7 @@ struct HostState {
     telemetry: DummyTelemetry,
     state: DummyStateStore,
     secrets: DummySecrets,
+    runtime_config: DummyRuntimeConfig,
 }
 
 #[test]
@@ -249,6 +263,7 @@ fn host_helpers_compile() -> Result<()> {
         state_store: Some(|state: &mut HostState| &mut state.state),
         secrets_store_v1_1: Some(|state: &mut HostState| &mut state.secrets),
         secrets_store: Some(|state: &mut HostState| &mut state.secrets),
+        runtime_config: Some(|state: &mut HostState| &mut state.runtime_config),
     };
 
     wt(greentic_interfaces_wasmtime::host_helpers::v1::add_all_v1_to_linker(&mut linker_all, fns))?;

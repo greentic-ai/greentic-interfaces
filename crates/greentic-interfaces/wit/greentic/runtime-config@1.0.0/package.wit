@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: MIT
+
+package greentic:runtime-config@1.0.0;
+
+/// Read-only non-secret runtime config exposed by Greentic hosts.
+///
+/// Components import this interface to read `pack-config.v1.non_secret`
+/// values resolved at deploy time. Sensitive material stays on
+/// `greentic:secrets-store`. The host MAY fall back to the secrets store
+/// on a miss in the non-secret channel and log a deprecation warning
+/// (C4 plan compat shim).
+interface runtime-config {
+  /// Canonical error payload for non-secret config lookups.
+  enum config-error {
+    /// Key was not found in either the non-secret or secrets fallback.
+    not-found,
+    /// Access to the key was denied by host policy.
+    denied,
+    /// The provided key was invalid or malformed.
+    invalid-key,
+    /// An internal host error occurred.
+    internal,
+  }
+
+  /// Reads a non-secret config value; returns `none` when the key is missing.
+  ///
+  /// If the key resolves only via the host's secrets store, the host
+  /// returns the value and logs a deprecation warning (C4 compat shim).
+  get: func(key: string) -> result<option<list<u8>>, config-error>;
+}
+
+world reader {
+  import runtime-config;
+}
