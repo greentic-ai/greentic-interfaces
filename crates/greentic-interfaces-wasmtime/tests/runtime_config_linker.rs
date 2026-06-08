@@ -13,7 +13,7 @@ impl RuntimeConfigHost for DummyRuntimeConfig {
     fn get(
         &mut self,
         _key: wasmtime::component::__internal::String,
-    ) -> std::result::Result<Option<wasmtime::component::__internal::Vec<u8>>, ConfigError> {
+    ) -> std::result::Result<Option<wasmtime::component::__internal::String>, ConfigError> {
         Ok(None)
     }
 }

@@ -6,13 +6,16 @@ package greentic:runtime-config@1.0.0;
 ///
 /// Components import this interface to read `pack-config.v1.non_secret`
 /// values resolved at deploy time. Sensitive material stays on
-/// `greentic:secrets-store`. The host MAY fall back to the secrets store
-/// on a miss in the non-secret channel and log a deprecation warning
-/// (C4 plan compat shim).
+/// `greentic:secrets-store`.
+///
+/// Future expansion (C5: `runtime_refs` resolution via `runtime://` refs)
+/// will bump this package to `@1.1.0` and add a `get-runtime-ref` func,
+/// mirroring the `secrets-store@1.0.0` → `@1.1.0` upgrade pattern.
+/// Hosts SHOULD register both via a single compat helper.
 interface runtime-config {
   /// Canonical error payload for non-secret config lookups.
   enum config-error {
-    /// Key was not found in either the non-secret or secrets fallback.
+    /// Key was not found.
     not-found,
     /// Access to the key was denied by host policy.
     denied,
@@ -24,9 +27,10 @@ interface runtime-config {
 
   /// Reads a non-secret config value; returns `none` when the key is missing.
   ///
-  /// If the key resolves only via the host's secrets store, the host
-  /// returns the value and logs a deprecation warning (C4 compat shim).
-  get: func(key: string) -> result<option<list<u8>>, config-error>;
+  /// Returns the value as a UTF-8 string. Values are conventionally
+  /// JSON-encoded (mirroring `PackConfig.non_secret: serde_json::Value`);
+  /// components are responsible for parsing the inner payload.
+  get: func(key: string) -> result<option<string>, config-error>;
 }
 
 world reader {

@@ -30,8 +30,14 @@ pub struct HostFns<T> {
     pub secrets_store_v1_1: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHostV1_1>,
     pub secrets_store: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHost>,
     /// Non-secret runtime config channel (`pack-config.v1.non_secret`).
-    /// The host impl is expected to fall back to the secrets store on a miss
-    /// and log a deprecation warning (C4 plan compat shim).
+    ///
+    /// MUST be wired for any host that loads components importing
+    /// `greentic:runtime-config@1.0.0`. Wasmtime validates the entire
+    /// import graph eagerly at `instantiate_pre` — a component importing
+    /// this world will FAIL TO INSTANTIATE if the slot is `None`, not
+    /// produce a runtime `not-found`. The fallback compat shim (e.g.
+    /// reading secrets-store on a miss) is a host-impl concern, not part
+    /// of this ABI.
     pub runtime_config: Option<fn(&mut T) -> &mut dyn runtime_config::RuntimeConfigHost>,
 }
 

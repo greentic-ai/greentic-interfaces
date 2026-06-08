@@ -128,46 +128,73 @@ fn wit_trees_carry_the_same_package_set() {
 }
 
 #[test]
-fn workspace_and_crate_local_wit_trees_are_byte_identical() {
-    // `wit_root()` in src/lib.rs falls back to `manifest_dir.join("wit")`
-    // when `../../wit` is unavailable (the crates.io install case).
-    // The two trees MUST stay byte-identical so a workspace dev build and
-    // a published consumer see exactly the same world set.
+fn all_wit_mirror_trees_are_byte_identical() {
+    // Three mirror trees MUST stay byte-identical to the canonical workspace
+    // `wit/` so workspace dev builds, crates.io consumers (crate-local
+    // fallback), and guest-side bindings all resolve the same worlds.
+    //
+    // `bundled-wit/` is NOT a mirror — it's a flattened publish payload that
+    // intentionally carries extra dependency packages and may differ in content
+    // (e.g. component@0.6.0 omits qa/i18n worlds). Its package-set coverage is
+    // verified by `wit_trees_carry_the_same_package_set`; byte-identity only
+    // applies to the three true mirror trees.
     let workspace = crate_dir().join("../../wit");
-    let crate_local = crate_dir().join("wit");
     let workspace = workspace.canonicalize().expect("workspace wit/");
-    let crate_local = crate_local.canonicalize().expect("crate-local wit/");
-
     let workspace_pkgs = collect_packages(&workspace);
-    let crate_pkgs = collect_packages(&crate_local);
+
+    let mirrors: Vec<(String, BTreeMap<String, PathBuf>)> = vec![
+        (
+            "crate-local (wit/)".to_string(),
+            collect_packages(
+                &crate_dir()
+                    .join("wit")
+                    .canonicalize()
+                    .expect("crate-local wit/"),
+            ),
+        ),
+        (
+            "guest (interfaces-guest/wit/)".to_string(),
+            collect_packages(
+                &crate_dir()
+                    .join("../greentic-interfaces-guest/wit")
+                    .canonicalize()
+                    .expect("guest wit/"),
+            ),
+        ),
+    ];
 
     let mut drift = Vec::new();
     for (pkg, ws_path) in &workspace_pkgs {
-        match crate_pkgs.get(pkg) {
-            None => drift.push(format!("  missing in crate-local: {pkg}")),
-            Some(crate_path) => {
-                let ws_bytes = fs::read(ws_path).expect("read workspace package.wit");
-                let crate_bytes = fs::read(crate_path).expect("read crate-local package.wit");
-                if ws_bytes != crate_bytes {
-                    drift.push(format!(
-                        "  byte-different: {pkg}\n    workspace: {}\n    crate-local: {}",
-                        ws_path.display(),
-                        crate_path.display()
-                    ));
+        let ws_bytes = fs::read(ws_path).expect("read workspace package.wit");
+        for (label, mirror_pkgs) in &mirrors {
+            match mirror_pkgs.get(pkg) {
+                None => drift.push(format!("  missing in {label}: {pkg}")),
+                Some(mirror_path) => {
+                    let mirror_bytes = fs::read(mirror_path).expect("read mirror package.wit");
+                    if ws_bytes != mirror_bytes {
+                        drift.push(format!(
+                            "  byte-different: {pkg}\n    workspace: {}\n    {label}: {}",
+                            ws_path.display(),
+                            mirror_path.display()
+                        ));
+                    }
                 }
             }
         }
     }
-    for pkg in crate_pkgs.keys() {
-        if !workspace_pkgs.contains_key(pkg) {
-            drift.push(format!(
-                "  extra in crate-local (no workspace source): {pkg}"
-            ));
+    // Detect extras in true mirror trees that don't exist in the canonical tree.
+    for (label, mirror_pkgs) in &mirrors {
+        for pkg in mirror_pkgs.keys() {
+            if !workspace_pkgs.contains_key(pkg) {
+                drift.push(format!("  extra in {label} (no workspace source): {pkg}"));
+            }
         }
     }
     assert!(
         drift.is_empty(),
-        "workspace `wit/` and `crates/greentic-interfaces/wit/` are out of sync:\n{}",
+        "WIT mirrors diverged from canonical workspace `wit/`:\n{}\n\n\
+         Mirror trees (crate-local, guest) must be byte-identical to workspace \
+         `wit/` for every package. Bundled-wit is checked for shared packages only.",
         drift.join("\n")
     );
 }
