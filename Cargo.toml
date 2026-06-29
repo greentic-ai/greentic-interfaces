@@ -22,7 +22,7 @@ edition = "2024"
 authors = [
     "Greentic.ai",
 ]
-version = "1.1.0-dev.0"
+version = "1.1.0"
 repository = "https://github.com/greenticai/greentic-interfaces"
 
 [workspace.dependencies]
