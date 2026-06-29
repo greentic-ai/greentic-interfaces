@@ -8,6 +8,7 @@ pub mod http_client;
 pub mod oauth_broker;
 pub mod runner_host_http;
 pub mod runner_host_kv;
+pub mod runtime_config;
 pub mod secrets_store;
 pub mod state_store;
 pub mod telemetry_logger;
@@ -28,6 +29,11 @@ pub struct HostFns<T> {
     /// Prefer providing this to expose both `secrets-store@1.1.0` and the legacy `@1.0.0` import.
     pub secrets_store_v1_1: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHostV1_1>,
     pub secrets_store: Option<fn(&mut T) -> &mut dyn secrets_store::SecretsStoreHost>,
+    /// `pack-config.v1.non_secret` channel. MUST be wired for any host that
+    /// loads components importing `greentic:runtime-config@1.0.0` — Wasmtime
+    /// validates the import graph eagerly at `instantiate_pre`, so `None`
+    /// fails instantiation rather than returning a runtime `not-found`.
+    pub runtime_config: Option<fn(&mut T) -> &mut dyn runtime_config::RuntimeConfigHost>,
 }
 
 /// Adds all provided v1 host-import worlds to the linker.
@@ -59,6 +65,9 @@ pub fn add_all_v1_to_linker<T>(
         secrets_store::add_secrets_store_compat_to_linker(linker, get)?;
     } else if let Some(get) = fns.secrets_store {
         secrets_store::add_secrets_store_to_linker(linker, get)?;
+    }
+    if let Some(get) = fns.runtime_config {
+        runtime_config::add_runtime_config_to_linker(linker, get)?;
     }
 
     Ok(())

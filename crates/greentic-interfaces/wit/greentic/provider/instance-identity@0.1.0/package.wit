@@ -1,0 +1,141 @@
+// SPDX-License-Identifier: MIT
+
+package greentic:provider-instance-identity@0.1.0;
+
+/// Phase M1.4: per-endpoint instance discrimination.
+///
+/// Sibling contract to `greentic:provider-schema-core`. Provider components
+/// export this in addition to `schema-core` when they host multiple
+/// instances of the same `provider_type` on one runtime — e.g.
+/// `teams-legal-bot` and `teams-accounting-bot` are both `provider_type =
+/// "teams"` but are distinct identities discriminated by bot id.
+///
+/// The contract is opt-in. Providers that own a single instance per
+/// environment (or whose inbound payloads carry no information that lets
+/// them tell instances apart) SHOULD NOT export this world; the host
+/// treats absence as "single-instance fallback" and uses the operator's
+/// statically-declared `provider_id` without inspecting the payload.
+///
+/// Implementations MAY identify the instance from EITHER the inbound
+/// payload (e.g. Slack `team_id`, Teams `bot_id`, Telegram bot-token
+/// hash) OR pre-shared configuration values that were validated at boot.
+///
+/// Returning `none` means "this payload does not match a known instance
+/// of this provider type". The host fold (see
+/// `RunnerHost::identify_messaging_endpoints_for_revision`) decides
+/// admission against the env's `(provider_type, provider_id) -> endpoint_id`
+/// admit table:
+///
+/// - Env declares exactly ONE endpoint of this `provider_type` AND the
+///   probe returns `none`: host falls through to the single-instance
+///   fallback (admission proceeds against the operator's statically-
+///   declared `provider_id`). Backward-compatible with single-instance
+///   setups that have not yet provisioned a per-instance discriminator.
+/// - Env declares two or more endpoints AND no probed component returns
+///   `some(provider-id)` for any of them: resolver poisons to Ambiguous
+///   and greentic-start rejects the request 422 (fail-closed; without a
+///   discriminator we cannot route between siblings).
+interface instance-identity-api {
+  /// Inspect `input-json` and return the matching `provider_id` if any.
+  /// The returned id MUST match the `provider_id` declared on a
+  /// `MessagingEndpoint` registration in the operator's environment for the
+  /// host to admit the request.
+  ///
+  /// # Payload shape (M1.4d wrapper)
+  ///
+  /// `input-json` is a UTF-8 JSON document. As of host wrapper-payload
+  /// (M1.4d), the host SENDS a wrapper object:
+  ///
+  /// ```json
+  /// {
+  ///   "headers": [
+  ///     { "name": "x-telegram-bot-api-secret-token", "value": "…" }
+  ///   ],
+  ///   "body": { /* the original parsed JSON request body */ }
+  /// }
+  /// ```
+  ///
+  /// The host whitelists routing-relevant headers (an explicit
+  /// per-header allowlist — currently `x-telegram-bot-api-secret-token`
+  /// only) so that providers whose discriminator does not live in the
+  /// body (notably Telegram, whose payload does not carry the bot's
+  /// identity) can identify the instance from the request headers.
+  /// Bodies that don't parse as JSON are passed through as `body: null`.
+  ///
+  /// Implementations MUST accept BOTH the wrapper shape AND a bare
+  /// inbound body at the top level — older hosts and direct test
+  /// harnesses still pass raw bodies, and shipping a wrapper-only
+  /// implementation would break backward compatibility with deployed
+  /// hosts. The conventional implementation pattern is:
+  /// 1. Try to extract the discriminator from the JSON at the top level.
+  /// 2. If absent, fall back to extracting from `value["body"]` (the
+  ///    wrapped body) and `value["headers"]` (the wrapped header list).
+  ///
+  /// This contract is non-authoritative: the discriminator is caller-
+  /// controllable. Downstream auth (signature / JWT / shared-secret
+  /// validation) MUST verify the routed-to endpoint's credentials before
+  /// the host admits the request or emits any events.
+  identify-instance: func(input-json: list<u8>) -> option<string>;
+}
+
+/// Phase D: optional metadata describing how a component identifies instances.
+///
+/// Separated into its own interface so that existing components that export
+/// only `instance-identity-api` continue to instantiate without change.
+/// Components that additionally export this interface let the host scope
+/// per-provider header allowlists and potentially short-circuit simple
+/// extraction without invoking the full `identify-instance` function.
+///
+/// Returns JSON-encoded `IdentifyInstanceHint`:
+/// ```json
+/// {
+///   "version": 1,
+///   "sources": [
+///     { "header": { "name": "x-telegram-bot-api-secret-token" } },
+///     { "body_path": { "json_pointer": "/recipient/id" } }
+///   ]
+/// }
+/// ```
+///
+/// The hint MUST include a top-level `"version": 1` integer field.
+/// Hosts MUST reject hints where `version` is missing or not equal to `1`
+/// — treat the hint as malformed and fall back to unhinted behavior
+/// (invoke `identify-instance` with the global header allowlist).
+/// This forward-compatibility gate ensures that future shape extensions
+/// (e.g. compound discriminators like `all_of`) are never silently
+/// ignored by older hosts.
+///
+/// The hint is an OPTIONAL short-circuit. For compound discriminators
+/// not expressible in the hint schema, or when the host is uncertain
+/// about the hint's applicability, the host MUST invoke the full
+/// `identify-instance` function rather than skipping it.
+///
+/// First match within `sources` wins. Components that do not export this
+/// interface are treated as unhinted — the host falls back to invoking
+/// `identify-instance` with all allowlisted inputs.
+///
+/// Return-value semantics: the function returns `none` when the component
+/// cannot construct a hint (e.g. configuration-dependent and config not
+/// yet loaded). The host treats `none` identically to a missing export:
+/// unhinted, falls back to invoking `identify-instance` with the global
+/// header allowlist. The function MUST NOT return `none` to signal "fail
+/// closed" — that is the host's policy, not the component's. Components
+/// that genuinely cannot serve hints SHOULD NOT export this interface at
+/// all.
+interface instance-identity-describe-api {
+  /// Return an optional JSON-encoded hint describing how this component
+  /// extracts the instance discriminator from inbound requests.
+  ///
+  /// Returns `none` when the component cannot construct a hint; the host
+  /// treats this identically to a missing export (unhinted fallback).
+  describe-identify-instance: func() -> option<list<u8>>;
+}
+
+world instance-identity {
+  export instance-identity-api;
+}
+
+world instance-identity-describe {
+  export instance-identity-api;
+  export instance-identity-describe-api;
+}

@@ -7,6 +7,7 @@ pub use v1::{
     oauth_broker::add_oauth_broker_to_linker,
     runner_host_http::add_runner_host_http_to_linker,
     runner_host_kv::add_runner_host_kv_to_linker,
+    runtime_config::{ConfigError, RuntimeConfigHost, add_runtime_config_to_linker},
     secrets_store::{
         SecretsError, SecretsErrorV1_1, SecretsStoreHost, SecretsStoreHostV1_1,
         add_secrets_store_compat_to_linker, add_secrets_store_to_linker,

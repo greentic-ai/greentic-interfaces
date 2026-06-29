@@ -82,6 +82,30 @@ pub mod provider_core_v1 {
     pub use greentic_interfaces::provider_schema_core_v1::*;
 }
 
+/// Phase M1.4 — per-endpoint instance discrimination
+/// (`greentic:provider-instance-identity@0.1.0`).
+///
+/// Sibling to [`provider_core_v1`]. Providers opt in by exporting this
+/// world in addition to `schema-core` when one runtime must host multiple
+/// instances of the same `provider_type` (e.g. `teams-legal-bot` and
+/// `teams-accounting-bot`). The host probes for this export and falls
+/// back to the operator's statically-declared `provider_id` when absent.
+#[cfg(feature = "provider-instance-identity-v1")]
+pub mod provider_instance_identity_v1 {
+    pub use greentic_interfaces::provider_instance_identity_v1::*;
+}
+
+/// Phase D — optional describe-identify-instance metadata
+/// (`greentic:provider-instance-identity/instance-identity-describe@0.1.0`).
+///
+/// Separated from [`provider_instance_identity_v1`] so existing components
+/// that only export `instance-identity-api` are not broken. Components opt
+/// in by additionally exporting `instance-identity-describe-api`.
+#[cfg(feature = "provider-instance-identity-describe-v1")]
+pub mod provider_instance_identity_describe_v1 {
+    pub use greentic_interfaces::provider_instance_identity_describe_v1::*;
+}
+
 /// Shared messaging provider metadata/render helpers.
 pub mod provider_common {
     pub use greentic_interfaces::bindings::provider_common_0_0_2_common::exports::provider::common::capabilities::*;
