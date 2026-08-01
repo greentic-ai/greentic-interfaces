@@ -58,5 +58,17 @@ jobs:
 
       # Packages this crate and builds a throwaway consumer against it, so a
       # published-shape break surfaces here instead of at a downstream repo.
+      #
+      # LOCAL_CHECK_ONLINE=1 is required on a runner, not optional. The script
+      # defaults to `cargo --offline`, which only resolves against an already
+      # populated registry cache — fine on a developer box, fatal on a cold
+      # runner. The first CI attempt failed exactly there:
+      #   error: no matching package named `constant_time_eq` found
+      #   ...you're using offline mode (--offline)
+      # That hidden dependency on a warm cache is why this gate could never have
+      # run in CI as written. Online resolution is also the more faithful check:
+      # a real external consumer resolves from crates.io.
       - name: External consumer builds against the packaged crate
+        env:
+          LOCAL_CHECK_ONLINE: "1"
         run: bash ci/steps/external_consumer_check.sh
